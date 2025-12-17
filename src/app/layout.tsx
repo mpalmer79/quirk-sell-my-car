@@ -1,4 +1,3 @@
-
 import type { Metadata } from 'next';
 import './globals.css';
 import { VehicleProvider } from '@/context/VehicleContext';
@@ -23,10 +22,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-quirk-gray-50">
+      <body className="min-h-screen bg-white">
         <VehicleProvider>
           <Header />
-          <main className="pt-16">
+          <main className="pt-16 lg:pt-20">
             {children}
           </main>
           <ChatWidget />
