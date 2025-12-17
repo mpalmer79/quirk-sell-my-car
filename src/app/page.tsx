@@ -1,9 +1,9 @@
-
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Car, HelpCircle, ArrowRight, Shield, Clock, DollarSign, Loader2 } from 'lucide-react';
+import Image from 'next/image';
+import { HelpCircle, ArrowRight, Check, ChevronDown, Loader2, X } from 'lucide-react';
 import { isValidVIN } from '@/services/vinDecoder';
 
 export default function HomePage() {
@@ -12,6 +12,11 @@ export default function HomePage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showVinHelp, setShowVinHelp] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,186 +30,283 @@ export default function HomePage() {
     }
 
     if (!isValidVIN(cleanVin)) {
-      setError('Invalid VIN. Please enter a 17-character VIN (no I, O, or Q).');
+      setError('Please enter a valid 17-character VIN');
       return;
     }
 
     setLoading(true);
-
-    // Navigate to vehicle page with VIN
     router.push(`/getoffer/vehicle?vin=${cleanVin}`);
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-quirk-gray-900 via-quirk-gray-800 to-quirk-black overflow-hidden">
-        {/* Background pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            }}
-          />
-        </div>
+      <section className="relative overflow-hidden">
+        {/* Background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#f0f7ff] via-white to-white" />
+        
+        {/* Decorative circles */}
+        <div className="absolute top-20 -right-40 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-blue-50 to-transparent opacity-60" />
+        <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] rounded-full bg-gradient-to-tr from-red-50 to-transparent opacity-40" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left Content */}
-            <div className="text-center lg:text-left">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight" style={{ fontFamily: 'var(--font-display)' }}>
-                Get an Instant
-                <span className="block text-quirk-red">Cash Offer</span>
-                for Your Car
-              </h1>
-              <p className="mt-6 text-lg text-quirk-gray-300 max-w-xl mx-auto lg:mx-0">
-                Sell or trade your vehicle in minutes. Get a competitive offer backed by New England's trusted dealership network.
-              </p>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="pt-8 pb-20 lg:pt-16 lg:pb-32">
+            
+            {/* Main Content Grid */}
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+              
+              {/* Left: Text + Form */}
+              <div className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-[1.1] tracking-tight">
+                  Get a real offer in
+                  <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#C41230] to-[#e91e3a]">
+                    2 minutes or less
+                  </span>
+                </h1>
+                
+                <p className="mt-6 text-xl text-gray-600 leading-relaxed max-w-lg">
+                  Enter your VIN for an instant cash offer. No haggling, no hidden fees — just a fair price for your car.
+                </p>
 
-              {/* Trust badges */}
-              <div className="mt-8 flex flex-wrap justify-center lg:justify-start gap-6">
-                <div className="flex items-center gap-2 text-quirk-gray-400">
-                  <Shield className="w-5 h-5 text-quirk-red" />
-                  <span className="text-sm">No Obligation</span>
-                </div>
-                <div className="flex items-center gap-2 text-quirk-gray-400">
-                  <Clock className="w-5 h-5 text-quirk-red" />
-                  <span className="text-sm">5 Min Process</span>
-                </div>
-                <div className="flex items-center gap-2 text-quirk-gray-400">
-                  <DollarSign className="w-5 h-5 text-quirk-red" />
-                  <span className="text-sm">Same-Day Payment</span>
+                {/* VIN Form */}
+                <div className="mt-10">
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="relative">
+                      <label htmlFor="vin" className="block text-sm font-semibold text-gray-700 mb-2">
+                        Vehicle Identification Number (VIN)
+                      </label>
+                      <div className="relative">
+                        <input
+                          id="vin"
+                          type="text"
+                          value={vin}
+                          onChange={(e) => {
+                            setVin(e.target.value.toUpperCase());
+                            setError('');
+                          }}
+                          placeholder="Enter your 17-character VIN"
+                          maxLength={17}
+                          className={`
+                            w-full px-5 py-4 text-lg font-mono tracking-widest
+                            border-2 rounded-xl bg-white
+                            transition-all duration-200
+                            placeholder:text-gray-400 placeholder:tracking-normal placeholder:font-sans
+                            focus:outline-none focus:ring-4
+                            ${error 
+                              ? 'border-red-400 focus:border-red-500 focus:ring-red-100' 
+                              : 'border-gray-200 focus:border-[#C41230] focus:ring-red-50'
+                            }
+                          `}
+                        />
+                        {vin.length === 17 && !error && (
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                            <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
+                              <Check className="w-4 h-4 text-white" />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {error && (
+                        <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
+                          <X className="w-4 h-4" />
+                          {error}
+                        </p>
+                      )}
+                      
+                      <button
+                        type="button"
+                        onClick={() => setShowVinHelp(!showVinHelp)}
+                        className="mt-3 text-sm text-gray-500 hover:text-[#C41230] flex items-center gap-1.5 transition-colors"
+                      >
+                        <HelpCircle className="w-4 h-4" />
+                        Where do I find my VIN?
+                        <ChevronDown className={`w-4 h-4 transition-transform ${showVinHelp ? 'rotate-180' : ''}`} />
+                      </button>
+                    </div>
+
+                    {/* VIN Help Panel */}
+                    {showVinHelp && (
+                      <div className="bg-gray-50 rounded-xl p-5 border border-gray-100 animate-fadeIn">
+                        <p className="font-semibold text-gray-800 mb-3">Find your VIN in these locations:</p>
+                        <div className="grid sm:grid-cols-2 gap-3">
+                          {[
+                            { icon: '🚗', text: 'Driver-side dashboard (visible through windshield)' },
+                            { icon: '🚪', text: 'Inside driver-side door jamb' },
+                            { icon: '📄', text: 'Vehicle registration card' },
+                            { icon: '📋', text: 'Insurance documents' },
+                          ].map((item, i) => (
+                            <div key={i} className="flex items-start gap-2 text-sm text-gray-600">
+                              <span className="text-base">{item.icon}</span>
+                              <span>{item.text}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className={`
+                        w-full sm:w-auto px-8 py-4 text-lg font-semibold text-white
+                        rounded-xl shadow-lg
+                        transition-all duration-200
+                        flex items-center justify-center gap-3
+                        ${loading 
+                          ? 'bg-gray-400 cursor-not-allowed' 
+                          : 'bg-[#C41230] hover:bg-[#a50f28] hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0'
+                        }
+                      `}
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          Looking up your vehicle...
+                        </>
+                      ) : (
+                        <>
+                          Get Your Offer
+                          <ArrowRight className="w-5 h-5" />
+                        </>
+                      )}
+                    </button>
+                  </form>
+
+                  <p className="mt-4 text-xs text-gray-400">
+                    By continuing, you agree to our{' '}
+                    <a href="#" className="underline hover:text-gray-600">Terms of Service</a>
+                    {' '}and{' '}
+                    <a href="#" className="underline hover:text-gray-600">Privacy Policy</a>
+                  </p>
                 </div>
               </div>
-            </div>
 
-            {/* Right - VIN Form */}
-            <div className="bg-white rounded-2xl shadow-2xl p-8">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 rounded-full gradient-quirk mx-auto flex items-center justify-center mb-4">
-                  <Car className="w-8 h-8 text-white" />
-                </div>
-                <h2 className="text-2xl font-bold text-quirk-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
-                  Start Your Offer
-                </h2>
-                <p className="text-quirk-gray-500 mt-1">Enter your VIN to get started</p>
-              </div>
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label htmlFor="vin" className="block text-sm font-medium text-quirk-gray-700 mb-2">
-                    Vehicle Identification Number (VIN)
-                  </label>
-                  <input
-                    id="vin"
-                    type="text"
-                    value={vin}
-                    onChange={(e) => {
-                      setVin(e.target.value.toUpperCase());
-                      setError('');
-                    }}
-                    placeholder="Enter 17-character VIN"
-                    maxLength={17}
-                    className={`input-field font-mono text-lg tracking-wider ${
-                      error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : ''
-                    }`}
-                  />
-                  {error && (
-                    <p className="mt-2 text-sm text-red-600">{error}</p>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => setShowVinHelp(!showVinHelp)}
-                    className="mt-2 text-sm text-quirk-red hover:underline flex items-center gap-1"
-                  >
-                    <HelpCircle className="w-4 h-4" />
-                    Where is my VIN?
-                  </button>
-                </div>
-
-                {/* VIN Help */}
-                {showVinHelp && (
-                  <div className="bg-quirk-gray-50 rounded-lg p-4 text-sm text-quirk-gray-600 animate-slide-in">
-                    <p className="font-medium text-quirk-gray-800 mb-2">Find your VIN:</p>
-                    <ul className="space-y-1 list-disc list-inside">
-                      <li>Driver's side dashboard (visible through windshield)</li>
-                      <li>Driver's door jamb sticker</li>
-                      <li>Vehicle registration or insurance card</li>
-                      <li>Vehicle title document</li>
-                    </ul>
+              {/* Right: Car Image */}
+              <div className={`relative transition-all duration-700 delay-200 ${mounted ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}>
+                <div className="relative">
+                  {/* Glow effect behind car */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#C41230]/10 to-blue-500/10 rounded-full blur-3xl scale-110" />
+                  
+                  {/* Car Image */}
+                  <div className="relative">
+                    <Image
+                      src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80"
+                      alt="Sell your car"
+                      width={700}
+                      height={450}
+                      className="w-full h-auto object-contain drop-shadow-2xl"
+                      priority
+                    />
                   </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="btn-primary w-full flex items-center justify-center gap-2 text-lg py-4"
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      Looking up your vehicle...
-                    </>
-                  ) : (
-                    <>
-                      Get Your Offer
-                      <ArrowRight className="w-5 h-5" />
-                    </>
-                  )}
-                </button>
-              </form>
-
-              <p className="text-center text-xs text-quirk-gray-400 mt-4">
-                By continuing, you agree to our{' '}
-                <a href="#" className="text-quirk-red hover:underline">Terms of Service</a>
-                {' '}and{' '}
-                <a href="#" className="text-quirk-red hover:underline">Privacy Policy</a>
-              </p>
+                  
+                  {/* Floating badges */}
+                  <div className="absolute -left-4 top-1/4 bg-white rounded-2xl shadow-xl p-4 animate-float">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                        <span className="text-2xl">💰</span>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">Instant offer</p>
+                        <p className="text-lg font-bold text-gray-900">In 2 minutes</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="absolute -right-4 bottom-1/4 bg-white rounded-2xl shadow-xl p-4 animate-float-delayed">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                        <span className="text-2xl">✓</span>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-500">No obligation</p>
+                        <p className="text-lg font-bold text-gray-900">100% free</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
+      {/* Trust Bar */}
+      <section className="py-8 bg-gray-50 border-y border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap justify-center items-center gap-8 lg:gap-16">
+            {[
+              { value: '17+', label: 'Dealership Locations' },
+              { value: '30K+', label: 'Cars Purchased' },
+              { value: '4.8★', label: 'Customer Rating' },
+              { value: '24hr', label: 'Offer Valid' },
+            ].map((stat, i) => (
+              <div key={i} className="text-center">
+                <p className="text-2xl lg:text-3xl font-bold text-[#C41230]">{stat.value}</p>
+                <p className="text-sm text-gray-500">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* How It Works */}
-      <section className="py-20 bg-white">
+      <section className="py-20 lg:py-28 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-quirk-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
-              How It Works
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
+              How it works
             </h2>
-            <p className="mt-4 text-lg text-quirk-gray-500">
-              Get your cash offer in three simple steps
+            <p className="mt-4 text-lg text-gray-500 max-w-2xl mx-auto">
+              Selling your car has never been easier. Get a real offer in minutes.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
             {[
               {
-                step: '1',
-                title: 'Enter Your VIN',
-                description: 'We\'ll instantly look up your vehicle details and decode your VIN.',
+                step: '01',
+                icon: '🔍',
+                title: 'Enter your VIN',
+                description: "We'll decode your VIN and instantly look up your vehicle's details, trim, and features.",
               },
               {
-                step: '2',
-                title: 'Answer a Few Questions',
-                description: 'Tell us about your vehicle\'s condition, features, and mileage.',
+                step: '02',
+                icon: '📝',
+                title: 'Tell us about your car',
+                description: "Answer a few quick questions about mileage, condition, and any features or upgrades.",
               },
               {
-                step: '3',
-                title: 'Get Your Offer',
-                description: 'Receive a competitive cash offer valid for 7 days. No obligation.',
+                step: '03',
+                icon: '💵',
+                title: 'Get your offer',
+                description: "Receive a competitive cash offer valid for 7 days. Accept it or walk away — no pressure.",
               },
-            ].map((item) => (
-              <div key={item.step} className="relative">
-                <div className="card-hover text-center">
-                  <div className="w-12 h-12 rounded-full gradient-quirk text-white text-xl font-bold flex items-center justify-center mx-auto mb-4">
-                    {item.step}
+            ].map((item, i) => (
+              <div 
+                key={item.step} 
+                className="relative group"
+              >
+                {/* Connector line */}
+                {i < 2 && (
+                  <div className="hidden md:block absolute top-12 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-gray-200 to-transparent" />
+                )}
+                
+                <div className="relative bg-white rounded-2xl p-8 border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300">
+                  {/* Step number */}
+                  <div className="absolute -top-4 left-8 px-3 py-1 bg-[#C41230] text-white text-xs font-bold rounded-full">
+                    STEP {item.step}
                   </div>
-                  <h3 className="text-xl font-semibold text-quirk-gray-900 mb-2">
+                  
+                  {/* Icon */}
+                  <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">
+                    {item.icon}
+                  </div>
+                  
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">
                     {item.title}
                   </h3>
-                  <p className="text-quirk-gray-500">
+                  <p className="text-gray-500 leading-relaxed">
                     {item.description}
                   </p>
                 </div>
@@ -215,65 +317,167 @@ export default function HomePage() {
       </section>
 
       {/* Why Choose Quirk */}
-      <section className="py-20 bg-quirk-gray-50">
+      <section className="py-20 lg:py-28 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-quirk-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
-              Why Sell to Quirk?
-            </h2>
-            <p className="mt-4 text-lg text-quirk-gray-500">
-              New England's trusted automotive network since 1995
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { icon: '🏆', title: '17+ Locations', desc: 'Convenient locations across MA & NH' },
-              { icon: '💰', title: 'Competitive Offers', desc: 'Market-based pricing you can trust' },
-              { icon: '⚡', title: 'Fast Payment', desc: 'Get paid same-day, no waiting' },
-              { icon: '🤝', title: 'No Pressure', desc: 'Your offer, your choice, no obligation' },
-            ].map((item) => (
-              <div key={item.title} className="card text-center">
-                <div className="text-4xl mb-4">{item.icon}</div>
-                <h3 className="font-semibold text-quirk-gray-900 mb-1">{item.title}</h3>
-                <p className="text-sm text-quirk-gray-500">{item.desc}</p>
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Left content */}
+            <div>
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">
+                Why sell to Quirk?
+              </h2>
+              <p className="mt-4 text-lg text-gray-500">
+                New England's most trusted automotive network. Family-owned since 1995.
+              </p>
+              
+              <div className="mt-10 space-y-6">
+                {[
+                  {
+                    icon: '⚡',
+                    title: 'Same-day payment',
+                    desc: 'Get paid the same day you bring in your vehicle. No waiting for checks to clear.',
+                  },
+                  {
+                    icon: '🎯',
+                    title: 'Fair market pricing',
+                    desc: 'Our offers are based on real-time market data. No lowball tactics.',
+                  },
+                  {
+                    icon: '📋',
+                    title: 'We handle the paperwork',
+                    desc: 'Title transfer, registration, payoff — we take care of everything.',
+                  },
+                  {
+                    icon: '🚗',
+                    title: 'Trade-in or sell outright',
+                    desc: 'Upgrade to a new vehicle or just cash out. Your choice.',
+                  },
+                ].map((item, i) => (
+                  <div key={i} className="flex gap-4">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-[#C41230]/10 flex items-center justify-center text-xl">
+                      {item.icon}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">{item.title}</h3>
+                      <p className="text-gray-500 text-sm mt-1">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+            
+            {/* Right image grid */}
+            <div className="relative">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-4">
+                  <div className="rounded-2xl overflow-hidden shadow-lg">
+                    <Image
+                      src="https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=400&q=80"
+                      alt="Car dealership"
+                      width={400}
+                      height={300}
+                      className="w-full h-48 object-cover"
+                    />
+                  </div>
+                  <div className="rounded-2xl overflow-hidden shadow-lg">
+                    <Image
+                      src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=400&q=80"
+                      alt="Happy customer"
+                      width={400}
+                      height={400}
+                      className="w-full h-56 object-cover"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-4 pt-8">
+                  <div className="rounded-2xl overflow-hidden shadow-lg">
+                    <Image
+                      src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=400&q=80"
+                      alt="Car inspection"
+                      width={400}
+                      height={400}
+                      className="w-full h-56 object-cover"
+                    />
+                  </div>
+                  <div className="rounded-2xl overflow-hidden shadow-lg">
+                    <Image
+                      src="https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=400&q=80"
+                      alt="Car keys handover"
+                      width={400}
+                      height={300}
+                      className="w-full h-48 object-cover"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              {/* Overlay badge */}
+              <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-white rounded-2xl shadow-xl px-6 py-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex -space-x-2">
+                    {['😊', '🙂', '😄'].map((emoji, i) => (
+                      <div key={i} className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-lg border-2 border-white">
+                        {emoji}
+                      </div>
+                    ))}
+                  </div>
+                  <div>
+                    <p className="font-bold text-gray-900">4.8/5 rating</p>
+                    <p className="text-sm text-gray-500">from 2,500+ reviews</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
+      {/* CTA Section */}
+      <section className="py-20 bg-[#C41230]">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl lg:text-4xl font-bold text-white">
+            Ready to get your offer?
+          </h2>
+          <p className="mt-4 text-xl text-white/80">
+            It only takes 2 minutes. No obligation, no pressure.
+          </p>
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="mt-8 px-8 py-4 bg-white text-[#C41230] font-semibold text-lg rounded-xl hover:bg-gray-100 transition-colors shadow-lg"
+          >
+            Start Now →
+          </button>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="bg-quirk-gray-900 text-white py-12">
+      <footer className="bg-gray-900 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
+          <div className="grid md:grid-cols-4 gap-12">
+            <div className="md:col-span-1">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-10 h-10 rounded-lg gradient-quirk flex items-center justify-center">
-                  <Car className="w-6 h-6 text-white" />
+                <div className="w-10 h-10 rounded-lg bg-[#C41230] flex items-center justify-center font-bold text-xl">
+                  Q
                 </div>
-                <span className="text-xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
-                  QUIRK
-                </span>
+                <span className="text-xl font-bold">QUIRK</span>
               </div>
-              <p className="text-quirk-gray-400 text-sm">
-                New England's trusted automotive network with 17+ locations in Massachusetts and New Hampshire.
+              <p className="text-gray-400 text-sm leading-relaxed">
+                New England's trusted automotive network with 17+ locations across Massachusetts and New Hampshire.
               </p>
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4">Quick Links</h4>
-              <ul className="space-y-2 text-sm text-quirk-gray-400">
-                <li><a href="https://www.quirkchevynh.com" className="hover:text-white transition-colors">Search Inventory</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Sell Your Car</a></li>
-                <li><a href="https://www.quirkchevynh.com/service" className="hover:text-white transition-colors">Service Center</a></li>
-                <li><a href="https://www.quirkchevynh.com/finance" className="hover:text-white transition-colors">Financing</a></li>
+              <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-400">Quick Links</h4>
+              <ul className="space-y-3 text-sm">
+                <li><a href="https://www.quirkchevynh.com" className="text-gray-300 hover:text-white transition-colors">Search Inventory</a></li>
+                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Sell Your Car</a></li>
+                <li><a href="https://www.quirkchevynh.com/service" className="text-gray-300 hover:text-white transition-colors">Service Center</a></li>
+                <li><a href="https://www.quirkchevynh.com/finance" className="text-gray-300 hover:text-white transition-colors">Financing</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4">Contact</h4>
-              <ul className="space-y-2 text-sm text-quirk-gray-400">
+              <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-400">Contact</h4>
+              <ul className="space-y-3 text-sm text-gray-300">
                 <li>(603) 555-2000</li>
                 <li>sell@quirkautodealers.com</li>
                 <li>Mon-Sat: 9AM-8PM</li>
@@ -282,16 +486,16 @@ export default function HomePage() {
             </div>
 
             <div>
-              <h4 className="font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-quirk-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Accessibility</a></li>
+              <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-400">Legal</h4>
+              <ul className="space-y-3 text-sm">
+                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Terms of Service</a></li>
+                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Accessibility</a></li>
               </ul>
             </div>
           </div>
 
-          <div className="border-t border-quirk-gray-800 mt-8 pt-8 text-center text-sm text-quirk-gray-400">
+          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-500">
             © {new Date().getFullYear()} Quirk Auto Dealers. All rights reserved.
           </div>
         </div>
