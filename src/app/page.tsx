@@ -47,7 +47,7 @@ export default function HomePage() {
         
         {/* Decorative circles */}
         <div className="absolute top-20 -right-40 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-blue-50 to-transparent opacity-60" />
-        <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] rounded-full bg-gradient-to-tr from-red-50 to-transparent opacity-40" />
+        <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] rounded-full bg-gradient-to-tr from-blue-50 to-transparent opacity-40" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="pt-8 pb-20 lg:pt-16 lg:pb-32">
@@ -59,7 +59,7 @@ export default function HomePage() {
               <div className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-[1.1] tracking-tight">
                   Get a real offer in
-                  <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#C41230] to-[#e91e3a]">
+                  <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#0070cc] to-[#0088ff]">
                     2 minutes or less
                   </span>
                 </h1>
@@ -93,8 +93,8 @@ export default function HomePage() {
                             placeholder:text-gray-400 placeholder:tracking-normal placeholder:font-sans
                             focus:outline-none focus:ring-4
                             ${error 
-                              ? 'border-red-400 focus:border-red-500 focus:ring-red-100' 
-                              : 'border-gray-200 focus:border-[#C41230] focus:ring-red-50'
+                              ? 'border-blue-400 focus:border-blue-500 focus:ring-blue-100' 
+                              : 'border-gray-200 focus:border-[#0070cc] focus:ring-blue-50'
                             }
                           `}
                         />
@@ -108,7 +108,7 @@ export default function HomePage() {
                       </div>
                       
                       {error && (
-                        <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
+                        <p className="mt-2 text-sm text-blue-600 flex items-center gap-1">
                           <X className="w-4 h-4" />
                           {error}
                         </p>
@@ -117,7 +117,7 @@ export default function HomePage() {
                       <button
                         type="button"
                         onClick={() => setShowVinHelp(!showVinHelp)}
-                        className="mt-3 text-sm text-gray-500 hover:text-[#C41230] flex items-center gap-1.5 transition-colors"
+                        className="mt-3 text-sm text-gray-500 hover:text-[#0070cc] flex items-center gap-1.5 transition-colors"
                       >
                         <HelpCircle className="w-4 h-4" />
                         Where do I find my VIN?
@@ -155,7 +155,7 @@ export default function HomePage() {
                         flex items-center justify-center gap-3
                         ${loading 
                           ? 'bg-gray-400 cursor-not-allowed' 
-                          : 'bg-[#C41230] hover:bg-[#a50f28] hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0'
+                          : 'bg-[#0070cc] hover:bg-[#005fa3] hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0'
                         }
                       `}
                     >
@@ -186,7 +186,7 @@ export default function HomePage() {
               <div className={`relative transition-all duration-700 delay-200 ${mounted ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}>
                 <div className="relative">
                   {/* Glow effect behind car */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#C41230]/10 to-blue-500/10 rounded-full blur-3xl scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#0070cc]/10 to-blue-500/10 rounded-full blur-3xl scale-110" />
                   
                   {/* Car Image */}
                   <div className="relative">
@@ -242,7 +242,7 @@ export default function HomePage() {
               { value: '24hr', label: 'Offer Valid' },
             ].map((stat, i) => (
               <div key={i} className="text-center">
-                <p className="text-2xl lg:text-3xl font-bold text-[#C41230]">{stat.value}</p>
+                <p className="text-2xl lg:text-3xl font-bold text-[#0070cc]">{stat.value}</p>
                 <p className="text-sm text-gray-500">{stat.label}</p>
               </div>
             ))}
@@ -294,7 +294,7 @@ export default function HomePage() {
                 
                 <div className="relative bg-white rounded-2xl p-8 border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300">
                   {/* Step number */}
-                  <div className="absolute -top-4 left-8 px-3 py-1 bg-[#C41230] text-white text-xs font-bold rounded-full">
+                  <div className="absolute -top-4 left-8 px-3 py-1 bg-[#0070cc] text-white text-xs font-bold rounded-full">
                     STEP {item.step}
                   </div>
                   
@@ -353,7 +353,7 @@ export default function HomePage() {
                   },
                 ].map((item, i) => (
                   <div key={i} className="flex gap-4">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-[#C41230]/10 flex items-center justify-center text-xl">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-[#0070cc]/10 flex items-center justify-center text-xl">
                       {item.icon}
                     </div>
                     <div>
@@ -432,7 +432,7 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-[#C41230]">
+      <section className="py-20 bg-[#0070cc]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl lg:text-4xl font-bold text-white">
             Ready to get your offer?
@@ -442,7 +442,7 @@ export default function HomePage() {
           </p>
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="mt-8 px-8 py-4 bg-white text-[#C41230] font-semibold text-lg rounded-xl hover:bg-gray-100 transition-colors shadow-lg"
+            className="mt-8 px-8 py-4 bg-white text-[#0070cc] font-semibold text-lg rounded-xl hover:bg-gray-100 transition-colors shadow-lg"
           >
             Start Now →
           </button>
@@ -455,7 +455,7 @@ export default function HomePage() {
           <div className="grid md:grid-cols-4 gap-12">
             <div className="md:col-span-1">
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-10 h-10 rounded-lg bg-[#C41230] flex items-center justify-center font-bold text-xl">
+                <div className="w-10 h-10 rounded-lg bg-[#0070cc] flex items-center justify-center font-bold text-xl">
                   Q
                 </div>
                 <span className="text-xl font-bold">QUIRK</span>
