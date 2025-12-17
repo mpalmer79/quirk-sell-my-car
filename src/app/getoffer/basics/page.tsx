@@ -137,10 +137,10 @@ export default function BasicsPage() {
                       value={mileage}
                       onChange={(e) => handleMileageChange(e.target.value)}
                       placeholder="e.g. 45,000"
-                      className={`input-field ${errors.mileage ? 'border-red-500' : ''}`}
+                      className={`input-field ${errors.mileage ? 'border-blue-500' : ''}`}
                     />
                     {errors.mileage && (
-                      <p className="text-red-500 text-sm mt-1">{errors.mileage}</p>
+                      <p className="text-blue-500 text-sm mt-1">{errors.mileage}</p>
                     )}
                   </div>
 
@@ -154,10 +154,10 @@ export default function BasicsPage() {
                       onChange={(e) => setZipCode(e.target.value.replace(/\D/g, '').slice(0, 5))}
                       placeholder="e.g. 03301"
                       maxLength={5}
-                      className={`input-field ${errors.zipCode ? 'border-red-500' : ''}`}
+                      className={`input-field ${errors.zipCode ? 'border-blue-500' : ''}`}
                     />
                     {errors.zipCode && (
-                      <p className="text-red-500 text-sm mt-1">{errors.zipCode}</p>
+                      <p className="text-blue-500 text-sm mt-1">{errors.zipCode}</p>
                     )}
                   </div>
                 </div>
@@ -184,7 +184,7 @@ export default function BasicsPage() {
                     ))}
                   </div>
                   {errors.color && (
-                    <p className="text-red-500 text-sm mt-1">{errors.color}</p>
+                    <p className="text-blue-500 text-sm mt-1">{errors.color}</p>
                   )}
                 </div>
 
@@ -196,7 +196,7 @@ export default function BasicsPage() {
                   <select
                     value={transmission}
                     onChange={(e) => setTransmission(e.target.value)}
-                    className={`select-field ${errors.transmission ? 'border-red-500' : ''}`}
+                    className={`select-field ${errors.transmission ? 'border-blue-500' : ''}`}
                   >
                     <option value="">Select transmission...</option>
                     {TRANSMISSIONS.map((t) => (
@@ -204,7 +204,7 @@ export default function BasicsPage() {
                     ))}
                   </select>
                   {errors.transmission && (
-                    <p className="text-red-500 text-sm mt-1">{errors.transmission}</p>
+                    <p className="text-blue-500 text-sm mt-1">{errors.transmission}</p>
                   )}
                 </div>
 
@@ -230,7 +230,7 @@ export default function BasicsPage() {
                     ))}
                   </div>
                   {errors.drivetrain && (
-                    <p className="text-red-500 text-sm mt-1">{errors.drivetrain}</p>
+                    <p className="text-blue-500 text-sm mt-1">{errors.drivetrain}</p>
                   )}
                 </div>
 
@@ -248,7 +248,7 @@ export default function BasicsPage() {
                   <select
                     value={engine}
                     onChange={(e) => setEngine(e.target.value)}
-                    className={`select-field ${errors.engine ? 'border-red-500' : ''}`}
+                    className={`select-field ${errors.engine ? 'border-blue-500' : ''}`}
                   >
                     <option value="">Select engine...</option>
                     {ENGINES.map((eng) => (
@@ -256,7 +256,7 @@ export default function BasicsPage() {
                     ))}
                   </select>
                   {errors.engine && (
-                    <p className="text-red-500 text-sm mt-1">{errors.engine}</p>
+                    <p className="text-blue-500 text-sm mt-1">{errors.engine}</p>
                   )}
                 </div>
 
@@ -282,7 +282,7 @@ export default function BasicsPage() {
                     ))}
                   </div>
                   {errors.sellOrTrade && (
-                    <p className="text-red-500 text-sm mt-1">{errors.sellOrTrade}</p>
+                    <p className="text-blue-500 text-sm mt-1">{errors.sellOrTrade}</p>
                   )}
                 </div>
 
@@ -308,7 +308,7 @@ export default function BasicsPage() {
                     ))}
                   </div>
                   {errors.loanOrLease && (
-                    <p className="text-red-500 text-sm mt-1">{errors.loanOrLease}</p>
+                    <p className="text-blue-500 text-sm mt-1">{errors.loanOrLease}</p>
                   )}
                 </div>
               </div>
