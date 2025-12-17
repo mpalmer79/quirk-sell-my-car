@@ -109,9 +109,9 @@ export default function ConditionPage() {
 
               {/* Error summary */}
               {errors.length > 0 && (
-                <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="mb-6 bg-blue-50 border border-red-200 rounded-lg p-4">
                   <p className="text-red-700 font-medium mb-2">Please complete all required fields:</p>
-                  <ul className="text-red-600 text-sm list-disc list-inside">
+                  <ul className="text-blue-600 text-sm list-disc list-inside">
                     {errors.map((e) => (
                       <li key={e}>{e}</li>
                     ))}
