@@ -306,14 +306,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Why Choose Quirk */}
+      {/* Why Choose Quirk Auto Dealers */}
       <section className="py-20 lg:py-28 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left content */}
             <div>
               <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">
-                Why sell to Quirk?
+                Why sell to Quirk Auto Dealers?
               </h2>
               <p className="mt-4 text-lg text-gray-500">
                 New England's most trusted automotive network. Family-owned since 1973.
