@@ -53,32 +53,40 @@ npm start
 ## Project Structure
 
 ```
-src/
-├── app/
-│   ├── page.tsx                    # Homepage with VIN entry
-│   ├── layout.tsx                  # Root layout
-│   ├── globals.css                 # Tailwind + custom styles
-│   ├── api/
-│   │   ├── chat/route.ts           # AI chat endpoint
-│   │   └── decode-vin/route.ts     # VIN decoding endpoint
-│   └── getoffer/
-│       ├── vehicle/page.tsx        # VIN results & trim selection
-│       ├── basics/page.tsx         # Step 1: Mileage, ZIP, specs
-│       ├── features/page.tsx       # Step 2: Optional equipment
-│       ├── condition/page.tsx      # Step 3: Condition assessment
-│       └── offer/page.tsx          # Final offer display
-├── components/
-│   ├── Header.tsx                  # Navigation header
-│   ├── ChatWidget.tsx              # AI assistant widget
-│   ├── StepNavigation.tsx          # Wizard progress sidebar
-│   └── VehicleImage.tsx            # Dynamic vehicle images
-├── context/
-│   └── VehicleContext.tsx          # Global state management
-├── services/
-│   ├── vinDecoder.ts               # NHTSA API integration
-│   └── vehicleImage.ts             # Stock image service
-└── types/
-    └── vehicle.ts                  # TypeScript interfaces
+quirk-sell-my-car/
+├── package.json
+├── next.config.js
+├── tailwind.config.js
+├── postcss.config.js
+├── tsconfig.json
+├── .env.example
+├── .env.local              # Create from .env.example
+└── src/
+    ├── app/
+    │   ├── page.tsx                # Homepage with VIN entry
+    │   ├── layout.tsx              # Root layout
+    │   ├── globals.css             # Tailwind + custom styles
+    │   ├── api/
+    │   │   ├── chat/route.ts       # AI chat endpoint
+    │   │   └── decode-vin/route.ts # VIN decoding endpoint
+    │   └── getoffer/
+    │       ├── vehicle/page.tsx    # VIN results & trim selection
+    │       ├── basics/page.tsx     # Step 1: Mileage, ZIP, specs
+    │       ├── features/page.tsx   # Step 2: Optional equipment
+    │       ├── condition/page.tsx  # Step 3: Condition assessment
+    │       └── offer/page.tsx      # Final offer display
+    ├── components/
+    │   ├── Header.tsx              # Navigation header
+    │   ├── ChatWidget.tsx          # AI assistant widget
+    │   ├── StepNavigation.tsx      # Wizard progress sidebar
+    │   └── VehicleImage.tsx        # Dynamic vehicle images
+    ├── context/
+    │   └── VehicleContext.tsx      # Global state management
+    ├── services/
+    │   ├── vinDecoder.ts           # NHTSA API integration
+    │   └── vehicleImage.ts         # Stock image service
+    └── types/
+        └── vehicle.ts              # TypeScript interfaces
 ```
 
 ## Appraisal Flow
