@@ -238,7 +238,7 @@ export default function HomePage() {
             {[
               { value: '17+', label: 'Dealership Locations' },
               { value: '30K+', label: 'Cars Purchased' },
-              { value: '4.8★', label: 'Customer Rating' },
+              { value: '4.3★', label: 'Customer Rating' },
               { value: '24hr', label: 'Offer Valid' },
             ].map((stat, i) => (
               <div key={i} className="text-center">
@@ -421,7 +421,7 @@ export default function HomePage() {
                     ))}
                   </div>
                   <div>
-                    <p className="font-bold text-gray-900">4.8/5 rating</p>
+                    <p className="font-bold text-gray-900">4.3/5 rating</p>
                     <p className="text-sm text-gray-500">from 2,500+ reviews</p>
                   </div>
                 </div>
