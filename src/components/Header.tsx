@@ -31,7 +31,7 @@ export default function Header() {
             <img 
               src="/quirk-logo.png" 
               alt="Quirk Auto Dealers" 
-              className="h-20 w-auto group-hover:opacity-80 transition-opacity"
+              className="h-12 w-auto group-hover:opacity-80 transition-opacity"
             />
           </a>
 
@@ -50,7 +50,7 @@ export default function Header() {
                 rel={item.external ? 'noopener noreferrer' : undefined}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   item.active 
-                    ? 'text-[#C41230] bg-red-50' 
+                    ? 'text-[#0070cc] bg-blue-50' 
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
@@ -62,15 +62,15 @@ export default function Header() {
           {/* CTA Button */}
           <div className="hidden lg:flex items-center gap-4">
             <a
-              href="tel:+16035552000"
-              className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-[#C41230] transition-colors"
+              href="tel:+16032634552"
+              className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-[#0070cc] transition-colors"
             >
               <Phone className="w-4 h-4" />
               (603) 263-4552
             </a>
             <Link
               href="/"
-              className="px-5 py-2.5 bg-[#C41230] text-white text-sm font-semibold rounded-xl hover:bg-[#a50f28] transition-colors shadow-lg shadow-red-500/20"
+              className="px-5 py-2.5 bg-[#0070cc] text-white text-sm font-semibold rounded-xl hover:bg-[#005fa3] transition-colors shadow-lg shadow-blue-500/20"
             >
               Get Your Offer
             </Link>
@@ -107,7 +107,7 @@ export default function Header() {
                   rel={item.external ? 'noopener noreferrer' : undefined}
                   className={`px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                     item.active 
-                      ? 'text-[#C41230] bg-red-50' 
+                      ? 'text-[#0070cc] bg-blue-50' 
                       : 'text-gray-600 hover:bg-gray-50'
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
@@ -118,15 +118,15 @@ export default function Header() {
               
               <div className="pt-4 mt-2 border-t border-gray-100 space-y-3 px-4">
                 <a
-                  href="tel:+16035552000"
-                  className="flex items-center justify-center gap-2 py-3 text-sm font-medium text-gray-600 hover:text-[#C41230] transition-colors"
+                  href="tel:+16032634552"
+                  className="flex items-center justify-center gap-2 py-3 text-sm font-medium text-gray-600 hover:text-[#0070cc] transition-colors"
                 >
                   <Phone className="w-4 h-4" />
-                  (603) 555-2000
+                  (603) 263-4552
                 </a>
                 <Link
                   href="/"
-                  className="block w-full py-3 bg-[#C41230] text-white text-sm font-semibold rounded-xl text-center hover:bg-[#a50f28] transition-colors"
+                  className="block w-full py-3 bg-[#0070cc] text-white text-sm font-semibold rounded-xl text-center hover:bg-[#005fa3] transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Get Your Offer
