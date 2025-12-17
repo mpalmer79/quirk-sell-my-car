@@ -66,7 +66,7 @@ export default function Header() {
               className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-[#C41230] transition-colors"
             >
               <Phone className="w-4 h-4" />
-              (603) 555-2000
+              (603) 263-4552
             </a>
             <Link
               href="/"
