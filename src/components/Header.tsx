@@ -25,7 +25,7 @@ export default function Header() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative flex items-center justify-between h-14 lg:h-16">
+        <div className="relative flex items-center justify-between h-16 lg:h-20">
           {/* Spacer for mobile centering */}
           <div className="w-10 lg:hidden" />
           
@@ -37,7 +37,7 @@ export default function Header() {
             <img 
               src="/quirk-logo.png" 
               alt="Quirk Auto Dealers" 
-              className="h-10 lg:h-12 w-auto group-hover:opacity-80 transition-opacity"
+              className="h-12 lg:h-16 w-auto group-hover:opacity-80 transition-opacity"
             />
           </a>
 
