@@ -326,7 +326,7 @@ export default function HomePage() {
                 Why sell to Quirk?
               </h2>
               <p className="mt-4 text-lg text-gray-500">
-                New England's most trusted automotive network. Family-owned since 1995.
+                New England's most trusted automotive network. Family-owned since 1973.
               </p>
               
               <div className="mt-10 space-y-6">
