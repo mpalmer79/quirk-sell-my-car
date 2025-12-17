@@ -5,8 +5,9 @@
 @tailwind utilities;
 
 :root {
-  --quirk-red: #C41230;
-  --quirk-darkred: #9E0F28;
+  --quirk-blue: #0070cc;
+  --quirk-darkblue: #005fa3;
+  --quirk-navy: #00264d;
 }
 
 * {
@@ -123,28 +124,28 @@ textarea:focus {
 
 /* Button styles */
 .btn-primary {
-  @apply bg-[#C41230] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200;
-  @apply hover:bg-[#a50f28] hover:shadow-lg hover:-translate-y-0.5;
-  @apply focus:ring-4 focus:ring-red-100;
+  @apply bg-[#0070cc] text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200;
+  @apply hover:bg-[#005fa3] hover:shadow-lg hover:-translate-y-0.5;
+  @apply focus:ring-4 focus:ring-blue-100;
   @apply disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0;
 }
 
 .btn-secondary {
   @apply bg-white text-gray-800 font-semibold py-3 px-6 rounded-xl border-2 border-gray-200 transition-all duration-200;
-  @apply hover:border-[#C41230] hover:text-[#C41230];
-  @apply focus:ring-4 focus:ring-red-50;
+  @apply hover:border-[#0070cc] hover:text-[#0070cc];
+  @apply focus:ring-4 focus:ring-blue-50;
 }
 
 .btn-outline {
-  @apply bg-transparent text-[#C41230] font-semibold py-3 px-6 rounded-xl border-2 border-[#C41230] transition-all duration-200;
-  @apply hover:bg-[#C41230] hover:text-white;
-  @apply focus:ring-4 focus:ring-red-50;
+  @apply bg-transparent text-[#0070cc] font-semibold py-3 px-6 rounded-xl border-2 border-[#0070cc] transition-all duration-200;
+  @apply hover:bg-[#0070cc] hover:text-white;
+  @apply focus:ring-4 focus:ring-blue-50;
 }
 
 /* Input styles */
 .input-field {
   @apply w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white transition-all duration-200;
-  @apply focus:border-[#C41230] focus:ring-4 focus:ring-red-50;
+  @apply focus:border-[#0070cc] focus:ring-4 focus:ring-blue-50;
   @apply placeholder:text-gray-400;
 }
 
@@ -155,7 +156,7 @@ textarea:focus {
 /* Select styles */
 .select-field {
   @apply w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white transition-all duration-200 appearance-none cursor-pointer;
-  @apply focus:border-[#C41230] focus:ring-4 focus:ring-red-50;
+  @apply focus:border-[#0070cc] focus:ring-4 focus:ring-blue-50;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
   background-position: right 0.75rem center;
   background-repeat: no-repeat;
@@ -177,7 +178,7 @@ textarea:focus {
 }
 
 .step-item.active {
-  @apply bg-red-50 text-[#C41230];
+  @apply bg-blue-50 text-[#0070cc];
 }
 
 .step-item.completed {
@@ -190,7 +191,7 @@ textarea:focus {
 }
 
 .step-item.active .step-number {
-  @apply bg-[#C41230] text-white;
+  @apply bg-[#0070cc] text-white;
 }
 
 .step-item.completed .step-number {
@@ -204,7 +205,7 @@ textarea:focus {
 }
 
 .feature-card.selected {
-  @apply border-[#C41230] bg-red-50 shadow-md;
+  @apply border-[#0070cc] bg-blue-50 shadow-md;
 }
 
 /* Condition option button */
@@ -214,12 +215,12 @@ textarea:focus {
 }
 
 .condition-option.selected {
-  @apply border-[#C41230] bg-[#C41230] text-white shadow-lg;
+  @apply border-[#0070cc] bg-[#0070cc] text-white shadow-lg;
 }
 
 /* Loading spinner */
 .spinner {
-  @apply animate-spin h-6 w-6 border-2 border-gray-200 border-t-[#C41230] rounded-full;
+  @apply animate-spin h-6 w-6 border-2 border-gray-200 border-t-[#0070cc] rounded-full;
 }
 
 /* Chat widget */
@@ -228,7 +229,7 @@ textarea:focus {
 }
 
 .chat-bubble.user {
-  @apply bg-[#C41230] text-white rounded-br-md ml-auto;
+  @apply bg-[#0070cc] text-white rounded-br-md ml-auto;
 }
 
 .chat-bubble.assistant {
@@ -241,7 +242,7 @@ textarea:focus {
 }
 
 .progress-bar-fill {
-  @apply h-full bg-[#C41230] transition-all duration-500 ease-out rounded-full;
+  @apply h-full bg-[#0070cc] transition-all duration-500 ease-out rounded-full;
 }
 
 /* Tooltip */
@@ -255,12 +256,12 @@ textarea:focus {
 
 /* Gradient backgrounds */
 .gradient-quirk {
-  background: linear-gradient(135deg, var(--quirk-red) 0%, var(--quirk-darkred) 100%);
+  background: linear-gradient(135deg, var(--quirk-blue) 0%, var(--quirk-darkblue) 100%);
 }
 
 /* Selection color */
 ::selection {
-  background-color: rgba(196, 18, 48, 0.2);
+  background-color: rgba(0, 112, 204, 0.2);
 }
 
 /* Print styles */
@@ -280,22 +281,22 @@ textarea:focus {
 
 /* Custom checkbox */
 input[type="checkbox"] {
-  @apply w-5 h-5 rounded border-2 border-gray-300 text-[#C41230] cursor-pointer;
-  @apply focus:ring-2 focus:ring-red-100 focus:ring-offset-0;
+  @apply w-5 h-5 rounded border-2 border-gray-300 text-[#0070cc] cursor-pointer;
+  @apply focus:ring-2 focus:ring-blue-100 focus:ring-offset-0;
 }
 
 input[type="checkbox"]:checked {
-  @apply bg-[#C41230] border-[#C41230];
+  @apply bg-[#0070cc] border-[#0070cc];
 }
 
 /* Radio buttons */
 input[type="radio"] {
-  @apply w-5 h-5 border-2 border-gray-300 text-[#C41230] cursor-pointer;
-  @apply focus:ring-2 focus:ring-red-100 focus:ring-offset-0;
+  @apply w-5 h-5 border-2 border-gray-300 text-[#0070cc] cursor-pointer;
+  @apply focus:ring-2 focus:ring-blue-100 focus:ring-offset-0;
 }
 
 input[type="radio"]:checked {
-  @apply border-[#C41230];
+  @apply border-[#0070cc];
 }
 
 /* Smooth image loading */
