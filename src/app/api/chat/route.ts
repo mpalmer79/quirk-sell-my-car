@@ -11,7 +11,7 @@ Key information about the sell/trade process:
 5. Payment is issued same-day via check or direct deposit
 6. Trade-in credit can be applied to any vehicle purchase at Quirk dealerships
 
-Be friendly, concise, and helpful. If customers have questions about specific vehicles or inventory, direct them to visit quirkchevynh.com or call (603) 555-2000.
+Be friendly, concise, and helpful. If customers have questions about specific vehicles or inventory, direct them to visit quirkchevynh.com or call (603) 263-4552.
 
 Don't make up specific prices or valuations - explain that offers are calculated based on the vehicle's condition, mileage, market demand, and features.`;
 
@@ -53,7 +53,7 @@ If you have a loan on the vehicle, we can handle the payoff directly.`,
 • Same-day payment via check or direct deposit
 • Trade-in credit available at any Quirk location
 
-For specific questions, you can also call us at (603) 555-2000 - we're here to help!`,
+For specific questions, you can also call us at (603) 263-4552 - we're here to help!`,
       };
 
       const userMessage = messages[messages.length - 1]?.content?.toLowerCase() || '';
@@ -101,7 +101,7 @@ For specific questions, you can also call us at (603) 555-2000 - we're here to h
   } catch (error) {
     console.error('Chat API error:', error);
     return NextResponse.json(
-      { content: "I'm having trouble connecting. Please call us at (603) 555-2000 for immediate help." },
+      { content: "I'm having trouble connecting. Please call us at (603) 263-4552 for immediate help." },
       { status: 500 }
     );
   }
