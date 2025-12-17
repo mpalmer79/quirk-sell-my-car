@@ -31,7 +31,7 @@ export default function Header() {
             <img 
               src="/quirk-logo.png" 
               alt="Quirk Auto Dealers" 
-              className="h-12 w-auto group-hover:opacity-80 transition-opacity"
+              className="h-24 w-auto group-hover:opacity-80 transition-opacity"
             />
           </a>
 
