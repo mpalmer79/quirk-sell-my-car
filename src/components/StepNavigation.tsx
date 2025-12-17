@@ -83,7 +83,7 @@ export default function StepNavigation({ currentStep, completedSteps = [] }: Ste
             Need help? Our team is available 7 days a week to answer your questions.
           </p>
           <a
-            href="tel:+16035552000"
+            href="tel:+16032634552"
             className="text-xs font-semibold text-quirk-red hover:underline mt-2 inline-block"
           >
             Call (603) 263-4552
