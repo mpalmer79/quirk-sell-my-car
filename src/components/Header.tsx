@@ -27,18 +27,12 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-xl bg-[#C41230] flex items-center justify-center font-bold text-white text-xl shadow-lg shadow-red-500/20 group-hover:scale-105 transition-transform">
-              Q
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xl font-bold text-gray-900 tracking-tight">
-                QUIRK
-              </span>
-              <span className="text-[10px] text-gray-500 font-medium tracking-widest">
-                AUTO DEALERS
-              </span>
-            </div>
+          <Link href="/" className="flex items-center group">
+            <img 
+              src="/quirk-logo.png" 
+              alt="Quirk Auto Dealers" 
+              className="h-10 w-auto group-hover:opacity-80 transition-opacity"
+            />
           </Link>
 
           {/* Desktop Navigation */}
