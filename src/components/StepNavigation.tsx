@@ -86,7 +86,7 @@ export default function StepNavigation({ currentStep, completedSteps = [] }: Ste
             href="tel:+16035552000"
             className="text-xs font-semibold text-quirk-red hover:underline mt-2 inline-block"
           >
-            Call (603) 555-2000
+            Call (603) 263-4552
           </a>
         </div>
       </div>
