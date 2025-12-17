@@ -1,1 +1,344 @@
 
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { 
+  CheckCircle2, 
+  Calendar, 
+  MapPin, 
+  Phone, 
+  Mail, 
+  Printer, 
+  Share2,
+  Car,
+  Loader2,
+  ArrowLeft,
+  Clock,
+  DollarSign,
+  FileText
+} from 'lucide-react';
+import VehicleImage from '@/components/VehicleImage';
+import { useVehicle } from '@/context/VehicleContext';
+
+export default function OfferPage() {
+  const router = useRouter();
+  const { vehicleInfo, basics, calculateOffer, offerData, resetAll } = useVehicle();
+
+  const [loading, setLoading] = useState(true);
+  const [email, setEmail] = useState('');
+  const [emailSent, setEmailSent] = useState(false);
+
+  useEffect(() => {
+    if (!vehicleInfo || !basics.mileage) {
+      router.push('/');
+      return;
+    }
+
+    // Calculate the offer
+    const timer = setTimeout(() => {
+      calculateOffer();
+      setLoading(false);
+    }, 2000); // Simulate calculation time
+
+    return () => clearTimeout(timer);
+  }, [vehicleInfo, basics, calculateOffer, router]);
+
+  const handleEmailSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In production, send email via API
+    setEmailSent(true);
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `My Car Offer - ${vehicleInfo?.year} ${vehicleInfo?.make} ${vehicleInfo?.model}`,
+          text: `I got an offer of $${offerData?.offerAmount?.toLocaleString()} for my ${vehicleInfo?.year} ${vehicleInfo?.make} ${vehicleInfo?.model} from Quirk Auto Dealers!`,
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.log('Share cancelled');
+      }
+    }
+  };
+
+  const handleStartOver = () => {
+    resetAll();
+    router.push('/');
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-quirk-gray-50">
+        <div className="text-center max-w-md">
+          <div className="w-20 h-20 rounded-full gradient-quirk mx-auto flex items-center justify-center mb-6">
+            <Loader2 className="w-10 h-10 text-white animate-spin" />
+          </div>
+          <h2 className="text-2xl font-bold text-quirk-gray-900 mb-2" style={{ fontFamily: 'var(--font-display)' }}>
+            Calculating Your Offer
+          </h2>
+          <p className="text-quirk-gray-500">
+            We're analyzing market data and your vehicle details to get you the best possible offer...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!offerData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-quirk-gray-50">
+        <div className="text-center">
+          <p className="text-quirk-gray-600">Unable to generate offer. Please try again.</p>
+          <button onClick={handleStartOver} className="btn-primary mt-4">
+            Start Over
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const expiryDate = offerData.offerExpiry 
+    ? new Date(offerData.offerExpiry).toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      })
+    : null;
+
+  return (
+    <div className="min-h-screen bg-quirk-gray-50 py-8 print:py-0 print:bg-white">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Success Header */}
+        <div className="text-center mb-8 print:mb-4">
+          <div className="w-16 h-16 rounded-full bg-green-100 mx-auto flex items-center justify-center mb-4">
+            <CheckCircle2 className="w-8 h-8 text-green-600" />
+          </div>
+          <h1 className="text-3xl font-bold text-quirk-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
+            Your Offer is Ready!
+          </h1>
+          <p className="text-quirk-gray-500 mt-2">
+            Here's our offer for your {vehicleInfo?.year} {vehicleInfo?.make} {vehicleInfo?.model}
+          </p>
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Main Offer Card */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Offer Amount */}
+            <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+              <div className="gradient-quirk p-6 text-center">
+                <p className="text-white/80 text-sm mb-1">Your Cash Offer</p>
+                <p className="text-5xl font-bold text-white" style={{ fontFamily: 'var(--font-display)' }}>
+                  ${offerData.offerAmount?.toLocaleString()}
+                </p>
+                {expiryDate && (
+                  <p className="text-white/80 text-sm mt-2 flex items-center justify-center gap-1">
+                    <Clock className="w-4 h-4" />
+                    Valid through {expiryDate}
+                  </p>
+                )}
+              </div>
+
+              {/* Vehicle Details */}
+              <div className="p-6">
+                <VehicleImage vehicleInfo={vehicleInfo} className="rounded-xl mb-6" />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-quirk-gray-400 mb-1">Vehicle</p>
+                    <p className="font-semibold text-quirk-gray-900">
+                      {vehicleInfo?.year} {vehicleInfo?.make} {vehicleInfo?.model}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-quirk-gray-400 mb-1">VIN</p>
+                    <p className="font-mono text-sm text-quirk-gray-700">{vehicleInfo?.vin}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-quirk-gray-400 mb-1">Mileage</p>
+                    <p className="font-semibold text-quirk-gray-900">
+                      {basics.mileage?.toLocaleString()} miles
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-quirk-gray-400 mb-1">Condition</p>
+                    <p className="font-semibold text-quirk-gray-900 capitalize">
+                      {offerData.condition.overallCondition?.replace(/-/g, ' ')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Email Form */}
+            {!emailSent ? (
+              <div className="bg-white rounded-2xl shadow-sm p-6 print:hidden">
+                <h3 className="font-semibold text-quirk-gray-900 mb-4">
+                  Email My Offer
+                </h3>
+                <form onSubmit={handleEmailSubmit} className="flex gap-3">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    required
+                    className="input-field flex-1"
+                  />
+                  <button type="submit" className="btn-primary whitespace-nowrap">
+                    Send Offer
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <div className="bg-green-50 rounded-2xl p-6 print:hidden">
+                <div className="flex items-center gap-3">
+                  <CheckCircle2 className="w-6 h-6 text-green-600 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold text-green-800">Offer Sent!</p>
+                    <p className="text-green-600 text-sm">Check your email at {email}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="flex flex-wrap gap-3 print:hidden">
+              <button onClick={handlePrint} className="btn-secondary flex items-center gap-2">
+                <Printer className="w-4 h-4" />
+                Print
+              </button>
+              <button onClick={handleShare} className="btn-secondary flex items-center gap-2">
+                <Share2 className="w-4 h-4" />
+                Share
+              </button>
+              <button onClick={handleStartOver} className="btn-secondary flex items-center gap-2">
+                <ArrowLeft className="w-4 h-4" />
+                New Offer
+              </button>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6 print:hidden">
+            {/* Next Steps */}
+            <div className="bg-white rounded-2xl shadow-sm p-6">
+              <h3 className="font-semibold text-quirk-gray-900 mb-4">
+                What's Next?
+              </h3>
+              <div className="space-y-4">
+                <div className="flex gap-3">
+                  <div className="w-8 h-8 rounded-full bg-quirk-red/10 flex items-center justify-center flex-shrink-0">
+                    <Calendar className="w-4 h-4 text-quirk-red" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-quirk-gray-900 text-sm">Schedule Appointment</p>
+                    <p className="text-quirk-gray-500 text-xs">Bring your vehicle to any Quirk location</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <div className="w-8 h-8 rounded-full bg-quirk-red/10 flex items-center justify-center flex-shrink-0">
+                    <FileText className="w-4 h-4 text-quirk-red" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-quirk-gray-900 text-sm">Bring Documents</p>
+                    <p className="text-quirk-gray-500 text-xs">ID, title, and registration</p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <div className="w-8 h-8 rounded-full bg-quirk-red/10 flex items-center justify-center flex-shrink-0">
+                    <DollarSign className="w-4 h-4 text-quirk-red" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-quirk-gray-900 text-sm">Get Paid</p>
+                    <p className="text-quirk-gray-500 text-xs">Same-day payment by check</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact */}
+            <div className="bg-white rounded-2xl shadow-sm p-6">
+              <h3 className="font-semibold text-quirk-gray-900 mb-4">
+                Questions?
+              </h3>
+              <div className="space-y-3">
+                <a
+                  href="tel:+16035552000"
+                  className="flex items-center gap-3 text-quirk-gray-600 hover:text-quirk-red transition-colors"
+                >
+                  <Phone className="w-5 h-5" />
+                  <span>(603) 555-2000</span>
+                </a>
+                <a
+                  href="mailto:sell@quirkautodealers.com"
+                  className="flex items-center gap-3 text-quirk-gray-600 hover:text-quirk-red transition-colors"
+                >
+                  <Mail className="w-5 h-5" />
+                  <span>sell@quirkautodealers.com</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Find Location */}
+            <div className="bg-white rounded-2xl shadow-sm p-6">
+              <h3 className="font-semibold text-quirk-gray-900 mb-4">
+                Find a Location
+              </h3>
+              <div className="flex items-start gap-3 text-quirk-gray-600">
+                <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm">17+ locations across MA & NH</p>
+                  <Link
+                    href="https://www.quirkchevynh.com/contact"
+                    target="_blank"
+                    className="text-quirk-red text-sm font-medium hover:underline"
+                  >
+                    View All Locations →
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Trade-in CTA */}
+            {basics.sellOrTrade === 'trade' || basics.sellOrTrade === 'not-sure' ? (
+              <div className="bg-quirk-gray-900 rounded-2xl shadow-sm p-6 text-white">
+                <Car className="w-8 h-8 mb-3" />
+                <h3 className="font-semibold mb-2">
+                  Ready to Trade In?
+                </h3>
+                <p className="text-quirk-gray-300 text-sm mb-4">
+                  Browse our inventory and apply your ${offerData.offerAmount?.toLocaleString()} credit toward your next vehicle.
+                </p>
+                <Link
+                  href="https://www.quirkchevynh.com"
+                  target="_blank"
+                  className="btn-primary block text-center"
+                >
+                  Browse Inventory
+                </Link>
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        {/* Disclaimer */}
+        <div className="mt-8 text-center text-xs text-quirk-gray-400 print:hidden">
+          <p>
+            This offer is subject to verification of vehicle condition and documentation.
+            Offer valid for 7 days. Final offer may vary based on in-person inspection.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
