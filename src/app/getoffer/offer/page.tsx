@@ -273,11 +273,11 @@ export default function OfferPage() {
               </h3>
               <div className="space-y-3">
                 <a
-                  href="tel:+16035552000"
+                  href="tel:+16032634552"
                   className="flex items-center gap-3 text-quirk-gray-600 hover:text-quirk-red transition-colors"
                 >
                   <Phone className="w-5 h-5" />
-                  <span>(603) 555-2000</span>
+                  <span>(603) 263-4552</span>
                 </a>
                 <a
                   href="mailto:sell@quirkautodealers.com"
