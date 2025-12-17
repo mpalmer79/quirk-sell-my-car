@@ -75,7 +75,7 @@ export default function ChatWidget() {
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: "I'm sorry, I'm having trouble connecting right now. Please try again or call us at (603) 555-2000 for immediate assistance.",
+        content: "I'm sorry, I'm having trouble connecting right now. Please try again or call us at (603) 263-4552 for immediate assistance.",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
