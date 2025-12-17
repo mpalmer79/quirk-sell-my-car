@@ -25,13 +25,19 @@ export default function Header() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 lg:h-20">
+        <div className="relative flex items-center justify-between h-14 lg:h-16">
+          {/* Spacer for mobile centering */}
+          <div className="w-10 lg:hidden" />
+          
           {/* Logo */}
-          <a href="https://www.quirkchevynh.com" className="flex items-center group">
+          <a 
+            href="https://www.quirkchevynh.com" 
+            className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 flex items-center group"
+          >
             <img 
               src="/quirk-logo.png" 
               alt="Quirk Auto Dealers" 
-              className="h-24 w-auto group-hover:opacity-80 transition-opacity"
+              className="h-10 lg:h-12 w-auto group-hover:opacity-80 transition-opacity"
             />
           </a>
 
