@@ -41,38 +41,31 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#f0f7ff] via-white to-white" />
-        
-        {/* Decorative circles */}
-        <div className="absolute top-20 -right-40 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-blue-50 to-transparent opacity-60" />
-        <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] rounded-full bg-gradient-to-tr from-blue-50 to-transparent opacity-40" />
-
+      <section className="relative overflow-hidden bg-[#00264d]">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="pt-8 pb-20 lg:pt-16 lg:pb-32">
+          <div className="pt-12 pb-20 lg:pt-20 lg:pb-32">
             
             {/* Main Content Grid */}
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
               
               {/* Left: Text + Form */}
               <div className={`transition-all duration-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 leading-[1.1] tracking-tight">
-                  Get a real offer in
-                  <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#0070cc] to-[#0088ff]">
-                    2 minutes or less
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-[1.1] tracking-tight uppercase">
+                  GET A REAL OFFER
+                  <span className="block">
+                    IN 2 MINUTES
                   </span>
                 </h1>
                 
-                <p className="mt-6 text-xl text-gray-600 leading-relaxed max-w-lg">
-                  Enter your VIN for an instant cash offer. No haggling, no hidden fees — just a fair price for your car.
+                <p className="mt-6 text-xl text-white/90 leading-relaxed max-w-lg">
+                  Sell or trade your car 100% online. No haggling, no headaches.
                 </p>
 
                 {/* VIN Form */}
                 <div className="mt-10">
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="relative">
-                      <label htmlFor="vin" className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label htmlFor="vin" className="block text-sm font-semibold text-white mb-2">
                         Vehicle Identification Number (VIN)
                       </label>
                       <div className="relative">
@@ -93,7 +86,7 @@ export default function HomePage() {
                             placeholder:text-gray-400 placeholder:tracking-normal placeholder:font-sans
                             focus:outline-none focus:ring-4
                             ${error 
-                              ? 'border-blue-400 focus:border-blue-500 focus:ring-blue-100' 
+                              ? 'border-red-400 focus:border-red-500 focus:ring-red-100' 
                               : 'border-gray-200 focus:border-[#0070cc] focus:ring-blue-50'
                             }
                           `}
@@ -108,7 +101,7 @@ export default function HomePage() {
                       </div>
                       
                       {error && (
-                        <p className="mt-2 text-sm text-blue-600 flex items-center gap-1">
+                        <p className="mt-2 text-sm text-red-400 flex items-center gap-1">
                           <X className="w-4 h-4" />
                           {error}
                         </p>
@@ -117,7 +110,7 @@ export default function HomePage() {
                       <button
                         type="button"
                         onClick={() => setShowVinHelp(!showVinHelp)}
-                        className="mt-3 text-sm text-gray-500 hover:text-[#0070cc] flex items-center gap-1.5 transition-colors"
+                        className="mt-3 text-sm text-white/70 hover:text-white flex items-center gap-1.5 transition-colors"
                       >
                         <HelpCircle className="w-4 h-4" />
                         Where do I find my VIN?
@@ -127,8 +120,8 @@ export default function HomePage() {
 
                     {/* VIN Help Panel */}
                     {showVinHelp && (
-                      <div className="bg-gray-50 rounded-xl p-5 border border-gray-100 animate-fadeIn">
-                        <p className="font-semibold text-gray-800 mb-3">Find your VIN in these locations:</p>
+                      <div className="bg-white/10 backdrop-blur rounded-xl p-5 border border-white/20 animate-fadeIn">
+                        <p className="font-semibold text-white mb-3">Find your VIN in these locations:</p>
                         <div className="grid sm:grid-cols-2 gap-3">
                           {[
                             { icon: '🚗', text: 'Driver-side dashboard (visible through windshield)' },
@@ -136,7 +129,7 @@ export default function HomePage() {
                             { icon: '📄', text: 'Vehicle registration card' },
                             { icon: '📋', text: 'Insurance documents' },
                           ].map((item, i) => (
-                            <div key={i} className="flex items-start gap-2 text-sm text-gray-600">
+                            <div key={i} className="flex items-start gap-2 text-sm text-white/80">
                               <span className="text-base">{item.icon}</span>
                               <span>{item.text}</span>
                             </div>
@@ -173,11 +166,11 @@ export default function HomePage() {
                     </button>
                   </form>
 
-                  <p className="mt-4 text-xs text-gray-400">
+                  <p className="mt-4 text-xs text-white/60">
                     By continuing, you agree to our{' '}
-                    <a href="#" className="underline hover:text-gray-600">Terms of Service</a>
+                    <a href="#" className="underline hover:text-white">Terms of Service</a>
                     {' '}and{' '}
-                    <a href="#" className="underline hover:text-gray-600">Privacy Policy</a>
+                    <a href="#" className="underline hover:text-white">Privacy Policy</a>
                   </p>
                 </div>
               </div>
@@ -185,9 +178,6 @@ export default function HomePage() {
               {/* Right: Car Image */}
               <div className={`relative transition-all duration-700 delay-200 ${mounted ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}>
                 <div className="relative">
-                  {/* Glow effect behind car */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#0070cc]/10 to-blue-500/10 rounded-full blur-3xl scale-110" />
-                  
                   {/* Car Image */}
                   <div className="relative">
                     <Image
@@ -478,8 +468,8 @@ export default function HomePage() {
             <div>
               <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-400">Contact</h4>
               <ul className="space-y-3 text-sm text-gray-300">
-                <li>(603) 555-2000</li>
-                <li>sell@quirkautodealers.com</li>
+                <li>(603) 263-4552</li>
+                <li>steve.obrien@quirkcars.com</li>
                 <li>Mon-Sat: 9AM-8PM</li>
                 <li>Sun: 11AM-5PM</li>
               </ul>
