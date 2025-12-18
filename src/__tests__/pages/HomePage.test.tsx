@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import HomePage from '@/app/page';
 
@@ -21,6 +21,12 @@ jest.mock('@/services/vinDecoder', () => ({
 import { isValidVIN } from '@/services/vinDecoder';
 
 const mockIsValidVIN = isValidVIN as jest.MockedFunction<typeof isValidVIN>;
+
+// Mock window.scrollTo for this test file
+Object.defineProperty(window, 'scrollTo', {
+  value: jest.fn(),
+  writable: true,
+});
 
 describe('HomePage', () => {
   beforeEach(() => {
@@ -190,9 +196,13 @@ describe('HomePage', () => {
       expect(screen.getByText('Sell Your Car')).toBeInTheDocument();
     });
 
-    it('renders copyright', () => {
+    it('renders copyright with year', () => {
       render(<HomePage />);
-      expect(screen.getByText(/Quirk Auto Dealers/)).toBeInTheDocument();
+      // Use getAllByText since "Quirk Auto Dealers" appears multiple times
+      const matches = screen.getAllByText(/Quirk Auto Dealers/);
+      expect(matches.length).toBeGreaterThan(0);
+      // Check that copyright specifically exists
+      expect(screen.getByText(/All rights reserved/)).toBeInTheDocument();
     });
   });
 });
