@@ -1,4 +1,3 @@
-
 // Vehicle Types for Quirk Sell My Car
 
 export interface VehicleInfo {
@@ -63,6 +62,18 @@ export interface OfferData {
   estimatedValue?: number;
   offerAmount?: number;
   offerExpiry?: string;
+  
+  // ============================================================
+  // NEW: Preliminary offer flag for disclaimer display
+  // ============================================================
+  // When true, the UI should display:
+  // "This is a preliminary estimate. Final offer subject to in-person inspection."
+  isPreliminary?: boolean;
+  
+  // CRM integration fields (populated after submission)
+  confirmationNumber?: string;
+  leadId?: string;
+  appraisalId?: string;
 }
 
 export interface ChatMessage {
