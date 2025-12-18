@@ -76,6 +76,9 @@ describe('VehicleContext', () => {
 
       act(() => {
         result.current.updateBasics({ mileage: 50000 });
+      });
+      
+      act(() => {
         result.current.updateBasics({ zipCode: '03060' });
       });
 
@@ -100,6 +103,9 @@ describe('VehicleContext', () => {
 
       act(() => {
         result.current.updateFeatures({ entertainment: ['navigation'] });
+      });
+      
+      act(() => {
         result.current.updateFeatures({ seats: ['leather'] });
       });
 
@@ -155,6 +161,7 @@ describe('VehicleContext', () => {
     it('calculates offer with valid data', () => {
       const { result } = renderHook(() => useVehicle(), { wrapper });
 
+      // Set up state first
       act(() => {
         result.current.setVehicleInfo({
           vin: '123',
@@ -162,9 +169,13 @@ describe('VehicleContext', () => {
           make: 'CHEVY',
           model: 'Silverado',
         });
+      });
+      
+      act(() => {
         result.current.updateBasics({ mileage: 50000 });
       });
 
+      // Now calculate offer
       let offer;
       act(() => {
         offer = result.current.calculateOffer();
@@ -174,9 +185,10 @@ describe('VehicleContext', () => {
       expect(offer?.offerAmount).toBeGreaterThan(0);
     });
 
-    it('stores offer in context', () => {
+    it('stores offer in context after calculation', () => {
       const { result } = renderHook(() => useVehicle(), { wrapper });
 
+      // Set up all required state
       act(() => {
         result.current.setVehicleInfo({
           vin: '123',
@@ -184,11 +196,20 @@ describe('VehicleContext', () => {
           make: 'CHEVY',
           model: 'Silverado',
         });
+      });
+      
+      act(() => {
         result.current.updateBasics({ mileage: 50000 });
+      });
+
+      // Calculate offer and check it's stored
+      act(() => {
         result.current.calculateOffer();
       });
 
+      // After act completes, offerData should be set
       expect(result.current.offerData).not.toBeNull();
+      expect(result.current.offerData?.offerAmount).toBeGreaterThan(0);
     });
 
     it('sets expiry date 7 days in future', () => {
@@ -201,10 +222,17 @@ describe('VehicleContext', () => {
           make: 'CHEVY',
           model: 'Silverado',
         });
+      });
+      
+      act(() => {
         result.current.updateBasics({ mileage: 50000 });
+      });
+      
+      act(() => {
         result.current.calculateOffer();
       });
 
+      expect(result.current.offerData).not.toBeNull();
       const expiry = new Date(result.current.offerData!.offerExpiry!);
       const now = new Date();
       const diff = Math.round((expiry.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
@@ -221,14 +249,24 @@ describe('VehicleContext', () => {
           make: 'OLD',
           model: 'Car',
         });
+      });
+      
+      act(() => {
         result.current.updateBasics({ mileage: 500000 });
+      });
+      
+      act(() => {
         result.current.updateCondition({ 
           overallCondition: 'major-issues',
           accidentHistory: '2+',
         });
+      });
+      
+      act(() => {
         result.current.calculateOffer();
       });
 
+      expect(result.current.offerData).not.toBeNull();
       expect(result.current.offerData?.offerAmount).toBeGreaterThanOrEqual(500);
     });
   });
@@ -244,8 +282,17 @@ describe('VehicleContext', () => {
           make: 'CHEVY',
           model: 'Silverado',
         });
+      });
+      
+      act(() => {
         result.current.updateBasics({ mileage: 50000 });
+      });
+      
+      act(() => {
         result.current.updateFeatures({ entertainment: ['nav'] });
+      });
+      
+      act(() => {
         result.current.updateCondition({ accidentHistory: 'none' });
       });
 
