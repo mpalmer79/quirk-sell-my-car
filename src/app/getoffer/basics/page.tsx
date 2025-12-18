@@ -270,7 +270,7 @@ export default function BasicsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Mobile Progress */}
-      <MobileProgress currentStep={2} />
+      <MobileProgress currentStep="2" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
@@ -600,12 +600,7 @@ export default function BasicsPage() {
           <div className="hidden xl:block w-64 flex-shrink-0">
             <div className="sticky top-8">
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
-                <VehicleImageCompact
-                  year={vehicleInfo.year}
-                  make={vehicleInfo.make}
-                  model={vehicleInfo.model}
-                  bodyClass={vehicleInfo.bodyClass}
-                />
+                <VehicleImageCompact vehicleInfo={vehicleInfo} />
                 <div className="mt-4 text-center">
                   <p className="font-bold text-gray-900">
                     {vehicleInfo.year} {vehicleInfo.make}
