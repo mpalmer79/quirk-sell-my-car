@@ -1,132 +1,107 @@
+// Vehicle Image Service
+// Uses body-type specific images for reliability
+// Pexels is unreliable for specific vehicle matches (returns wrong cars)
 
-'use client';
-
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { Car, Loader2 } from 'lucide-react';
 import { VehicleInfo } from '@/types/vehicle';
-import { getVehicleImage } from '@/services/vehicleImage';
 
-interface VehicleImageProps {
-  vehicleInfo: VehicleInfo | null;
-  className?: string;
+// High-quality curated images by body type
+// These are reliable and always show the correct type of vehicle
+const BODY_TYPE_IMAGES: Record<string, string> = {
+  // Trucks/Pickups - Modern pickup truck
+  'pickup': 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=800&auto=format',
+  'truck': 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=800&auto=format',
+  
+  // SUVs/Crossovers - Modern SUV
+  'suv': 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&auto=format',
+  'sport utility': 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&auto=format',
+  'utility': 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&auto=format',
+  'crossover': 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&auto=format',
+  
+  // Sedans - Modern sedan
+  'sedan': 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&auto=format',
+  
+  // Coupes/Sports - Sports car
+  'coupe': 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800&auto=format',
+  'sports': 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800&auto=format',
+  
+  // Hatchbacks
+  'hatchback': 'https://images.unsplash.com/photo-1609521263047-f8f205293f24?w=800&auto=format',
+  
+  // Wagons
+  'wagon': 'https://images.unsplash.com/photo-1626668893632-6f3a4466d22f?w=800&auto=format',
+  'estate': 'https://images.unsplash.com/photo-1626668893632-6f3a4466d22f?w=800&auto=format',
+  
+  // Convertibles
+  'convertible': 'https://images.unsplash.com/photo-1507136566006-cfc505b114fc?w=800&auto=format',
+  'roadster': 'https://images.unsplash.com/photo-1507136566006-cfc505b114fc?w=800&auto=format',
+  'cabriolet': 'https://images.unsplash.com/photo-1507136566006-cfc505b114fc?w=800&auto=format',
+  
+  // Vans/Minivans
+  'van': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format',
+  'minivan': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format',
+  'mpv': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format',
+};
+
+// Generic modern car as default
+const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800&auto=format';
+
+/**
+ * Get fallback image based on body type
+ * Works in any environment (client or server)
+ */
+export function getFallbackImage(vehicleInfo: VehicleInfo): string {
+  if (vehicleInfo.bodyClass) {
+    const bodyLower = vehicleInfo.bodyClass.toLowerCase();
+    for (const [type, url] of Object.entries(BODY_TYPE_IMAGES)) {
+      if (bodyLower.includes(type)) {
+        return url;
+      }
+    }
+  }
+  return DEFAULT_IMAGE;
 }
 
-export default function VehicleImage({ vehicleInfo, className = '' }: VehicleImageProps) {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+/**
+ * Get vehicle image - uses body-type matching for reliability
+ * Pexels/other APIs are too unreliable (return wrong vehicles)
+ * Body-type images always show correct type of vehicle
+ */
+export async function getVehicleImageServerSide(vehicleInfo: VehicleInfo): Promise<string> {
+  // Use body-type image for reliability
+  // This ensures a pickup shows a pickup, SUV shows an SUV, etc.
+  return getFallbackImage(vehicleInfo);
+}
 
-  useEffect(() => {
-    if (vehicleInfo) {
-      setLoading(true);
-      setError(false);
-      getVehicleImage(vehicleInfo)
-        .then((url) => {
-          setImageUrl(url);
-          setLoading(false);
-        })
-        .catch(() => {
-          setError(true);
-          setLoading(false);
-        });
-    }
-  }, [vehicleInfo]);
-
-  if (!vehicleInfo) {
-    return (
-      <div className={`relative bg-quirk-gray-100 rounded-xl overflow-hidden ${className}`}>
-        <div className="aspect-[16/10] flex items-center justify-center">
-          <div className="text-center">
-            <Car className="w-16 h-16 text-quirk-gray-300 mx-auto mb-2" />
-            <p className="text-quirk-gray-400 text-sm">Enter your VIN to see your vehicle</p>
-          </div>
-        </div>
-      </div>
-    );
+/**
+ * Client-side image fetcher
+ * Returns body-type appropriate image
+ */
+export async function getVehicleImage(vehicleInfo: VehicleInfo): Promise<string> {
+  // Check if we're in a browser environment
+  const isBrowser = typeof window !== 'undefined';
+  
+  if (!isBrowser) {
+    return getVehicleImageServerSide(vehicleInfo);
   }
 
-  return (
-    <div className={`relative bg-quirk-gray-100 rounded-xl overflow-hidden ${className}`}>
-      <div className="aspect-[16/10] relative">
-        {loading ? (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Loader2 className="w-10 h-10 text-quirk-red animate-spin" />
-          </div>
-        ) : error || !imageUrl ? (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center">
-              <Car className="w-16 h-16 text-quirk-gray-300 mx-auto mb-2" />
-              <p className="text-quirk-gray-500 font-medium">
-                {vehicleInfo.year} {vehicleInfo.make} {vehicleInfo.model}
-              </p>
-            </div>
-          </div>
-        ) : (
-          <Image
-            src={imageUrl}
-            alt={`${vehicleInfo.year} ${vehicleInfo.make} ${vehicleInfo.model}`}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 50vw"
-            priority
-          />
-        )}
-      </div>
-      
-      {/* Vehicle info overlay */}
-      {vehicleInfo && !loading && (
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-          <h3 className="text-white font-semibold text-lg">
-            {vehicleInfo.year} {vehicleInfo.make} {vehicleInfo.model}
-          </h3>
-          {vehicleInfo.trim && (
-            <p className="text-white/80 text-sm">{vehicleInfo.trim}</p>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// Compact version for the wizard sidebar
-export function VehicleImageCompact({ vehicleInfo }: { vehicleInfo: VehicleInfo | null }) {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (vehicleInfo) {
-      getVehicleImage(vehicleInfo).then(setImageUrl);
+  // Client-side: use the API route
+  try {
+    const params = new URLSearchParams({
+      year: vehicleInfo.year.toString(),
+      make: vehicleInfo.make,
+      model: vehicleInfo.model,
+      bodyClass: vehicleInfo.bodyClass || '',
+    });
+    
+    const response = await fetch(`/api/vehicle-image?${params}`);
+    
+    if (response.ok) {
+      const data = await response.json();
+      return data.imageUrl;
     }
-  }, [vehicleInfo]);
-
-  if (!vehicleInfo) return null;
-
-  return (
-    <div className="bg-white rounded-lg border border-quirk-gray-200 overflow-hidden">
-      <div className="aspect-[16/9] relative bg-quirk-gray-100">
-        {imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt={`${vehicleInfo.year} ${vehicleInfo.make} ${vehicleInfo.model}`}
-            fill
-            className="object-cover"
-            sizes="300px"
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Car className="w-10 h-10 text-quirk-gray-300" />
-          </div>
-        )}
-      </div>
-      <div className="p-3">
-        <p className="font-semibold text-quirk-gray-900 text-sm">
-          {vehicleInfo.year} {vehicleInfo.make}
-        </p>
-        <p className="text-quirk-gray-600 text-sm">{vehicleInfo.model}</p>
-        {vehicleInfo.trim && (
-          <p className="text-quirk-gray-400 text-xs mt-1">{vehicleInfo.trim}</p>
-        )}
-      </div>
-    </div>
-  );
+  } catch (error) {
+    console.error('Error fetching vehicle image:', error);
+  }
+  
+  return getFallbackImage(vehicleInfo);
 }
