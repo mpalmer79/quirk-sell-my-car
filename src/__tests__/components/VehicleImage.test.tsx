@@ -63,7 +63,9 @@ describe('VehicleImage', () => {
       render(<VehicleImage vehicleInfo={mockVehicle} />);
       
       await waitFor(() => {
-        expect(screen.getByText('2021 CHEVROLET Silverado 1500')).toBeInTheDocument();
+        // Use getAllByText since vehicle name appears in multiple places
+        const elements = screen.getAllByText('2021 CHEVROLET Silverado 1500');
+        expect(elements.length).toBeGreaterThan(0);
       });
     });
 
@@ -82,8 +84,11 @@ describe('VehicleImage', () => {
       
       render(<VehicleImage vehicleInfo={mockVehicle} />);
       
+      // When image fails, component still renders with vehicle info
+      // Use getAllByText since vehicle name appears multiple times
       await waitFor(() => {
-        expect(screen.getByText('2021 CHEVROLET Silverado 1500')).toBeInTheDocument();
+        const elements = screen.getAllByText('2021 CHEVROLET Silverado 1500');
+        expect(elements.length).toBeGreaterThan(0);
       });
     });
   });
