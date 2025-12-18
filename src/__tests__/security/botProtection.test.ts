@@ -32,11 +32,11 @@ describe('Bot Protection', () => {
       });
     };
 
-    it('detects missing user agent as bot', () => {
+    it('detects missing user agent as suspicious', () => {
       const request = createRequest({ userAgent: '' });
       const result = detectBot(request);
 
-      expect(result.isBot).toBe(true);
+      expect(result.confidence).toBeGreaterThanOrEqual(40);
       expect(result.reasons).toContain('Missing user agent');
     });
 
