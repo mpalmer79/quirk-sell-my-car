@@ -156,7 +156,6 @@ export function VehicleProvider({ children }: { children: ReactNode }) {
       estimatedValue: Math.round(baseValue * ageDepreciation / 100) * 100,
       offerAmount: finalOffer,
       offerExpiry: expiryDate.toISOString(),
-      // Add disclaimer flag for UI
       isPreliminary: true,
     };
     
