@@ -1,167 +1,154 @@
-import { decodeVIN, isValidVIN, getAvailableTrims } from '@/services/vinDecoder';
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import VehicleImage, { VehicleImageCompact } from '@/components/VehicleImage';
 import { VehicleInfo } from '@/types/vehicle';
 
-const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
+jest.mock('@/services/vehicleImage', () => ({
+  getVehicleImage: jest.fn(),
+}));
 
-describe('vinDecoder service', () => {
+import { getVehicleImage } from '@/services/vehicleImage';
+
+const mockGetVehicleImage = getVehicleImage as jest.MockedFunction<typeof getVehicleImage>;
+
+describe('VehicleImage', () => {
+  const mockVehicle: VehicleInfo = {
+    vin: '1GCVKNEC0MZ123456',
+    year: 2021,
+    make: 'CHEVROLET',
+    model: 'Silverado 1500',
+    trim: 'LT',
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('isValidVIN', () => {
-    it('returns true for valid 17-character VIN', () => {
-      expect(isValidVIN('1GCVKNEC0MZ123456')).toBe(true);
+  describe('without vehicleInfo', () => {
+    it('renders placeholder message', () => {
+      render(<VehicleImage vehicleInfo={null} />);
+      expect(screen.getByText('Enter your VIN to see your vehicle')).toBeInTheDocument();
     });
 
-    it('returns true for lowercase VIN', () => {
-      expect(isValidVIN('1gcvknec0mz123456')).toBe(true);
-    });
-
-    it('returns false for VIN with less than 17 characters', () => {
-      expect(isValidVIN('1GCVKNEC0MZ12345')).toBe(false);
-    });
-
-    it('returns false for VIN with more than 17 characters', () => {
-      expect(isValidVIN('1GCVKNEC0MZ1234567')).toBe(false);
-    });
-
-    it('returns false for VIN containing I', () => {
-      expect(isValidVIN('1GCVKNEC0MZI23456')).toBe(false);
-    });
-
-    it('returns false for VIN containing O', () => {
-      expect(isValidVIN('1GCVKNEC0MZO23456')).toBe(false);
-    });
-
-    it('returns false for VIN containing Q', () => {
-      expect(isValidVIN('1GCVKNEC0MZQ23456')).toBe(false);
-    });
-
-    it('returns false for empty string', () => {
-      expect(isValidVIN('')).toBe(false);
-    });
-
-    it('trims whitespace', () => {
-      expect(isValidVIN('  1GCVKNEC0MZ123456  ')).toBe(true);
+    it('applies custom className', () => {
+      const { container } = render(<VehicleImage vehicleInfo={null} className="custom-class" />);
+      expect(container.firstChild).toHaveClass('custom-class');
     });
   });
 
-  describe('decodeVIN', () => {
-    const mockNHTSAResponse = {
-      Count: 136,
-      Message: 'Results returned successfully',
-      Results: [
-        { Variable: 'Model Year', Value: '2021' },
-        { Variable: 'Make', Value: 'CHEVROLET' },
-        { Variable: 'Model', Value: 'Silverado 1500' },
-        { Variable: 'Trim', Value: 'LT' },
-        { Variable: 'Body Class', Value: 'Pickup' },
-        { Variable: 'Drive Type', Value: '4WD' },
-        { Variable: 'Engine Number of Cylinders', Value: '8' },
-        { Variable: 'Displacement (L)', Value: '5.3' },
-        { Variable: 'Fuel Type - Primary', Value: 'Gasoline' },
-        { Variable: 'Transmission Style', Value: 'Automatic' },
-        { Variable: 'Doors', Value: '4' },
-      ],
-    };
-
-    it('decodes valid VIN successfully', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockNHTSAResponse,
-      } as Response);
-
-      const result = await decodeVIN('1GCVKNEC0MZ123456');
-
-      expect(result.vin).toBe('1GCVKNEC0MZ123456');
-      expect(result.year).toBe(2021);
-      expect(result.make).toBe('CHEVROLET');
-      expect(result.model).toBe('Silverado 1500');
+  describe('with vehicleInfo', () => {
+    it('fetches image', async () => {
+      mockGetVehicleImage.mockResolvedValueOnce('https://example.com/car.jpg');
+      
+      render(<VehicleImage vehicleInfo={mockVehicle} />);
+      
+      await waitFor(() => {
+        expect(mockGetVehicleImage).toHaveBeenCalledWith(mockVehicle);
+      });
     });
 
-    it('calls NHTSA API with correct URL', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockNHTSAResponse,
-      } as Response);
-
-      await decodeVIN('1GCVKNEC0MZ123456');
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        'https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/1GCVKNEC0MZ123456?format=json'
-      );
+    it('displays image when loaded', async () => {
+      mockGetVehicleImage.mockResolvedValueOnce('https://example.com/car.jpg');
+      
+      render(<VehicleImage vehicleInfo={mockVehicle} />);
+      
+      await waitFor(() => {
+        expect(screen.getByAltText('2021 CHEVROLET Silverado 1500')).toBeInTheDocument();
+      });
     });
 
-    it('throws error for VIN with wrong length', async () => {
-      await expect(decodeVIN('SHORT')).rejects.toThrow('VIN must be exactly 17 characters');
+    it('shows vehicle info overlay', async () => {
+      mockGetVehicleImage.mockResolvedValueOnce('https://example.com/car.jpg');
+      
+      render(<VehicleImage vehicleInfo={mockVehicle} />);
+      
+      await waitFor(() => {
+        // Use getAllByText since the text appears in multiple places
+        const matches = screen.getAllByText(/2021.*CHEVROLET.*Silverado/);
+        expect(matches.length).toBeGreaterThan(0);
+      });
     });
 
-    it('throws error for VIN with invalid characters', async () => {
-      await expect(decodeVIN('1GCVKNEC0MZI23456')).rejects.toThrow(
-        'VIN contains invalid characters'
-      );
+    it('shows trim when available', async () => {
+      mockGetVehicleImage.mockResolvedValueOnce('https://example.com/car.jpg');
+      
+      render(<VehicleImage vehicleInfo={mockVehicle} />);
+      
+      await waitFor(() => {
+        expect(screen.getByText('LT')).toBeInTheDocument();
+      });
     });
 
-    it('throws error when API fails', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-      } as Response);
-
-      await expect(decodeVIN('1GCVKNEC0MZ123456')).rejects.toThrow('Failed to decode VIN');
+    it('handles error gracefully', async () => {
+      mockGetVehicleImage.mockRejectedValueOnce(new Error('Failed'));
+      
+      render(<VehicleImage vehicleInfo={mockVehicle} />);
+      
+      await waitFor(() => {
+        // When image fails, the fallback displays vehicle info
+        // Use getAllByText since text appears in both fallback and overlay
+        const matches = screen.getAllByText(/2021.*CHEVROLET.*Silverado/);
+        expect(matches.length).toBeGreaterThan(0);
+      });
     });
+  });
+});
 
-    it('throws error when required fields missing', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          Results: [{ Variable: 'Model Year', Value: '2021' }],
-        }),
-      } as Response);
+describe('VehicleImageCompact', () => {
+  const mockVehicle: VehicleInfo = {
+    vin: '1GCVKNEC0MZ123456',
+    year: 2021,
+    make: 'CHEVROLET',
+    model: 'Silverado 1500',
+    trim: 'LT',
+  };
 
-      await expect(decodeVIN('1GCVKNEC0MZ123456')).rejects.toThrow(
-        'Unable to decode VIN'
-      );
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('returns null without vehicleInfo', () => {
+    const { container } = render(<VehicleImageCompact vehicleInfo={null} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('fetches image with vehicleInfo', async () => {
+    mockGetVehicleImage.mockResolvedValueOnce('https://example.com/car.jpg');
+    
+    render(<VehicleImageCompact vehicleInfo={mockVehicle} />);
+    
+    await waitFor(() => {
+      expect(mockGetVehicleImage).toHaveBeenCalledWith(mockVehicle);
     });
   });
 
-  describe('getAvailableTrims', () => {
-    it('returns pickup trims for Pickup body class', () => {
-      const vehicle: VehicleInfo = {
-        vin: '123',
-        year: 2021,
-        make: 'CHEVY',
-        model: 'Silverado',
-        bodyClass: 'Pickup',
-      };
-      const trims = getAvailableTrims(vehicle);
-      expect(trims).toContain('LT');
-      expect(trims).toContain('High Country');
+  it('displays year and make', async () => {
+    mockGetVehicleImage.mockResolvedValueOnce('https://example.com/car.jpg');
+    
+    render(<VehicleImageCompact vehicleInfo={mockVehicle} />);
+    
+    await waitFor(() => {
+      expect(screen.getByText('2021 CHEVROLET')).toBeInTheDocument();
     });
+  });
 
-    it('returns SUV trims for SUV body class', () => {
-      const vehicle: VehicleInfo = {
-        vin: '123',
-        year: 2021,
-        make: 'CHEVY',
-        model: 'Tahoe',
-        bodyClass: 'SUV Standard',
-      };
-      const trims = getAvailableTrims(vehicle);
-      expect(trims).toContain('LS');
-      expect(trims).toContain('Premier');
+  it('displays model', async () => {
+    mockGetVehicleImage.mockResolvedValueOnce('https://example.com/car.jpg');
+    
+    render(<VehicleImageCompact vehicleInfo={mockVehicle} />);
+    
+    await waitFor(() => {
+      expect(screen.getByText('Silverado 1500')).toBeInTheDocument();
     });
+  });
 
-    it('returns default trims for unknown body class', () => {
-      const vehicle: VehicleInfo = {
-        vin: '123',
-        year: 2021,
-        make: 'CHEVY',
-        model: 'Unknown',
-        bodyClass: 'Unknown',
-      };
-      const trims = getAvailableTrims(vehicle);
-      expect(trims).toContain('Base');
-      expect(trims).toContain('Premium');
+  it('displays trim when available', async () => {
+    mockGetVehicleImage.mockResolvedValueOnce('https://example.com/car.jpg');
+    
+    render(<VehicleImageCompact vehicleInfo={mockVehicle} />);
+    
+    await waitFor(() => {
+      expect(screen.getByText('LT')).toBeInTheDocument();
     });
   });
 });
