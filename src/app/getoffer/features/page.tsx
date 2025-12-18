@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -9,20 +8,21 @@ import { VehicleImageCompact } from '@/components/VehicleImage';
 import { useVehicle } from '@/context/VehicleContext';
 import { FEATURE_OPTIONS } from '@/types/vehicle';
 
+type FeatureCategoryKey = keyof typeof FEATURE_OPTIONS;
+
 interface FeatureCategory {
-  id: keyof typeof FEATURE_OPTIONS;
+  id: FeatureCategoryKey;
   title: string;
-  options: { id: string; label: string }[];
 }
 
 const CATEGORIES: FeatureCategory[] = [
-  { id: 'entertainment', title: 'Entertainment & Instrumentation', options: FEATURE_OPTIONS.entertainment },
-  { id: 'accessoryPackages', title: 'Accessory Packages', options: FEATURE_OPTIONS.accessoryPackages },
-  { id: 'exterior', title: 'Exterior', options: FEATURE_OPTIONS.exterior },
-  { id: 'safetyAndSecurity', title: 'Safety & Security', options: FEATURE_OPTIONS.safetyAndSecurity },
-  { id: 'cargoAndTowing', title: 'Cargo & Towing', options: FEATURE_OPTIONS.cargoAndTowing },
-  { id: 'wheelsAndTires', title: 'Wheels & Tires', options: FEATURE_OPTIONS.wheelsAndTires },
-  { id: 'seats', title: 'Seats', options: FEATURE_OPTIONS.seats },
+  { id: 'entertainment', title: 'Entertainment & Instrumentation' },
+  { id: 'accessoryPackages', title: 'Accessory Packages' },
+  { id: 'exterior', title: 'Exterior' },
+  { id: 'safetyAndSecurity', title: 'Safety & Security' },
+  { id: 'cargoAndTowing', title: 'Cargo & Towing' },
+  { id: 'wheelsAndTires', title: 'Wheels & Tires' },
+  { id: 'seats', title: 'Seats' },
 ];
 
 export default function FeaturesPage() {
@@ -112,7 +112,7 @@ export default function FeaturesPage() {
                       {category.title}
                     </h3>
                     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {category.options.map((option) => {
+                      {FEATURE_OPTIONS[category.id].map((option) => {
                         const isSelected = selectedFeatures[category.id]?.includes(option.id);
                         return (
                           <button
@@ -179,7 +179,7 @@ export default function FeaturesPage() {
                   <ul className="space-y-1">
                     {CATEGORIES.flatMap((cat) =>
                       selectedFeatures[cat.id]?.map((featureId) => {
-                        const feature = cat.options.find((o) => o.id === featureId);
+                        const feature = FEATURE_OPTIONS[cat.id].find((o) => o.id === featureId);
                         return feature ? (
                           <li key={featureId} className="text-xs text-quirk-gray-500 flex items-center gap-1">
                             <Check className="w-3 h-3 text-quirk-green" />
