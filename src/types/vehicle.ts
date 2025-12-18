@@ -206,3 +206,10 @@ export const FEATURE_OPTIONS = {
 };
 
 export type VehicleColor = typeof VEHICLE_COLORS[number];
+// Chat types for ChatWidget
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
