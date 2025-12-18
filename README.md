@@ -1,6 +1,6 @@
 # Quirk Sell My Car
 
-A Carvana-style vehicle appraisal and instant offer system for Quirk Auto Dealers. Built with Next.js 14, React 18, and Tailwind CSS.
+A vehicle appraisal and instant offer system for Quirk Auto Dealers. Built with Next.js 14, React 18, and Tailwind CSS.
 
 ## Features
 
