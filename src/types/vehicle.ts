@@ -1,4 +1,4 @@
-// Vehicle Types for Quirk Sell My Car
+// Vehicle Types
 
 export interface VehicleInfo {
   vin: string;
@@ -8,79 +8,51 @@ export interface VehicleInfo {
   trim?: string;
   bodyClass?: string;
   driveType?: string;
-  engineCylinders?: number;
-  engineDisplacement?: string;
+  engineCylinders?: string;
+  displacement?: string;
   fuelType?: string;
   transmissionStyle?: string;
+  transmissionSpeeds?: string;
+  electrificationLevel?: string;
   doors?: number;
-  imageUrl?: string;
 }
 
 export interface VehicleBasics {
-  mileage: number;
-  zipCode: string;
-  color: string;
-  transmission: string;
-  drivetrain: string;
-  engine: string;
-  sellOrTrade: 'sell' | 'trade' | 'not-sure';
-  loanOrLease: 'loan' | 'lease' | 'neither';
+  mileage?: number;
+  zipCode?: string;
+  color?: string;
+  transmission?: string;
+  drivetrain?: string;
+  engine?: string;
+  sellOrTrade?: 'sell' | 'trade' | 'not-sure';
+  loanOrLease?: 'loan' | 'lease' | 'neither';
 }
 
 export interface VehicleFeatures {
-  entertainment: string[];
-  accessoryPackages: string[];
-  exterior: string[];
-  safetyAndSecurity: string[];
-  cargoAndTowing: string[];
-  wheelsAndTires: string[];
-  seats: string[];
+  selectedFeatures: string[];
+  additionalInfo?: string;
 }
 
 export interface VehicleCondition {
-  accidentHistory: 'none' | '1' | '2+';
-  drivability: 'drivable' | 'not-drivable';
-  mechanicalIssues: string[];
-  engineIssues: string[];
-  exteriorDamage: string[];
-  interiorDamage: string[];
-  technologyIssues: string[];
-  windshieldDamage: 'minor' | 'major' | 'none';
-  tiresReplaced: '1' | '2' | '3' | '4' | 'none';
-  modifications: boolean;
-  smokedIn: boolean;
-  keys: '1' | '2+';
-  overallCondition: 'like-new' | 'pretty-great' | 'just-okay' | 'kind-of-rough' | 'major-issues';
+  exterior: number;
+  interior: number;
+  mechanical: number;
+  tires: number;
+  hasAccidentHistory: boolean;
+  accidentDetails?: string;
+  hasMajorRepairs: boolean;
+  repairDetails?: string;
+  titleStatus: 'clean' | 'rebuilt' | 'salvage' | 'lemon' | 'other';
+  keys: number;
 }
 
 export interface OfferData {
-  vehicleInfo: VehicleInfo;
-  basics: VehicleBasics;
-  features: VehicleFeatures;
-  condition: VehicleCondition;
-  email?: string;
-  estimatedValue?: number;
-  offerAmount?: number;
-  offerExpiry?: string;
-  
-  // ============================================================
-  // NEW: Preliminary offer flag for disclaimer display
-  // ============================================================
-  // When true, the UI should display:
-  // "This is a preliminary estimate. Final offer subject to in-person inspection."
-  isPreliminary?: boolean;
-  
-  // CRM integration fields (populated after submission)
-  confirmationNumber?: string;
-  leadId?: string;
-  appraisalId?: string;
-}
-
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
+  estimatedValue: number;
+  lowValue: number;
+  highValue: number;
+  confidenceScore: number;
+  validUntil: string;
+  confirmationNumber: string;
 }
 
 export const VEHICLE_COLORS = [
@@ -101,76 +73,55 @@ export const VEHICLE_COLORS = [
   'Other',
 ] as const;
 
-export const CONDITION_OPTIONS = {
-  mechanicalIssues: [
-    { id: 'ac', label: 'Air Conditioning' },
-    { id: 'transmission', label: 'Transmission' },
-    { id: 'tire-pressure', label: 'Tire Pressure' },
-    { id: 'electrical', label: 'Electrical' },
-    { id: 'none', label: 'No mechanical or electrical issues' },
-  ],
-  engineIssues: [
-    { id: 'check-engine', label: 'Check Engine Light' },
-    { id: 'strange-noises', label: 'Strange Noises' },
-    { id: 'vibration', label: 'Engine Vibration' },
-    { id: 'smoke-steam', label: 'Smoke or Steam' },
-    { id: 'other', label: 'Other engine issues' },
-    { id: 'none', label: 'No engine issues' },
-  ],
-  exteriorDamage: [
-    { id: 'minor', label: 'Minor Damage' },
-    { id: 'fading-paint', label: 'Fading Paint' },
-    { id: 'dents-scrapes', label: 'Dents or Scrapes' },
-    { id: 'rust', label: 'Rust' },
-    { id: 'hail', label: 'Hail Damage' },
-    { id: 'none', label: 'No exterior damage' },
-  ],
-  interiorDamage: [
-    { id: 'stains', label: 'Noticeable Stains' },
-    { id: 'rips-tears', label: 'Rips or Tears in Seats' },
-    { id: 'odors', label: 'Persistent Odors' },
-    { id: 'damaged-panels', label: 'Damaged Dash/interior panels' },
-    { id: 'none', label: 'No interior damage' },
-  ],
-  technologyIssues: [
-    { id: 'sound-system', label: 'Sound System' },
-    { id: 'display', label: 'Interior Display' },
-    { id: 'backup-camera', label: 'Backup Camera' },
-    { id: 'safety-sensors', label: 'Safety Sensors' },
-    { id: 'missing-equipment', label: 'Missing Equipment' },
-    { id: 'none', label: 'No technology system issues' },
-  ],
-};
+export const CONDITION_OPTIONS = [
+  { value: 1, label: 'Poor', description: 'Major mechanical or cosmetic issues, needs significant repairs' },
+  { value: 2, label: 'Fair', description: 'Shows wear, may need some repairs, everything works' },
+  { value: 3, label: 'Good', description: 'Normal wear for age, well maintained, no major issues' },
+  { value: 4, label: 'Very Good', description: 'Minor wear only, excellent maintenance history' },
+  { value: 5, label: 'Excellent', description: 'Like new condition, garage kept, meticulously maintained' },
+] as const;
 
-export const FEATURE_OPTIONS = {
-  entertainment: [
-    { id: 'navigation', label: 'Navigation System' },
-    { id: 'premium-sound', label: 'Premium Sound' },
-  ],
-  accessoryPackages: [
-    { id: 'sport-appearance', label: 'Sport Appearance' },
-    { id: 'trail-runner', label: 'Trail Runner Special Edition' },
-    { id: 'premium-interior', label: 'Premium Interior Pkg' },
-  ],
-  exterior: [
-    { id: 'pickup-shell', label: 'Pickup Shell' },
-    { id: 'grille-guard', label: 'Grille Guard' },
-    { id: 'running-boards', label: 'Running Boards' },
-  ],
-  safetyAndSecurity: [
-    { id: 'lane-departure', label: 'Lane Departure Warning System' },
-  ],
-  cargoAndTowing: [
-    { id: 'tonneau-cover', label: 'Hard Tonneau Cover' },
-    { id: 'towing-pkg', label: 'Towing Pkg' },
-    { id: 'bed-liner', label: 'Bed Liner' },
-  ],
-  wheelsAndTires: [
-    { id: 'oversized-premium', label: 'Oversized Premium Wheels 20+' },
-    { id: 'off-road-tires', label: 'Oversize Off-Road Tires' },
-    { id: 'premium-wheels', label: 'Premium Wheels' },
-  ],
-  seats: [
-    { id: 'leather', label: 'Leather' },
-  ],
-};
+export const FEATURE_OPTIONS = [
+  // Safety Features
+  { id: 'backup-camera', label: 'Backup Camera', category: 'Safety' },
+  { id: 'blind-spot', label: 'Blind Spot Monitoring', category: 'Safety' },
+  { id: 'lane-departure', label: 'Lane Departure Warning', category: 'Safety' },
+  { id: 'collision-warning', label: 'Forward Collision Warning', category: 'Safety' },
+  { id: 'adaptive-cruise', label: 'Adaptive Cruise Control', category: 'Safety' },
+  { id: 'parking-sensors', label: 'Parking Sensors', category: 'Safety' },
+  
+  // Comfort Features
+  { id: 'leather-seats', label: 'Leather Seats', category: 'Comfort' },
+  { id: 'heated-seats', label: 'Heated Seats', category: 'Comfort' },
+  { id: 'cooled-seats', label: 'Cooled/Ventilated Seats', category: 'Comfort' },
+  { id: 'sunroof', label: 'Sunroof/Moonroof', category: 'Comfort' },
+  { id: 'power-seats', label: 'Power Adjustable Seats', category: 'Comfort' },
+  { id: 'memory-seats', label: 'Memory Seats', category: 'Comfort' },
+  { id: 'third-row', label: 'Third Row Seating', category: 'Comfort' },
+  
+  // Technology Features
+  { id: 'navigation', label: 'Navigation System', category: 'Technology' },
+  { id: 'premium-audio', label: 'Premium Audio System', category: 'Technology' },
+  { id: 'apple-carplay', label: 'Apple CarPlay', category: 'Technology' },
+  { id: 'android-auto', label: 'Android Auto', category: 'Technology' },
+  { id: 'bluetooth', label: 'Bluetooth', category: 'Technology' },
+  { id: 'wireless-charging', label: 'Wireless Phone Charging', category: 'Technology' },
+  { id: 'heads-up', label: 'Heads-Up Display', category: 'Technology' },
+  
+  // Exterior Features
+  { id: 'alloy-wheels', label: 'Alloy Wheels', category: 'Exterior' },
+  { id: 'roof-rack', label: 'Roof Rack', category: 'Exterior' },
+  { id: 'running-boards', label: 'Running Boards', category: 'Exterior' },
+  { id: 'tow-package', label: 'Tow Package', category: 'Exterior' },
+  { id: 'led-headlights', label: 'LED Headlights', category: 'Exterior' },
+  
+  // Performance Features
+  { id: 'remote-start', label: 'Remote Start', category: 'Performance' },
+  { id: 'keyless-entry', label: 'Keyless Entry', category: 'Performance' },
+  { id: 'push-start', label: 'Push Button Start', category: 'Performance' },
+  { id: 'sport-mode', label: 'Sport Mode', category: 'Performance' },
+] as const;
+
+export type VehicleColor = typeof VEHICLE_COLORS[number];
+export type ConditionOption = typeof CONDITION_OPTIONS[number];
+export type FeatureOption = typeof FEATURE_OPTIONS[number];
