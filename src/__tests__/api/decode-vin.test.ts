@@ -2,27 +2,28 @@
  * @jest-environment node
  */
 
-import { GET } from '@/app/api/decode-vin/route';
 import { NextRequest } from 'next/server';
 
-// Mock fetch for node environment
-global.fetch = jest.fn();
-
+// Mock modules BEFORE importing the route
 jest.mock('@/services/vinDecoder', () => ({
   decodeVIN: jest.fn(),
   isValidVIN: jest.fn(),
 }));
 
 jest.mock('@/services/vehicleImage', () => ({
+  getVehicleImageServerSide: jest.fn(),
   getVehicleImage: jest.fn(),
+  getFallbackImage: jest.fn(),
 }));
 
+// Now import everything
+import { GET } from '@/app/api/decode-vin/route';
 import { decodeVIN, isValidVIN } from '@/services/vinDecoder';
-import { getVehicleImage } from '@/services/vehicleImage';
+import { getVehicleImageServerSide } from '@/services/vehicleImage';
 
 const mockDecodeVIN = decodeVIN as jest.MockedFunction<typeof decodeVIN>;
 const mockIsValidVIN = isValidVIN as jest.MockedFunction<typeof isValidVIN>;
-const mockGetVehicleImage = getVehicleImage as jest.MockedFunction<typeof getVehicleImage>;
+const mockGetVehicleImageServerSide = getVehicleImageServerSide as jest.MockedFunction<typeof getVehicleImageServerSide>;
 
 const createRequest = (vin?: string) => {
   const url = vin 
@@ -34,6 +35,10 @@ const createRequest = (vin?: string) => {
 describe('GET /api/decode-vin', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Reset all mocks to default behavior
+    mockDecodeVIN.mockReset();
+    mockIsValidVIN.mockReset();
+    mockGetVehicleImageServerSide.mockReset();
   });
 
   it('returns 400 when VIN not provided', async () => {
@@ -66,7 +71,7 @@ describe('GET /api/decode-vin', () => {
 
     mockIsValidVIN.mockReturnValue(true);
     mockDecodeVIN.mockResolvedValue(mockVehicle);
-    mockGetVehicleImage.mockResolvedValue('https://example.com/car.jpg');
+    mockGetVehicleImageServerSide.mockResolvedValue('https://example.com/car.jpg');
 
     const request = createRequest('1GCVKNEC0MZ123456');
     const response = await GET(request);
@@ -85,7 +90,7 @@ describe('GET /api/decode-vin', () => {
       make: 'CHEVY',
       model: 'Silverado',
     });
-    mockGetVehicleImage.mockResolvedValue('https://example.com/car.jpg');
+    mockGetVehicleImageServerSide.mockResolvedValue('https://example.com/car.jpg');
 
     const request = createRequest('1GCVKNEC0MZ123456');
     await GET(request);
@@ -113,5 +118,23 @@ describe('GET /api/decode-vin', () => {
 
     expect(mockIsValidVIN).toHaveBeenCalledWith('SHORTVIN');
     expect(mockDecodeVIN).not.toHaveBeenCalled();
+  });
+
+  it('calls getVehicleImageServerSide with vehicle info', async () => {
+    const mockVehicle = {
+      vin: '1GCVKNEC0MZ123456',
+      year: 2021,
+      make: 'CHEVROLET',
+      model: 'Silverado',
+    };
+
+    mockIsValidVIN.mockReturnValue(true);
+    mockDecodeVIN.mockResolvedValue(mockVehicle);
+    mockGetVehicleImageServerSide.mockResolvedValue('https://example.com/car.jpg');
+
+    const request = createRequest('1GCVKNEC0MZ123456');
+    await GET(request);
+
+    expect(mockGetVehicleImageServerSide).toHaveBeenCalledWith(mockVehicle);
   });
 });
