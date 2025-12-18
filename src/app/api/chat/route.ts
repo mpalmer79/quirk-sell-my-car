@@ -1,71 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
+import {
+  checkRateLimit,
+  logRateLimitHit,
+  logChatInteraction,
+  logSecurityViolation,
+  validateInput,
+  chatRequestSchema,
+  sanitizeString,
+  quickBotCheck,
+  logBotDetection,
+  detectBot,
+  getClientIp,
+} from '@/lib/security';
 
-// ============================================================
-// RATE LIMITING (In-memory for demo; use Redis in production)
-// ============================================================
-// Export for testing - allows clearing between tests
-export const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 10; // 10 requests per minute per IP
-
-function getRateLimitKey(request: NextRequest): string {
-  const forwarded = request.headers.get('x-forwarded-for');
-  const realIp = request.headers.get('x-real-ip');
-  const ip = forwarded?.split(',')[0]?.trim() || realIp || 'anonymous';
-  return ip;
-}
-
-function checkRateLimit(key: string): { allowed: boolean; remaining: number } {
-  const now = Date.now();
-  const record = rateLimitMap.get(key);
-
-  if (!record || now > record.resetTime) {
-    rateLimitMap.set(key, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
-    return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - 1 };
-  }
-
-  if (record.count >= RATE_LIMIT_MAX_REQUESTS) {
-    return { allowed: false, remaining: 0 };
-  }
-
-  record.count++;
-  return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - record.count };
-}
-
-// Only run cleanup interval in non-test environment
-if (typeof jest === 'undefined' && typeof process !== 'undefined' && process.env.NODE_ENV !== 'test') {
-  setInterval(() => {
-    const now = Date.now();
-    for (const [key, record] of rateLimitMap.entries()) {
-      if (now > record.resetTime) {
-        rateLimitMap.delete(key);
-      }
-    }
-  }, 60000);
-}
-
-// ============================================================
-// LOGGING
-// ============================================================
-interface ChatLogEntry {
-  timestamp: string;
-  sessionId: string;
-  userMessage: string;
-  responseType: 'ai' | 'fallback' | 'error';
-  responseLength: number;
-  latencyMs: number;
-  ip: string;
-}
-
-function logChatInteraction(entry: ChatLogEntry): void {
-  if (process.env.NODE_ENV === 'production') {
-    console.log(JSON.stringify({ type: 'CHAT_INTERACTION', ...entry }));
-  }
-}
-
-// ============================================================
+// =============================================================================
 // SYSTEM PROMPT
-// ============================================================
+// =============================================================================
+
 const SYSTEM_PROMPT = `You are a helpful assistant for Quirk Auto Dealers, a trusted automotive dealership network in Massachusetts and New Hampshire.
 
 Your role is to help customers understand the vehicle selling/trade-in process and answer general questions.
@@ -88,9 +39,10 @@ GENERAL INFORMATION YOU CAN SHARE:
 
 Be friendly, helpful, and concise.`;
 
-// ============================================================
+// =============================================================================
 // FALLBACK RESPONSES
-// ============================================================
+// =============================================================================
+
 const FALLBACK_RESPONSES: Record<string, string> = {
   'offer': `Getting a preliminary estimate is easy! Enter your VIN on our homepage and follow the steps. The online estimate takes about 5 minutes.
 
@@ -131,7 +83,6 @@ What would you like to know more about?`,
 function getFallbackResponse(userMessage: string): string {
   const messageLower = userMessage.toLowerCase();
   
-  // Check 'valid' before 'offer' since "offer valid" contains both
   if (messageLower.includes('valid')) {
     return FALLBACK_RESPONSES['valid'];
   }
@@ -145,18 +96,20 @@ function getFallbackResponse(userMessage: string): string {
   return FALLBACK_RESPONSES.default;
 }
 
-// ============================================================
+// =============================================================================
 // MAIN API HANDLER
-// ============================================================
+// =============================================================================
+
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
   const sessionId = request.headers.get('x-session-id') || 'unknown';
-  const rateLimitKey = getRateLimitKey(request);
 
-  // Check rate limit
-  const { allowed, remaining } = checkRateLimit(rateLimitKey);
+  // ===== Rate Limiting =====
+  const rateLimitResult = checkRateLimit(request, '/api/chat');
   
-  if (!allowed) {
+  if (!rateLimitResult.allowed) {
+    logRateLimitHit(request, '/api/chat', rateLimitResult.blocked);
+    
     return NextResponse.json(
       { 
         content: "You've sent too many messages. Please wait a moment before trying again, or call us at (603) 263-4552 for immediate help.",
@@ -166,57 +119,77 @@ export async function POST(request: NextRequest) {
         status: 429,
         headers: {
           'X-RateLimit-Remaining': '0',
-          'X-RateLimit-Reset': String(Math.ceil(RATE_LIMIT_WINDOW_MS / 1000)),
+          'X-RateLimit-Reset': String(Math.ceil(rateLimitResult.resetTime / 1000)),
+          'Retry-After': String(rateLimitResult.retryAfter || 60),
         }
       }
     );
   }
 
+  // ===== Bot Detection =====
+  const botResult = detectBot(request);
+  if (botResult.isBot && botResult.confidence >= 70) {
+    logBotDetection(request, botResult.confidence, botResult.reasons);
+    
+    return NextResponse.json(
+      { 
+        content: "I'm sorry, I couldn't process your request. Please try again or call (603) 263-4552.",
+        error: 'REQUEST_BLOCKED'
+      },
+      { status: 403 }
+    );
+  }
+
   try {
     const body = await request.json();
-    const messages = body?.messages;
     
-    // Input validation - MUST check before accessing messages properties
-    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+    // ===== Input Validation =====
+    const validation = validateInput(chatRequestSchema, body);
+    
+    if (!validation.success) {
       return NextResponse.json(
-        { content: 'Invalid request format', error: 'INVALID_REQUEST' },
+        { content: 'Invalid request format', error: 'INVALID_REQUEST', details: validation.errors },
         { status: 400 }
       );
     }
+    
+    const { messages } = validation.data;
+    const userMessage = sanitizeString(messages[messages.length - 1]?.content || '', {
+      maxLength: 2000,
+      allowNewlines: true,
+    });
 
-    const userMessage = messages[messages.length - 1]?.content || '';
-
-    // Check for excessively long messages
-    if (userMessage.length > 2000) {
+    // Check for suspicious content
+    if (containsSuspiciousPatterns(userMessage)) {
+      logSecurityViolation(request, 'Suspicious chat message content', {
+        messagePreview: userMessage.substring(0, 100),
+      });
+      
       return NextResponse.json(
-        { content: 'Message too long. Please keep messages under 2000 characters.', error: 'MESSAGE_TOO_LONG' },
+        { content: 'Your message could not be processed. Please rephrase and try again.', error: 'INVALID_CONTENT' },
         { status: 400 }
       );
     }
 
     const apiKey = process.env.ANTHROPIC_API_KEY;
 
-    // Fallback mode (no API key)
+    // ===== Fallback Mode (no API key) =====
     if (!apiKey) {
       const response = getFallbackResponse(userMessage);
       
-      logChatInteraction({
-        timestamp: new Date().toISOString(),
-        sessionId,
-        userMessage: userMessage.substring(0, 100),
-        responseType: 'fallback',
-        responseLength: response.length,
-        latencyMs: Date.now() - startTime,
-        ip: rateLimitKey,
-      });
+      logChatInteraction(request, userMessage.length, 'fallback', Date.now() - startTime);
 
       return NextResponse.json(
         { content: response },
-        { headers: { 'X-RateLimit-Remaining': String(remaining) } }
+        { 
+          headers: { 
+            'X-RateLimit-Remaining': String(rateLimitResult.remaining) 
+          } 
+        }
       );
     }
 
-    // Call Anthropic API
+    // ===== Call Anthropic API =====
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -228,9 +201,9 @@ export async function POST(request: NextRequest) {
         model: 'claude-sonnet-4-20250514',
         max_tokens: 500,
         system: SYSTEM_PROMPT,
-        messages: messages.slice(-10).map((m: { role: string; content: string }) => ({
+        messages: messages.slice(-10).map((m) => ({
           role: m.role,
-          content: m.content.substring(0, 2000),
+          content: sanitizeString(m.content, { maxLength: 2000 }),
         })),
       }),
     });
@@ -244,33 +217,21 @@ export async function POST(request: NextRequest) {
     const data = await response.json();
     const content = data.content[0]?.text || 'I apologize, but I encountered an issue. Please try again or call (603) 263-4552.';
 
-    logChatInteraction({
-      timestamp: new Date().toISOString(),
-      sessionId,
-      userMessage: userMessage.substring(0, 100),
-      responseType: 'ai',
-      responseLength: content.length,
-      latencyMs: Date.now() - startTime,
-      ip: rateLimitKey,
-    });
+    logChatInteraction(request, userMessage.length, 'ai', Date.now() - startTime);
 
     return NextResponse.json(
       { content },
-      { headers: { 'X-RateLimit-Remaining': String(remaining) } }
+      { 
+        headers: { 
+          'X-RateLimit-Remaining': String(rateLimitResult.remaining) 
+        } 
+      }
     );
 
   } catch (error) {
     console.error('Chat API error:', error);
     
-    logChatInteraction({
-      timestamp: new Date().toISOString(),
-      sessionId,
-      userMessage: 'ERROR',
-      responseType: 'error',
-      responseLength: 0,
-      latencyMs: Date.now() - startTime,
-      ip: rateLimitKey,
-    });
+    logChatInteraction(request, 0, 'error', Date.now() - startTime);
 
     return NextResponse.json(
       { 
@@ -280,4 +241,25 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+// =============================================================================
+// HELPER FUNCTIONS
+// =============================================================================
+
+function containsSuspiciousPatterns(input: string): boolean {
+  const suspiciousPatterns = [
+    /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+    /javascript:/gi,
+    /on\w+\s*=/gi,
+    /data:/gi,
+    /vbscript:/gi,
+    /{{.*}}/g,
+    /\$\{.*\}/g,
+    /<iframe/gi,
+    /<object/gi,
+    /<embed/gi,
+  ];
+  
+  return suspiciousPatterns.some((pattern) => pattern.test(input));
 }
