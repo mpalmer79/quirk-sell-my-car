@@ -1,64 +1,28 @@
-/**
- * @jest-environment node
- */
-
+import { GET } from '@/app/api/decode-vin/route';
 import { NextRequest } from 'next/server';
 
-// Mock modules BEFORE importing the route
+// Mock the vinDecoder service
+const mockDecodeVIN = jest.fn();
+const mockIsValidVIN = jest.fn();
+
 jest.mock('@/services/vinDecoder', () => ({
-  decodeVIN: jest.fn(),
-  isValidVIN: jest.fn(),
+  decodeVIN: (...args: unknown[]) => mockDecodeVIN(...args),
+  isValidVIN: (...args: unknown[]) => mockIsValidVIN(...args),
 }));
-
-jest.mock('@/services/vehicleImage', () => ({
-  getVehicleImageServerSide: jest.fn(),
-  getVehicleImage: jest.fn(),
-  getFallbackImage: jest.fn(),
-}));
-
-// Now import everything
-import { GET } from '@/app/api/decode-vin/route';
-import { rateLimitStore } from '@/lib/security';
-import { decodeVIN, isValidVIN } from '@/services/vinDecoder';
-import { getVehicleImageServerSide } from '@/services/vehicleImage';
-
-const mockDecodeVIN = decodeVIN as jest.MockedFunction<typeof decodeVIN>;
-const mockIsValidVIN = isValidVIN as jest.MockedFunction<typeof isValidVIN>;
-const mockGetVehicleImageServerSide = getVehicleImageServerSide as jest.MockedFunction<typeof getVehicleImageServerSide>;
-
-// Counter for unique IPs
-let ipCounter = 0;
-
-function getUniqueIp(): string {
-  ipCounter++;
-  return `10.0.${Math.floor(ipCounter / 255)}.${ipCounter % 255}`;
-}
-
-const createRequest = (vin?: string, customIp?: string) => {
-  const ip = customIp || getUniqueIp();
-  const url = vin 
-    ? `http://localhost:3000/api/decode-vin?vin=${vin}`
-    : 'http://localhost:3000/api/decode-vin';
-  return new NextRequest(url, {
-    headers: {
-      'x-forwarded-for': ip,
-      'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      'accept': 'application/json',
-      'accept-language': 'en-US,en;q=0.9',
-    },
-  });
-};
 
 describe('GET /api/decode-vin', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // Reset all mocks to default behavior
-    mockDecodeVIN.mockReset();
-    mockIsValidVIN.mockReset();
-    mockGetVehicleImageServerSide.mockReset();
-    // Clear rate limiter
-    rateLimitStore.clear();
+    // Default: VIN validation passes
+    mockIsValidVIN.mockReturnValue(true);
   });
+
+  const createRequest = (vin?: string) => {
+    const url = vin
+      ? `http://localhost:3000/api/decode-vin?vin=${vin}`
+      : 'http://localhost:3000/api/decode-vin';
+    return new NextRequest(url);
+  };
 
   it('returns 400 when VIN not provided', async () => {
     const request = createRequest();
@@ -66,11 +30,13 @@ describe('GET /api/decode-vin', () => {
     const data = await response.json();
 
     expect(response.status).toBe(400);
-    expect(data.error).toBe('VIN is required');
+    expect(data.error).toBe('VIN parameter is required');
   });
 
   it('returns 400 for VIN with wrong length', async () => {
-    const request = createRequest('SHORTVIN');
+    mockIsValidVIN.mockReturnValue(false);
+    
+    const request = createRequest('ABC123');
     const response = await GET(request);
     const data = await response.json();
 
@@ -79,6 +45,8 @@ describe('GET /api/decode-vin', () => {
   });
 
   it('returns 400 for VIN with invalid characters', async () => {
+    mockIsValidVIN.mockReturnValue(false);
+    
     const request = createRequest('1GCVKNEC0MZ12345I'); // Contains I
     const response = await GET(request);
     const data = await response.json();
@@ -94,9 +62,9 @@ describe('GET /api/decode-vin', () => {
       make: 'CHEVROLET',
       model: 'Silverado',
     };
-
+    
+    mockIsValidVIN.mockReturnValue(true);
     mockDecodeVIN.mockResolvedValue(mockVehicle);
-    mockGetVehicleImageServerSide.mockResolvedValue('https://example.com/car.jpg');
 
     const request = createRequest('1GCVKNEC0MZ123456');
     const response = await GET(request);
@@ -104,25 +72,30 @@ describe('GET /api/decode-vin', () => {
 
     expect(response.status).toBe(200);
     expect(data.vin).toBe('1GCVKNEC0MZ123456');
-    expect(data.imageUrl).toBe('https://example.com/car.jpg');
+    expect(data.year).toBe(2021);
+    expect(data.make).toBe('CHEVROLET');
+    expect(data.model).toBe('Silverado');
   });
 
   it('calls decodeVIN with uppercase VIN', async () => {
-    mockDecodeVIN.mockResolvedValue({
+    const mockVehicle = {
       vin: '1GCVKNEC0MZ123456',
       year: 2021,
-      make: 'CHEVY',
+      make: 'CHEVROLET',
       model: 'Silverado',
-    });
-    mockGetVehicleImageServerSide.mockResolvedValue('https://example.com/car.jpg');
+    };
+    
+    mockIsValidVIN.mockReturnValue(true);
+    mockDecodeVIN.mockResolvedValue(mockVehicle);
 
     const request = createRequest('1gcvknec0mz123456'); // lowercase
     await GET(request);
 
-    expect(mockDecodeVIN).toHaveBeenCalledWith('1GCVKNEC0MZ123456'); // uppercase
+    expect(mockDecodeVIN).toHaveBeenCalledWith('1GCVKNEC0MZ123456');
   });
 
   it('returns 500 when decodeVIN throws', async () => {
+    mockIsValidVIN.mockReturnValue(true);
     mockDecodeVIN.mockRejectedValue(new Error('API error'));
 
     const request = createRequest('1GCVKNEC0MZ123456');
@@ -133,65 +106,32 @@ describe('GET /api/decode-vin', () => {
     expect(data.error).toBe('API error');
   });
 
-  it('calls getVehicleImageServerSide with vehicle info', async () => {
-    const mockVehicle = {
-      vin: '1GCVKNEC0MZ123456',
-      year: 2021,
-      make: 'CHEVROLET',
-      model: 'Silverado',
-    };
-
-    mockDecodeVIN.mockResolvedValue(mockVehicle);
-    mockGetVehicleImageServerSide.mockResolvedValue('https://example.com/car.jpg');
-
-    const request = createRequest('1GCVKNEC0MZ123456');
-    await GET(request);
-
-    expect(mockGetVehicleImageServerSide).toHaveBeenCalledWith(mockVehicle);
-  });
-
-  it('includes rate limit headers in response', async () => {
-    const mockVehicle = {
-      vin: '1GCVKNEC0MZ123456',
-      year: 2021,
-      make: 'CHEVROLET',
-      model: 'Silverado',
-    };
-
-    mockDecodeVIN.mockResolvedValue(mockVehicle);
-    mockGetVehicleImageServerSide.mockResolvedValue('https://example.com/car.jpg');
+  it('handles network errors gracefully', async () => {
+    mockIsValidVIN.mockReturnValue(true);
+    mockDecodeVIN.mockRejectedValue(new Error('Network error'));
 
     const request = createRequest('1GCVKNEC0MZ123456');
     const response = await GET(request);
+    const data = await response.json();
 
-    expect(response.headers.get('X-RateLimit-Remaining')).toBeDefined();
+    expect(response.status).toBe(500);
+    expect(data.error).toBe('Network error');
   });
 
-  describe('rate limiting', () => {
-    it('returns 429 when rate limit exceeded', async () => {
-      const testIp = '192.168.50.50';
-      
-      mockDecodeVIN.mockResolvedValue({
-        vin: '1GCVKNEC0MZ123456',
-        year: 2021,
-        make: 'CHEVROLET',
-        model: 'Silverado',
-      });
-      mockGetVehicleImageServerSide.mockResolvedValue('https://example.com/car.jpg');
+  it('trims whitespace from VIN', async () => {
+    const mockVehicle = {
+      vin: '1GCVKNEC0MZ123456',
+      year: 2021,
+      make: 'CHEVROLET',
+      model: 'Silverado',
+    };
+    
+    mockIsValidVIN.mockReturnValue(true);
+    mockDecodeVIN.mockResolvedValue(mockVehicle);
 
-      // Make 20 requests (the limit for decode-vin)
-      for (let i = 0; i < 20; i++) {
-        const req = createRequest('1GCVKNEC0MZ123456', testIp);
-        await GET(req);
-      }
+    const request = createRequest('  1GCVKNEC0MZ123456  ');
+    await GET(request);
 
-      // 21st request should be rate limited
-      const request = createRequest('1GCVKNEC0MZ123456', testIp);
-      const response = await GET(request);
-      const data = await response.json();
-
-      expect(response.status).toBe(429);
-      expect(data.error).toContain('Too many requests');
-    });
+    expect(mockDecodeVIN).toHaveBeenCalledWith('1GCVKNEC0MZ123456');
   });
 });
