@@ -41,13 +41,14 @@ const ALL_ENGINES = [
 function getEngineFromVIN(vehicleInfo: { displacement?: string; engineCylinders?: string; fuelType?: string; electrificationLevel?: string } | null): string | null {
   if (!vehicleInfo) return null;
   
-  const cylinders = vehicleInfo.engineCylinders;
+  const cylindersStr = vehicleInfo.engineCylinders;
+  const cylinders = cylindersStr ? parseInt(cylindersStr, 10) : null;
   const fuelType = vehicleInfo.fuelType?.toLowerCase() || '';
   const electrification = vehicleInfo.electrificationLevel?.toLowerCase() || '';
   const displacement = parseFloat(vehicleInfo.displacement || '0');
   
   // Check for electric first
-  if (electrification.includes('ev') || electrification.includes('bev') || fuelType.includes('electric')) {
+  if (electrification.includes('ev') || electrification.includes('bev') || electrification.includes('battery electric') || fuelType.includes('electric')) {
     return 'Electric';
   }
   
@@ -58,23 +59,23 @@ function getEngineFromVIN(vehicleInfo: { displacement?: string; engineCylinders?
   
   // Check for diesel
   if (fuelType.includes('diesel')) {
-    if (cylinders === '4') return '4-Cylinder Diesel';
-    if (cylinders === '6') return 'V6 Diesel';
+    if (cylinders === 4) return '4-Cylinder Diesel';
+    if (cylinders === 6) return 'V6 Diesel';
     return '4-Cylinder Diesel'; // Default diesel
   }
   
   // Determine if turbo based on displacement (smaller displacement with higher power usually means turbo)
   // This is a heuristic - ideally VIN data would include forced induction info
-  const isTurbo = displacement > 0 && displacement < 2.5 && cylinders === '4';
+  const isTurbo = displacement > 0 && displacement < 2.5 && cylinders === 4;
   
   // Standard gas engines
-  if (cylinders === '4') {
+  if (cylinders === 4) {
     return isTurbo ? '4-Cylinder Turbo' : '4-Cylinder';
   }
-  if (cylinders === '6') {
+  if (cylinders === 6) {
     return 'V6';
   }
-  if (cylinders === '8') {
+  if (cylinders === 8) {
     return 'V8';
   }
   
