@@ -34,112 +34,75 @@ describe('Vehicle Types and Constants', () => {
   });
 
   describe('CONDITION_OPTIONS', () => {
-    it('has 5 condition levels', () => {
-      expect(CONDITION_OPTIONS.length).toBe(5);
+    it('has all required categories', () => {
+      expect(CONDITION_OPTIONS.mechanicalIssues).toBeDefined();
+      expect(CONDITION_OPTIONS.engineIssues).toBeDefined();
+      expect(CONDITION_OPTIONS.exteriorDamage).toBeDefined();
+      expect(CONDITION_OPTIONS.interiorDamage).toBeDefined();
+      expect(CONDITION_OPTIONS.technologyIssues).toBeDefined();
     });
 
-    it('has values from 1 to 5', () => {
-      const values = CONDITION_OPTIONS.map(o => o.value);
-      expect(values).toContain(1);
-      expect(values).toContain(2);
-      expect(values).toContain(3);
-      expect(values).toContain(4);
-      expect(values).toContain(5);
-    });
-
-    it('has labels for all options', () => {
-      CONDITION_OPTIONS.forEach(option => {
+    it('mechanicalIssues has valid options', () => {
+      expect(CONDITION_OPTIONS.mechanicalIssues.length).toBeGreaterThan(3);
+      CONDITION_OPTIONS.mechanicalIssues.forEach(option => {
+        expect(option.id).toBeDefined();
         expect(option.label).toBeDefined();
-        expect(option.label.length).toBeGreaterThan(0);
       });
     });
 
-    it('has descriptions for all options', () => {
-      CONDITION_OPTIONS.forEach(option => {
-        expect(option.description).toBeDefined();
-        expect(option.description.length).toBeGreaterThan(0);
+    it('engineIssues has valid options', () => {
+      expect(CONDITION_OPTIONS.engineIssues.length).toBeGreaterThan(3);
+      CONDITION_OPTIONS.engineIssues.forEach(option => {
+        expect(option.id).toBeDefined();
+        expect(option.label).toBeDefined();
       });
     });
 
-    it('has expected labels', () => {
-      const labels = CONDITION_OPTIONS.map(o => o.label);
-      expect(labels).toContain('Poor');
-      expect(labels).toContain('Fair');
-      expect(labels).toContain('Good');
-      expect(labels).toContain('Very Good');
-      expect(labels).toContain('Excellent');
-    });
-
-    it('options are sorted by value ascending', () => {
-      for (let i = 0; i < CONDITION_OPTIONS.length - 1; i++) {
-        expect(CONDITION_OPTIONS[i].value).toBeLessThan(CONDITION_OPTIONS[i + 1].value);
-      }
+    it('each category has a "none" option', () => {
+      expect(CONDITION_OPTIONS.mechanicalIssues.find(o => o.id === 'none')).toBeDefined();
+      expect(CONDITION_OPTIONS.engineIssues.find(o => o.id === 'none')).toBeDefined();
+      expect(CONDITION_OPTIONS.exteriorDamage.find(o => o.id === 'none')).toBeDefined();
+      expect(CONDITION_OPTIONS.interiorDamage.find(o => o.id === 'none')).toBeDefined();
+      expect(CONDITION_OPTIONS.technologyIssues.find(o => o.id === 'none')).toBeDefined();
     });
   });
 
   describe('FEATURE_OPTIONS', () => {
-    it('has multiple feature options', () => {
-      expect(FEATURE_OPTIONS.length).toBeGreaterThan(10);
+    it('has all required categories', () => {
+      expect(FEATURE_OPTIONS.entertainment).toBeDefined();
+      expect(FEATURE_OPTIONS.accessoryPackages).toBeDefined();
+      expect(FEATURE_OPTIONS.exterior).toBeDefined();
+      expect(FEATURE_OPTIONS.safetyAndSecurity).toBeDefined();
+      expect(FEATURE_OPTIONS.cargoAndTowing).toBeDefined();
+      expect(FEATURE_OPTIONS.wheelsAndTires).toBeDefined();
+      expect(FEATURE_OPTIONS.seats).toBeDefined();
     });
 
-    it('all options have id, label, and category', () => {
-      FEATURE_OPTIONS.forEach(option => {
+    it('entertainment has valid options', () => {
+      expect(FEATURE_OPTIONS.entertainment.length).toBeGreaterThan(3);
+      FEATURE_OPTIONS.entertainment.forEach(option => {
         expect(option.id).toBeDefined();
-        expect(option.id.length).toBeGreaterThan(0);
         expect(option.label).toBeDefined();
-        expect(option.label.length).toBeGreaterThan(0);
-        expect(option.category).toBeDefined();
-        expect(option.category.length).toBeGreaterThan(0);
       });
     });
 
-    it('has Safety category options', () => {
-      const safetyOptions = FEATURE_OPTIONS.filter(o => o.category === 'Safety');
-      expect(safetyOptions.length).toBeGreaterThan(0);
-      
-      const ids = safetyOptions.map(o => o.id);
+    it('safetyAndSecurity has backup-camera', () => {
+      const ids = FEATURE_OPTIONS.safetyAndSecurity.map(o => o.id);
       expect(ids).toContain('backup-camera');
     });
 
-    it('has Comfort category options', () => {
-      const comfortOptions = FEATURE_OPTIONS.filter(o => o.category === 'Comfort');
-      expect(comfortOptions.length).toBeGreaterThan(0);
-      
-      const ids = comfortOptions.map(o => o.id);
-      expect(ids).toContain('leather-seats');
-      expect(ids).toContain('heated-seats');
+    it('seats has leather and heated-front options', () => {
+      const ids = FEATURE_OPTIONS.seats.map(o => o.id);
+      expect(ids).toContain('leather');
+      expect(ids).toContain('heated-front');
     });
 
-    it('has Technology category options', () => {
-      const techOptions = FEATURE_OPTIONS.filter(o => o.category === 'Technology');
-      expect(techOptions.length).toBeGreaterThan(0);
-      
-      const ids = techOptions.map(o => o.id);
-      expect(ids).toContain('navigation');
-      expect(ids).toContain('apple-carplay');
-    });
-
-    it('has Exterior category options', () => {
-      const exteriorOptions = FEATURE_OPTIONS.filter(o => o.category === 'Exterior');
-      expect(exteriorOptions.length).toBeGreaterThan(0);
-      
-      const ids = exteriorOptions.map(o => o.id);
-      expect(ids).toContain('alloy-wheels');
-      expect(ids).toContain('tow-package');
-    });
-
-    it('has Performance category options', () => {
-      const perfOptions = FEATURE_OPTIONS.filter(o => o.category === 'Performance');
-      expect(perfOptions.length).toBeGreaterThan(0);
-      
-      const ids = perfOptions.map(o => o.id);
-      expect(ids).toContain('remote-start');
-    });
-
-    it('all ids are unique', () => {
-      const ids = FEATURE_OPTIONS.map(o => o.id);
-      const uniqueIds = [...new Set(ids)];
-      expect(ids.length).toBe(uniqueIds.length);
+    it('all ids are unique within each category', () => {
+      Object.values(FEATURE_OPTIONS).forEach(category => {
+        const ids = category.map(o => o.id);
+        const uniqueIds = [...new Set(ids)];
+        expect(ids.length).toBe(uniqueIds.length);
+      });
     });
   });
 
@@ -197,7 +160,7 @@ describe('Vehicle Types and Constants', () => {
     });
 
     it('allows all fields to be optional', () => {
-      const basics: VehicleBasics = {};
+      const basics: Partial<VehicleBasics> = {};
       expect(basics.mileage).toBeUndefined();
     });
   });
@@ -205,46 +168,107 @@ describe('Vehicle Types and Constants', () => {
   describe('VehicleFeatures type', () => {
     it('accepts valid features', () => {
       const features: VehicleFeatures = {
-        selectedFeatures: ['navigation', 'leather-seats', 'backup-camera'],
-        additionalInfo: 'Recently serviced',
+        entertainment: ['navigation', 'bluetooth'],
+        accessoryPackages: ['sport-package'],
+        exterior: ['sunroof'],
+        safetyAndSecurity: ['backup-camera'],
+        cargoAndTowing: ['trailer-hitch'],
+        wheelsAndTires: ['alloy-wheels'],
+        seats: ['leather', 'heated-front'],
       };
 
-      expect(features.selectedFeatures).toHaveLength(3);
-      expect(features.additionalInfo).toBe('Recently serviced');
+      expect(features.entertainment).toHaveLength(2);
+      expect(features.seats).toContain('leather');
     });
   });
 
   describe('VehicleCondition type', () => {
     it('accepts valid condition', () => {
       const condition: VehicleCondition = {
-        exterior: 4,
-        interior: 4,
-        mechanical: 5,
-        tires: 3,
-        hasAccidentHistory: false,
-        hasMajorRepairs: false,
-        titleStatus: 'clean',
-        keys: 2,
+        accidentHistory: 'none',
+        drivability: 'drivable',
+        mechanicalIssues: ['none'],
+        engineIssues: ['none'],
+        exteriorDamage: ['scratches'],
+        interiorDamage: ['none'],
+        technologyIssues: ['none'],
+        windshieldDamage: 'none',
+        tiresReplaced: 'none',
+        modifications: false,
+        smokedIn: false,
+        keys: '2+',
+        overallCondition: 'pretty-great',
       };
 
-      expect(condition.exterior).toBe(4);
-      expect(condition.titleStatus).toBe('clean');
+      expect(condition.accidentHistory).toBe('none');
+      expect(condition.overallCondition).toBe('pretty-great');
+    });
+
+    it('allows partial condition data', () => {
+      const condition: Partial<VehicleCondition> = {
+        accidentHistory: '1',
+        drivability: 'drivable',
+      };
+
+      expect(condition.accidentHistory).toBe('1');
+      expect(condition.mechanicalIssues).toBeUndefined();
     });
   });
 
   describe('OfferData type', () => {
     it('accepts valid offer data', () => {
+      const vehicleInfo: VehicleInfo = {
+        vin: '1GCVKNEC0MZ123456',
+        year: 2021,
+        make: 'CHEVROLET',
+        model: 'Silverado',
+      };
+
+      const basics: VehicleBasics = {
+        mileage: 50000,
+        zipCode: '03060',
+      };
+
+      const features: VehicleFeatures = {
+        entertainment: [],
+        accessoryPackages: [],
+        exterior: [],
+        safetyAndSecurity: [],
+        cargoAndTowing: [],
+        wheelsAndTires: [],
+        seats: [],
+      };
+
+      const condition: VehicleCondition = {
+        accidentHistory: 'none',
+        drivability: 'drivable',
+        mechanicalIssues: ['none'],
+        engineIssues: ['none'],
+        exteriorDamage: ['none'],
+        interiorDamage: ['none'],
+        technologyIssues: ['none'],
+        windshieldDamage: 'none',
+        tiresReplaced: 'none',
+        modifications: false,
+        smokedIn: false,
+        keys: '2+',
+        overallCondition: 'pretty-great',
+      };
+
       const offer: OfferData = {
+        vehicleInfo,
+        basics,
+        features,
+        condition,
         estimatedValue: 25000,
-        lowValue: 23000,
-        highValue: 27000,
-        confidenceScore: 0.85,
-        validUntil: '2024-12-31',
-        confirmationNumber: 'QRK-123456',
+        offerAmount: 23500,
+        offerExpiry: '2024-12-31T00:00:00.000Z',
+        isPreliminary: true,
       };
 
       expect(offer.estimatedValue).toBe(25000);
-      expect(offer.confirmationNumber).toBe('QRK-123456');
+      expect(offer.offerAmount).toBe(23500);
+      expect(offer.isPreliminary).toBe(true);
     });
   });
 });
