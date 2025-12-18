@@ -5,7 +5,9 @@
 import { POST } from '@/app/api/chat/route';
 import { NextRequest } from 'next/server';
 
-const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
+// Mock fetch for node environment
+const mockFetch = jest.fn();
+global.fetch = mockFetch;
 
 const createRequest = (body: object) => {
   return new NextRequest('http://localhost:3000/api/chat', {
@@ -104,7 +106,7 @@ describe('POST /api/chat', () => {
         json: async () => ({
           content: [{ text: 'AI response' }],
         }),
-      } as Response);
+      });
 
       const request = createRequest({
         messages: [{ role: 'user', content: 'Hello' }],
@@ -129,7 +131,7 @@ describe('POST /api/chat', () => {
         json: async () => ({
           content: [{ text: 'Here is my response' }],
         }),
-      } as Response);
+      });
 
       const request = createRequest({
         messages: [{ role: 'user', content: 'Hello' }],
@@ -146,7 +148,7 @@ describe('POST /api/chat', () => {
       mockFetch.mockResolvedValueOnce({
         ok: false,
         text: async () => 'API Error',
-      } as Response);
+      });
 
       const request = createRequest({
         messages: [{ role: 'user', content: 'Hello' }],
@@ -179,7 +181,7 @@ describe('POST /api/chat', () => {
         json: async () => ({
           content: [{ text: 'Response' }],
         }),
-      } as Response);
+      });
 
       const messages = [
         { role: 'user', content: 'Hi' },
