@@ -268,18 +268,14 @@ export default function BasicsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Mobile Progress */}
-      <MobileProgress currentStep="2" />
+    <div className="min-h-screen bg-quirk-gray-50 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Mobile Progress */}
+        <MobileProgress currentStep="basics" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex gap-8">
           {/* Sidebar */}
-          <div className="lg:w-80 flex-shrink-0">
-            <div className="lg:sticky lg:top-8">
-              <StepNavigation currentStep="2" />
-            </div>
-          </div>
+          <StepNavigation currentStep="basics" completedSteps={['vehicle']} />
 
           {/* Main Content */}
           <div className="flex-1 max-w-2xl">
