@@ -2,12 +2,20 @@
  * @jest-environment node
  */
 
-import { POST } from '@/app/api/chat/route';
+import { POST, rateLimitMap } from '@/app/api/chat/route';
 import { NextRequest } from 'next/server';
 
 // Mock fetch for node environment
 global.fetch = jest.fn();
 const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
+
+// Counter for unique IPs
+let ipCounter = 0;
+
+function getUniqueIp(): string {
+  ipCounter++;
+  return `10.0.${Math.floor(ipCounter / 255)}.${ipCounter % 255}`;
+}
 
 describe('POST /api/chat', () => {
   const originalEnv = process.env;
@@ -16,19 +24,21 @@ describe('POST /api/chat', () => {
     jest.clearAllMocks();
     mockFetch.mockReset();
     process.env = { ...originalEnv };
+    // CRITICAL: Clear rate limiter before each test
+    rateLimitMap.clear();
   });
 
   afterAll(() => {
     process.env = originalEnv;
   });
 
-  const createRequest = (body: object, headers?: Record<string, string>) => {
+  const createRequest = (body: object, customIp?: string) => {
+    const ip = customIp || getUniqueIp();
     return new NextRequest('http://localhost:3000/api/chat', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
-        'x-forwarded-for': '127.0.0.1',
-        ...headers 
+        'x-forwarded-for': ip,
       },
       body: JSON.stringify(body),
     });
@@ -84,7 +94,6 @@ describe('POST /api/chat', () => {
       const data = await response.json();
 
       expect(response.status).toBe(200);
-      // New response mentions contacting Quirk rep for validity info
       expect(data.content).toContain('Quirk representative');
     });
 
@@ -182,9 +191,10 @@ describe('POST /api/chat', () => {
 
       await POST(request);
 
+      expect(mockFetch).toHaveBeenCalledTimes(1);
       const fetchCall = mockFetch.mock.calls[0];
+      expect(fetchCall).toBeDefined();
       const body = JSON.parse(fetchCall[1]?.body as string);
-
       expect(body.model).toBe('claude-sonnet-4-20250514');
     });
 
@@ -202,9 +212,10 @@ describe('POST /api/chat', () => {
 
       await POST(request);
 
+      expect(mockFetch).toHaveBeenCalledTimes(1);
       const fetchCall = mockFetch.mock.calls[0];
+      expect(fetchCall).toBeDefined();
       const body = JSON.parse(fetchCall[1]?.body as string);
-
       expect(body.system).toContain('Quirk Auto Dealers');
     });
 
@@ -286,7 +297,6 @@ describe('POST /api/chat', () => {
         }),
       } as Response);
 
-      // Create 15 messages
       const messages = Array.from({ length: 15 }, (_, i) => ({
         role: i % 2 === 0 ? 'user' : 'assistant',
         content: `Message ${i + 1}`,
@@ -296,10 +306,10 @@ describe('POST /api/chat', () => {
 
       await POST(request);
 
+      expect(mockFetch).toHaveBeenCalledTimes(1);
       const fetchCall = mockFetch.mock.calls[0];
+      expect(fetchCall).toBeDefined();
       const body = JSON.parse(fetchCall[1]?.body as string);
-
-      // Should only send last 10 messages
       expect(body.messages.length).toBe(10);
     });
 
@@ -317,20 +327,25 @@ describe('POST /api/chat', () => {
 
       await POST(request);
 
+      expect(mockFetch).toHaveBeenCalledTimes(1);
       const fetchCall = mockFetch.mock.calls[0];
+      expect(fetchCall).toBeDefined();
       const body = JSON.parse(fetchCall[1]?.body as string);
-
       expect(body.max_tokens).toBe(500);
     });
   });
 
   describe('error handling', () => {
+    beforeEach(() => {
+      delete process.env.ANTHROPIC_API_KEY;
+    });
+
     it('handles malformed JSON in request body', async () => {
       const request = new NextRequest('http://localhost:3000/api/chat', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'x-forwarded-for': '127.0.0.1',
+          'x-forwarded-for': getUniqueIp(),
         },
         body: 'not valid json',
       });
@@ -340,6 +355,49 @@ describe('POST /api/chat', () => {
 
       expect(response.status).toBe(500);
       expect(data.content).toContain('trouble connecting');
+    });
+  });
+
+  describe('rate limiting', () => {
+    beforeEach(() => {
+      delete process.env.ANTHROPIC_API_KEY;
+    });
+
+    it('returns 429 when rate limit exceeded', async () => {
+      const testIp = '192.168.99.99';
+      
+      // Make 10 requests (the limit)
+      for (let i = 0; i < 10; i++) {
+        const req = new NextRequest('http://localhost:3000/api/chat', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'x-forwarded-for': testIp,
+          },
+          body: JSON.stringify({
+            messages: [{ role: 'user', content: `Message ${i}` }],
+          }),
+        });
+        await POST(req);
+      }
+
+      // 11th request should be rate limited
+      const request = new NextRequest('http://localhost:3000/api/chat', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-forwarded-for': testIp,
+        },
+        body: JSON.stringify({
+          messages: [{ role: 'user', content: 'One more' }],
+        }),
+      });
+
+      const response = await POST(request);
+      const data = await response.json();
+
+      expect(response.status).toBe(429);
+      expect(data.error).toBe('RATE_LIMITED');
     });
   });
 });
