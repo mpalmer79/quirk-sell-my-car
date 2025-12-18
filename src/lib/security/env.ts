@@ -217,7 +217,7 @@ export function checkSecretExpiration(warningDays = 7): SecretMetadata[] {
   const now = new Date();
   const warningThreshold = new Date(now.getTime() + warningDays * 24 * 60 * 60 * 1000);
   
-  for (const [, metadata] of secretsMetadata) {
+  for (const [, metadata] of Array.from(secretsMetadata)) {
     if (metadata.expiresAt && metadata.expiresAt < warningThreshold) {
       expiringSoon.push(metadata);
     }
