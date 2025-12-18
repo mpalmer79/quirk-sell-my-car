@@ -426,12 +426,20 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-12">
             <div className="md:col-span-1">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-10 h-10 rounded-lg bg-[#0070cc] flex items-center justify-center font-bold text-xl">
-                  Q
-                </div>
-                <span className="text-xl font-bold">QUIRK</span>
-              </div>
+              <a 
+                href="https://www.quirkcars.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-block mb-4 hover:opacity-80 transition-opacity"
+              >
+                <Image
+                  src="/quirk-logo.png"
+                  alt="Quirk Auto Dealers"
+                  width={150}
+                  height={40}
+                  className="h-10 w-auto"
+                />
+              </a>
               <p className="text-gray-400 text-sm leading-relaxed">
                 New England's trusted automotive network with 17+ locations across Massachusetts and New Hampshire.
               </p>
@@ -460,7 +468,7 @@ export default function HomePage() {
             <div>
               <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-400">Legal</h4>
               <ul className="space-y-3 text-sm">
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="https://www.quirkcars.com/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</a></li>
                 <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Terms of Service</a></li>
                 <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Accessibility</a></li>
               </ul>
