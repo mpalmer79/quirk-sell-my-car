@@ -189,31 +189,6 @@ export default function HomePage() {
                       priority
                     />
                   </div>
-                  
-                  {/* Floating badges */}
-                  <div className="absolute -left-4 top-1/4 bg-white rounded-2xl shadow-xl p-4 animate-float">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                        <span className="text-2xl">💰</span>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">Instant offer</p>
-                        <p className="text-lg font-bold text-gray-900">In 2 minutes</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="absolute -right-4 bottom-1/4 bg-white rounded-2xl shadow-xl p-4 animate-float-delayed">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                        <span className="text-2xl">✓</span>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">No obligation</p>
-                        <p className="text-lg font-bold text-gray-900">100% free</p>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
