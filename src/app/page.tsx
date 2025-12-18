@@ -201,15 +201,22 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-wrap justify-center items-center gap-8 lg:gap-16">
             {[
-              { value: '17+', label: 'Dealership Locations' },
-              { value: '30K+', label: 'Cars Purchased' },
-              { value: '4.3★', label: 'Customer Rating' },
-              { value: '24hr', label: 'Offer Valid' },
+              { value: '17+', label: 'Dealership Locations', href: 'https://www.quirkcars.com' },
+              { value: '30K+', label: 'Cars Purchased', href: null },
+              { value: '4.3★', label: 'Customer Rating', href: null },
+              { value: '24hr', label: 'Offer Valid', href: null },
             ].map((stat, i) => (
-              <div key={i} className="text-center">
-                <p className="text-2xl lg:text-3xl font-bold text-[#0070cc]">{stat.value}</p>
-                <p className="text-sm text-gray-500">{stat.label}</p>
-              </div>
+              stat.href ? (
+                <a key={i} href={stat.href} target="_blank" rel="noopener noreferrer" className="text-center hover:opacity-70 transition-opacity">
+                  <p className="text-2xl lg:text-3xl font-bold text-[#0070cc]">{stat.value}</p>
+                  <p className="text-sm text-gray-500">{stat.label}</p>
+                </a>
+              ) : (
+                <div key={i} className="text-center">
+                  <p className="text-2xl lg:text-3xl font-bold text-[#0070cc]">{stat.value}</p>
+                  <p className="text-sm text-gray-500">{stat.label}</p>
+                </div>
+              )
             ))}
           </div>
         </div>
