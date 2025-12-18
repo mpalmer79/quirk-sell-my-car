@@ -422,39 +422,78 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-16">
+      <footer className="bg-slate-900 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-12">
-            <div className="md:col-span-1">
-              <a 
-                href="https://www.quirkcars.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-block mb-4 hover:opacity-80 transition-opacity"
-              >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {/* Column 1: Logo, Description, Social Icons */}
+            <div className="text-center md:text-left">
+              {/* Quirk Logo */}
+              <div className="flex justify-center md:justify-start mb-6">
                 <Image
                   src="/quirk-logo.png"
                   alt="Quirk Auto Dealers"
-                  width={150}
-                  height={40}
-                  className="h-10 w-auto"
+                  width={200}
+                  height={50}
+                  className="h-12 w-auto object-contain"
                 />
-              </a>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                New England's trusted automotive network with 17+ locations across Massachusetts and New Hampshire.
+              </div>
+              
+              {/* Description */}
+              <p className="text-gray-300 text-sm leading-relaxed mb-6">
+                Quirk Auto Dealers is the New England&apos;s largest family-owned auto group, proudly serving Massachusetts and New Hampshire drivers. From Manchester NH to Greater Boston MA, explore our huge inventory of new and used vehicles across 18 dealerships. Get competitive pricing, easy financing, certified pre-owned cars, trucks &amp; SUVs from top brands, plus expert service and genuine OEM parts.
               </p>
+              
+              {/* Social Media Icons */}
+              <div className="flex justify-center md:justify-start gap-4">
+                <a 
+                  href="https://www.facebook.com/QuirkAutoDealers/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 flex items-center justify-center rounded-md bg-slate-800 hover:bg-slate-700 transition-colors"
+                  aria-label="Facebook"
+                >
+                  <Image src="/facebook.svg" alt="Facebook" width={24} height={24} className="w-6 h-6" />
+                </a>
+                <a 
+                  href="https://www.linkedin.com/company/quirk-auto-dealers/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 flex items-center justify-center rounded-md bg-slate-800 hover:bg-slate-700 transition-colors"
+                  aria-label="LinkedIn"
+                >
+                  <Image src="/linkedin.svg" alt="LinkedIn" width={24} height={24} className="w-6 h-6" />
+                </a>
+                <a 
+                  href="https://x.com/quirkcars" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 flex items-center justify-center rounded-md bg-slate-800 hover:bg-slate-700 transition-colors"
+                  aria-label="X (Twitter)"
+                >
+                  <Image src="/x.svg" alt="X" width={24} height={24} className="w-6 h-6" />
+                </a>
+                <a 
+                  href="https://www.instagram.com/quirkcars/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 flex items-center justify-center rounded-md bg-slate-800 hover:bg-slate-700 transition-colors"
+                  aria-label="Instagram"
+                >
+                  <Image src="/instagram.svg" alt="Instagram" width={24} height={24} className="w-6 h-6" />
+                </a>
+                <a 
+                  href="https://www.youtube.com/channel/UCy99Nj1jI6PadfPxe7Zl7xQ" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 flex items-center justify-center rounded-md bg-slate-800 hover:bg-slate-700 transition-colors"
+                  aria-label="YouTube"
+                >
+                  <Image src="/youtube.svg" alt="YouTube" width={24} height={24} className="w-6 h-6" />
+                </a>
+              </div>
             </div>
 
-            <div>
-              <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-400">Quick Links</h4>
-              <ul className="space-y-3 text-sm">
-                <li><a href="https://www.quirkchevynh.com" className="text-gray-300 hover:text-white transition-colors">Search Inventory</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Sell Your Car</a></li>
-                <li><a href="https://www.quirkchevynh.com/service" className="text-gray-300 hover:text-white transition-colors">Service Center</a></li>
-                <li><a href="https://www.quirkchevynh.com/finance" className="text-gray-300 hover:text-white transition-colors">Financing</a></li>
-              </ul>
-            </div>
-
+            {/* Column 2: Contact */}
             <div>
               <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-400">Contact</h4>
               <ul className="space-y-3 text-sm text-gray-300">
@@ -465,6 +504,7 @@ export default function HomePage() {
               </ul>
             </div>
 
+            {/* Column 3: Legal */}
             <div>
               <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-400">Legal</h4>
               <ul className="space-y-3 text-sm">
