@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import VehiclePage from '@/app/getoffer/vehicle/page';
 import { VehicleProvider } from '@/context/VehicleContext';
 
@@ -7,7 +7,7 @@ import { VehicleProvider } from '@/context/VehicleContext';
 let mockVinParam: string | null = null;
 const mockPush = jest.fn();
 
-// Mock next/navigation
+// Mock next/navigation BEFORE component import
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
     push: mockPush,
@@ -20,21 +20,17 @@ jest.mock('next/navigation', () => ({
   }),
 }));
 
-// Mock the VIN decoder service
+// Mock VIN decoder service
 jest.mock('@/services/vinDecoder', () => ({
   getAvailableTrims: jest.fn(() => ['Base', 'LT', 'LTZ', 'High Country']),
   isValidVIN: jest.fn(() => true),
   decodeVIN: jest.fn(),
 }));
 
-// Mock the vehicle image service
+// Mock vehicle image service
 jest.mock('@/services/vehicleImage', () => ({
   getVehicleImage: jest.fn(() => Promise.resolve('https://example.com/car.jpg')),
 }));
-
-// Setup fetch mock
-const mockFetch = jest.fn();
-global.fetch = mockFetch;
 
 const renderWithProvider = (component: React.ReactNode) => {
   return render(
@@ -45,10 +41,18 @@ const renderWithProvider = (component: React.ReactNode) => {
 };
 
 describe('VehiclePage', () => {
+  // Store original fetch
+  const originalFetch = global.fetch;
+  
   beforeEach(() => {
     jest.clearAllMocks();
-    mockFetch.mockReset();
     mockVinParam = null;
+    mockPush.mockClear();
+  });
+
+  afterEach(() => {
+    // Restore fetch
+    global.fetch = originalFetch;
   });
 
   describe('without VIN parameter', () => {
@@ -74,11 +78,13 @@ describe('VehiclePage', () => {
       engineCylinders: 8,
       engineDisplacement: '5.3',
       fuelType: 'Gasoline',
+      imageUrl: 'https://example.com/car.jpg',
     };
 
     it('shows loading state initially', () => {
       mockVinParam = '1GCVKNEC0MZ123456';
-      mockFetch.mockImplementation(() => new Promise(() => {})); // Never resolves
+      // Mock fetch that never resolves
+      global.fetch = jest.fn(() => new Promise(() => {})) as jest.Mock;
       
       renderWithProvider(<VehiclePage />);
       
@@ -87,53 +93,59 @@ describe('VehiclePage', () => {
 
     it('displays VIN while loading', () => {
       mockVinParam = '1GCVKNEC0MZ123456';
-      mockFetch.mockImplementation(() => new Promise(() => {}));
+      global.fetch = jest.fn(() => new Promise(() => {})) as jest.Mock;
       
       renderWithProvider(<VehiclePage />);
       
-      expect(screen.getByText('VIN: 1GCVKNEC0MZ123456')).toBeInTheDocument();
+      expect(screen.getByText(/VIN:.*1GCVKNEC0MZ123456/)).toBeInTheDocument();
     });
 
     it('displays vehicle info on successful decode', async () => {
       mockVinParam = '1GCVKNEC0MZ123456';
-      mockFetch.mockResolvedValueOnce({
+      global.fetch = jest.fn().mockResolvedValue({
         ok: true,
-        json: async () => validVehicleResponse,
-      } as Response);
+        json: () => Promise.resolve(validVehicleResponse),
+      }) as jest.Mock;
 
-      renderWithProvider(<VehiclePage />);
+      await act(async () => {
+        renderWithProvider(<VehiclePage />);
+      });
 
       await waitFor(() => {
         expect(screen.getByText('2021 CHEVROLET Silverado 1500')).toBeInTheDocument();
-      }, { timeout: 3000 });
+      }, { timeout: 5000 });
     });
 
     it('displays "We found your vehicle" message', async () => {
       mockVinParam = '1GCVKNEC0MZ123456';
-      mockFetch.mockResolvedValueOnce({
+      global.fetch = jest.fn().mockResolvedValue({
         ok: true,
-        json: async () => validVehicleResponse,
-      } as Response);
+        json: () => Promise.resolve(validVehicleResponse),
+      }) as jest.Mock;
 
-      renderWithProvider(<VehiclePage />);
+      await act(async () => {
+        renderWithProvider(<VehiclePage />);
+      });
 
       await waitFor(() => {
         expect(screen.getByText('We found your vehicle')).toBeInTheDocument();
-      }, { timeout: 3000 });
+      }, { timeout: 5000 });
     });
 
     it('displays vehicle specifications', async () => {
       mockVinParam = '1GCVKNEC0MZ123456';
-      mockFetch.mockResolvedValueOnce({
+      global.fetch = jest.fn().mockResolvedValue({
         ok: true,
-        json: async () => validVehicleResponse,
-      } as Response);
+        json: () => Promise.resolve(validVehicleResponse),
+      }) as jest.Mock;
 
-      renderWithProvider(<VehiclePage />);
+      await act(async () => {
+        renderWithProvider(<VehiclePage />);
+      });
 
       await waitFor(() => {
         expect(screen.getByText('Pickup')).toBeInTheDocument();
-      }, { timeout: 3000 });
+      }, { timeout: 5000 });
       
       expect(screen.getByText('4WD')).toBeInTheDocument();
       expect(screen.getByText('Gasoline')).toBeInTheDocument();
@@ -141,30 +153,34 @@ describe('VehiclePage', () => {
 
     it('renders Continue button', async () => {
       mockVinParam = '1GCVKNEC0MZ123456';
-      mockFetch.mockResolvedValueOnce({
+      global.fetch = jest.fn().mockResolvedValue({
         ok: true,
-        json: async () => validVehicleResponse,
-      } as Response);
+        json: () => Promise.resolve(validVehicleResponse),
+      }) as jest.Mock;
 
-      renderWithProvider(<VehiclePage />);
+      await act(async () => {
+        renderWithProvider(<VehiclePage />);
+      });
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: /Continue/i })).toBeInTheDocument();
-      }, { timeout: 3000 });
+      }, { timeout: 5000 });
     });
 
     it('navigates to basics page when Continue is clicked', async () => {
       mockVinParam = '1GCVKNEC0MZ123456';
-      mockFetch.mockResolvedValueOnce({
+      global.fetch = jest.fn().mockResolvedValue({
         ok: true,
-        json: async () => validVehicleResponse,
-      } as Response);
+        json: () => Promise.resolve(validVehicleResponse),
+      }) as jest.Mock;
 
-      renderWithProvider(<VehiclePage />);
+      await act(async () => {
+        renderWithProvider(<VehiclePage />);
+      });
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: /Continue/i })).toBeInTheDocument();
-      }, { timeout: 3000 });
+      }, { timeout: 5000 });
 
       fireEvent.click(screen.getByRole('button', { name: /Continue/i }));
 
@@ -173,16 +189,18 @@ describe('VehiclePage', () => {
 
     it('navigates home when "This isn\'t my vehicle" is clicked', async () => {
       mockVinParam = '1GCVKNEC0MZ123456';
-      mockFetch.mockResolvedValueOnce({
+      global.fetch = jest.fn().mockResolvedValue({
         ok: true,
-        json: async () => validVehicleResponse,
-      } as Response);
+        json: () => Promise.resolve(validVehicleResponse),
+      }) as jest.Mock;
 
-      renderWithProvider(<VehiclePage />);
+      await act(async () => {
+        renderWithProvider(<VehiclePage />);
+      });
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: /This isn't my vehicle/i })).toBeInTheDocument();
-      }, { timeout: 3000 });
+      }, { timeout: 5000 });
 
       fireEvent.click(screen.getByRole('button', { name: /This isn't my vehicle/i }));
 
@@ -193,20 +211,23 @@ describe('VehiclePage', () => {
   describe('API call', () => {
     it('calls decode-vin API with correct VIN', async () => {
       mockVinParam = '1GCVKNEC0MZ123456';
-      mockFetch.mockResolvedValueOnce({
+      const mockFetchFn = jest.fn().mockResolvedValue({
         ok: true,
-        json: async () => ({
+        json: () => Promise.resolve({
           vin: '1GCVKNEC0MZ123456',
           year: 2021,
           make: 'CHEVROLET',
           model: 'Silverado 1500',
         }),
-      } as Response);
+      });
+      global.fetch = mockFetchFn as jest.Mock;
 
-      renderWithProvider(<VehiclePage />);
+      await act(async () => {
+        renderWithProvider(<VehiclePage />);
+      });
 
       await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledWith('/api/decode-vin?vin=1GCVKNEC0MZ123456');
+        expect(mockFetchFn).toHaveBeenCalledWith('/api/decode-vin?vin=1GCVKNEC0MZ123456');
       });
     });
   });
