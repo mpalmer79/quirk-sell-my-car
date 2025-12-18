@@ -2,7 +2,8 @@
  * @jest-environment node
  */
 
-import { POST, rateLimitMap } from '@/app/api/chat/route';
+import { POST } from '@/app/api/chat/route';
+import { rateLimitStore } from '@/lib/security';
 import { NextRequest } from 'next/server';
 
 // Mock fetch for node environment
@@ -25,7 +26,7 @@ describe('POST /api/chat', () => {
     mockFetch.mockReset();
     process.env = { ...originalEnv };
     // CRITICAL: Clear rate limiter before each test
-    rateLimitMap.clear();
+    rateLimitStore.clear();
   });
 
   afterAll(() => {
@@ -39,6 +40,9 @@ describe('POST /api/chat', () => {
       headers: { 
         'Content-Type': 'application/json',
         'x-forwarded-for': ip,
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'accept': 'application/json',
+        'accept-language': 'en-US,en;q=0.9',
       },
       body: JSON.stringify(body),
     });
@@ -141,13 +145,13 @@ describe('POST /api/chat', () => {
       const data = await response.json();
 
       expect(response.status).toBe(400);
-      expect(data.error).toBe('MESSAGE_TOO_LONG');
+      expect(data.error).toBe('INVALID_REQUEST');
     });
   });
 
   describe('with API key', () => {
     beforeEach(() => {
-      process.env.ANTHROPIC_API_KEY = 'test-api-key';
+      process.env.ANTHROPIC_API_KEY = 'sk-ant-test-api-key-12345';
     });
 
     it('calls Anthropic API with correct parameters', async () => {
@@ -170,7 +174,7 @@ describe('POST /api/chat', () => {
           method: 'POST',
           headers: expect.objectContaining({
             'Content-Type': 'application/json',
-            'x-api-key': 'test-api-key',
+            'x-api-key': 'sk-ant-test-api-key-12345',
             'anthropic-version': '2023-06-01',
           }),
         })
@@ -346,6 +350,9 @@ describe('POST /api/chat', () => {
         headers: { 
           'Content-Type': 'application/json',
           'x-forwarded-for': getUniqueIp(),
+          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'accept': 'application/json',
+          'accept-language': 'en-US,en;q=0.9',
         },
         body: 'not valid json',
       });
@@ -373,6 +380,9 @@ describe('POST /api/chat', () => {
           headers: { 
             'Content-Type': 'application/json',
             'x-forwarded-for': testIp,
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'accept': 'application/json',
+            'accept-language': 'en-US,en;q=0.9',
           },
           body: JSON.stringify({
             messages: [{ role: 'user', content: `Message ${i}` }],
@@ -387,6 +397,9 @@ describe('POST /api/chat', () => {
         headers: { 
           'Content-Type': 'application/json',
           'x-forwarded-for': testIp,
+          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'accept': 'application/json',
+          'accept-language': 'en-US,en;q=0.9',
         },
         body: JSON.stringify({
           messages: [{ role: 'user', content: 'One more' }],
