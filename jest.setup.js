@@ -26,28 +26,29 @@ jest.mock('next/image', () => ({
 // Mock fetch globally
 global.fetch = jest.fn();
 
-// Mock window.scrollTo
-Object.defineProperty(window, 'scrollTo', {
-  value: jest.fn(),
-  writable: true,
-});
+// Only mock window APIs if window exists (not in node environment)
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'scrollTo', {
+    value: jest.fn(),
+    writable: true,
+  });
 
-// Mock scrollIntoView
-Element.prototype.scrollIntoView = jest.fn();
+  Element.prototype.scrollIntoView = jest.fn();
+}
 
 // Reset mocks before each test
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-// Suppress console errors in tests (optional - remove if you want to see them)
+// Suppress act() warnings in tests
 const originalError = console.error;
 beforeAll(() => {
   console.error = (...args) => {
     if (
       typeof args[0] === 'string' &&
-      args[0].includes('Warning: An update to') &&
-      args[0].includes('inside a test was not wrapped in act')
+      (args[0].includes('Warning: An update to') ||
+       args[0].includes('inside a test was not wrapped in act'))
     ) {
       return;
     }
