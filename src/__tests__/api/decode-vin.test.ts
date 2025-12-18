@@ -5,6 +5,9 @@
 import { GET } from '@/app/api/decode-vin/route';
 import { NextRequest } from 'next/server';
 
+// Mock fetch for node environment
+global.fetch = jest.fn();
+
 jest.mock('@/services/vinDecoder', () => ({
   decodeVIN: jest.fn(),
   isValidVIN: jest.fn(),
