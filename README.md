@@ -17,7 +17,7 @@ A Carvana-style vehicle appraisal and instant offer system for Quirk Auto Dealer
 
 ```bash
 npm install
-```
+
 
 ### 2. Configure Environment
 
@@ -33,7 +33,7 @@ Add your API keys:
 ANTHROPIC_API_KEY=sk-ant-...
 PEXELS_API_KEY=...              # Optional - for vehicle images
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
-```
+
 
 ### 3. Run Development Server
 
