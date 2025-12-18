@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { decodeVIN, isValidVIN } from '@/services/vinDecoder';
-import { getVehicleImage } from '@/services/vehicleImage';
+import { getVehicleImageServerSide } from '@/services/vehicleImage';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -22,7 +22,9 @@ export async function GET(request: NextRequest) {
 
   try {
     const vehicleInfo = await decodeVIN(vin);
-    const imageUrl = await getVehicleImage(vehicleInfo);
+    
+    // Use server-side image fetch (calls Pexels directly, not another API route)
+    const imageUrl = await getVehicleImageServerSide(vehicleInfo);
 
     return NextResponse.json({
       ...vehicleInfo,
