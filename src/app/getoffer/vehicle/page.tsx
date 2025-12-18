@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
@@ -7,7 +6,6 @@ import { Loader2, AlertCircle, ChevronDown, ArrowRight } from 'lucide-react';
 import VehicleImage from '@/components/VehicleImage';
 import { useVehicle } from '@/context/VehicleContext';
 import { VehicleInfo } from '@/types/vehicle';
-import { getAvailableTrims } from '@/services/vinDecoder';
 
 function VehiclePageContent() {
   const router = useRouter();
@@ -42,14 +40,14 @@ function VehiclePageContent() {
 
         setVehicle(data);
         
-        // Get available trims if needed
-        const trims = getAvailableTrims(data);
-        setAvailableTrims(trims);
-        
         // If trim already decoded, set it
         if (data.trim) {
           setSelectedTrim(data.trim);
         }
+        
+        // Note: Available trims would need an external API
+        // For now, we'll skip this feature
+        setAvailableTrims([]);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to look up vehicle');
       } finally {
