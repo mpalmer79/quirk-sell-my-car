@@ -1,122 +1,71 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { decodeVIN } from '@/services/vinDecoder';
-import { getVehicleImageServerSide } from '@/services/vehicleImage';
-import {
-  checkRateLimit,
-  logRateLimitHit,
-  logVinLookup,
-  validateInput,
-  vinSchema,
-  sanitizeVin,
-  quickBotCheck,
-  logBotDetection,
-  detectBot,
-} from '@/lib/security';
+import { decodeVIN, isValidVIN } from '@/services/vinDecoder';
 
 export async function GET(request: NextRequest) {
-  const startTime = Date.now();
-  
-  // ===== Rate Limiting =====
-  const rateLimitResult = checkRateLimit(request, '/api/decode-vin');
-  
-  if (!rateLimitResult.allowed) {
-    logRateLimitHit(request, '/api/decode-vin', rateLimitResult.blocked);
-    
+  const searchParams = request.nextUrl.searchParams;
+  const vin = searchParams.get('vin');
+
+  if (!vin) {
     return NextResponse.json(
-      { error: 'Too many requests. Please try again later.' },
-      { 
-        status: 429,
-        headers: {
-          'Retry-After': String(rateLimitResult.retryAfter || 60),
-        }
-      }
+      { error: 'VIN parameter is required' },
+      { status: 400 }
     );
   }
 
-  // ===== Bot Detection =====
-  const botResult = detectBot(request);
-  if (botResult.isBot && botResult.confidence >= 80) {
-    logBotDetection(request, botResult.confidence, botResult.reasons);
-    
+  const cleanVin = vin.trim().toUpperCase();
+
+  if (!isValidVIN(cleanVin)) {
     return NextResponse.json(
-      { error: 'Request could not be processed.' },
-      { status: 403 }
+      { error: 'Invalid VIN format. VIN must be 17 characters and cannot contain I, O, or Q.' },
+      { status: 400 }
     );
   }
 
   try {
-    const { searchParams } = new URL(request.url);
-    const rawVin = searchParams.get('vin');
-
-    // ===== Input Validation =====
-    if (!rawVin) {
-      return NextResponse.json(
-        { error: 'VIN is required' },
-        { status: 400 }
-      );
-    }
-
-    // Sanitize VIN
-    const vin = sanitizeVin(rawVin);
-
-    // Validate VIN format (basic check - full validation in vinSchema)
-    if (vin.length !== 17) {
-      logVinLookup(request, vin, false, { reason: 'Invalid length' });
-      
-      return NextResponse.json(
-        { error: 'Invalid VIN format. VIN must be exactly 17 characters.' },
-        { status: 400 }
-      );
-    }
-
-    // Validate VIN characters
-    if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(vin)) {
-      logVinLookup(request, vin, false, { reason: 'Invalid characters' });
-      
-      return NextResponse.json(
-        { error: 'Invalid VIN format. VIN contains invalid characters.' },
-        { status: 400 }
-      );
-    }
-
-    // ===== Decode VIN =====
-    const vehicleInfo = await decodeVIN(vin);
-    
-    // Get vehicle image
-    const imageUrl = await getVehicleImageServerSide(vehicleInfo);
-
-    logVinLookup(request, vin, true, {
-      year: vehicleInfo.year,
-      make: vehicleInfo.make,
-      model: vehicleInfo.model,
-      durationMs: Date.now() - startTime,
-    });
-
-    return NextResponse.json({
-      ...vehicleInfo,
-      imageUrl,
-    }, {
-      headers: {
-        'X-RateLimit-Remaining': String(rateLimitResult.remaining),
-        // Cache for 1 hour - VIN data doesn't change
-        'Cache-Control': 'public, max-age=3600, s-maxage=3600',
-      }
-    });
-
+    const vehicleInfo = await decodeVIN(cleanVin);
+    return NextResponse.json(vehicleInfo);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('VIN decode error:', error);
     
-    console.error('VIN decode error:', errorMessage);
+    const message = error instanceof Error ? error.message : 'Failed to decode VIN';
     
-    logVinLookup(
-      request,
-      'unknown',
-      false,
-      { error: errorMessage, durationMs: Date.now() - startTime }
-    );
-
     return NextResponse.json(
-      { error: errorMessage },
+      { error: message },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const vin = body.vin;
+
+    if (!vin) {
+      return NextResponse.json(
+        { error: 'VIN is required in request body' },
+        { status: 400 }
+      );
+    }
+
+    const cleanVin = String(vin).trim().toUpperCase();
+
+    if (!isValidVIN(cleanVin)) {
+      return NextResponse.json(
+        { error: 'Invalid VIN format. VIN must be 17 characters and cannot contain I, O, or Q.' },
+        { status: 400 }
+      );
+    }
+
+    const vehicleInfo = await decodeVIN(cleanVin);
+    return NextResponse.json(vehicleInfo);
+  } catch (error) {
+    console.error('VIN decode error:', error);
+    
+    const message = error instanceof Error ? error.message : 'Failed to decode VIN';
+    
+    return NextResponse.json(
+      { error: message },
       { status: 500 }
     );
   }
