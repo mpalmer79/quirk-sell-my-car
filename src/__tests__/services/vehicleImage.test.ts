@@ -16,6 +16,20 @@ describe('vehicleImage service', () => {
   });
 
   describe('getFallbackImage', () => {
+    it('returns pickup image for Pickup body class', () => {
+      const vehicle: VehicleInfo = {
+        vin: '123',
+        year: 2021,
+        make: 'CHEVROLET',
+        model: 'Silverado',
+        bodyClass: 'Pickup',
+      };
+      
+      const result = getFallbackImage(vehicle);
+      expect(result).toContain('unsplash');
+      expect(result).toContain('1583121274602'); // pickup image ID
+    });
+
     it('returns SUV image for SUV body class', () => {
       const vehicle: VehicleInfo = {
         vin: '123',
@@ -27,15 +41,16 @@ describe('vehicleImage service', () => {
       
       const result = getFallbackImage(vehicle);
       expect(result).toContain('unsplash');
+      expect(result).toContain('1519641471654'); // SUV image ID
     });
 
-    it('returns pickup image for Pickup body class', () => {
+    it('returns SUV image for crossover body class', () => {
       const vehicle: VehicleInfo = {
         vin: '123',
         year: 2021,
-        make: 'CHEVROLET',
-        model: 'Silverado',
-        bodyClass: 'Pickup',
+        make: 'TOYOTA',
+        model: 'RAV4',
+        bodyClass: 'Crossover Utility Vehicle',
       };
       
       const result = getFallbackImage(vehicle);
@@ -53,6 +68,77 @@ describe('vehicleImage service', () => {
       
       const result = getFallbackImage(vehicle);
       expect(result).toContain('unsplash');
+      expect(result).toContain('1555215695'); // sedan image ID
+    });
+
+    it('returns coupe image for Coupe body class', () => {
+      const vehicle: VehicleInfo = {
+        vin: '123',
+        year: 2021,
+        make: 'FORD',
+        model: 'Mustang',
+        bodyClass: 'Coupe',
+      };
+      
+      const result = getFallbackImage(vehicle);
+      expect(result).toContain('unsplash');
+      expect(result).toContain('1544636331'); // coupe image ID
+    });
+
+    it('returns hatchback image for Hatchback body class', () => {
+      const vehicle: VehicleInfo = {
+        vin: '123',
+        year: 2021,
+        make: 'VOLKSWAGEN',
+        model: 'Golf',
+        bodyClass: 'Hatchback',
+      };
+      
+      const result = getFallbackImage(vehicle);
+      expect(result).toContain('unsplash');
+      expect(result).toContain('1609521263047'); // hatchback image ID
+    });
+
+    it('returns van image for Minivan body class', () => {
+      const vehicle: VehicleInfo = {
+        vin: '123',
+        year: 2021,
+        make: 'HONDA',
+        model: 'Odyssey',
+        bodyClass: 'Minivan',
+      };
+      
+      const result = getFallbackImage(vehicle);
+      expect(result).toContain('unsplash');
+      expect(result).toContain('1558618666'); // van image ID
+    });
+
+    it('returns convertible image for Convertible body class', () => {
+      const vehicle: VehicleInfo = {
+        vin: '123',
+        year: 2021,
+        make: 'MAZDA',
+        model: 'MX-5',
+        bodyClass: 'Convertible',
+      };
+      
+      const result = getFallbackImage(vehicle);
+      expect(result).toContain('unsplash');
+      expect(result).toContain('1507136566006'); // convertible image ID
+    });
+
+    it('returns wagon image for Wagon body class', () => {
+      const vehicle: VehicleInfo = {
+        vin: '123',
+        year: 2021,
+        make: 'SUBARU',
+        model: 'Outback',
+        bodyClass: 'Wagon',
+      };
+      
+      const result = getFallbackImage(vehicle);
+      expect(result).toContain('unsplash');
+      expect(result).toContain('1626668893632'); // wagon image ID
     });
 
     it('returns default image when no body class', () => {
@@ -65,6 +151,35 @@ describe('vehicleImage service', () => {
       
       const result = getFallbackImage(vehicle);
       expect(result).toContain('unsplash');
+      expect(result).toContain('1494976388531'); // default image ID
+    });
+
+    it('returns default image for unknown body class', () => {
+      const vehicle: VehicleInfo = {
+        vin: '123',
+        year: 2021,
+        make: 'OTHER',
+        model: 'Vehicle',
+        bodyClass: 'Unknown Type XYZ',
+      };
+      
+      const result = getFallbackImage(vehicle);
+      expect(result).toContain('unsplash');
+      expect(result).toContain('1494976388531'); // default image ID
+    });
+
+    it('handles case-insensitive body class matching', () => {
+      const vehicle: VehicleInfo = {
+        vin: '123',
+        year: 2021,
+        make: 'NISSAN',
+        model: 'Frontier',
+        bodyClass: 'PICKUP TRUCK',
+      };
+      
+      const result = getFallbackImage(vehicle);
+      expect(result).toContain('unsplash');
+      expect(result).toContain('1583121274602'); // pickup image ID
     });
   });
 
@@ -77,71 +192,60 @@ describe('vehicleImage service', () => {
       bodyClass: 'Pickup',
     };
 
-    it('returns fallback image when PEXELS_API_KEY not set', async () => {
-      const originalEnv = process.env.PEXELS_API_KEY;
-      delete process.env.PEXELS_API_KEY;
-
+    it('returns body-type fallback image directly', async () => {
       const result = await getVehicleImageServerSide(mockVehicle);
 
+      // Should return unsplash fallback without any fetch calls
       expect(result).toContain('unsplash');
+      expect(result).toContain('1583121274602'); // pickup image
       expect(mockFetch).not.toHaveBeenCalled();
-
-      if (originalEnv) {
-        process.env.PEXELS_API_KEY = originalEnv;
-      }
     });
 
-    it('calls Pexels API when key is set', async () => {
-      process.env.PEXELS_API_KEY = 'test-pexels-key';
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          photos: [{ src: { large: 'https://pexels.com/photo.jpg' } }],
-        }),
-      } as Response);
+    it('returns correct image for SUV', async () => {
+      const suvVehicle: VehicleInfo = {
+        vin: '123',
+        year: 2022,
+        make: 'TOYOTA',
+        model: 'Highlander',
+        bodyClass: 'Sport Utility Vehicle (SUV)',
+      };
 
-      const result = await getVehicleImageServerSide(mockVehicle);
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('api.pexels.com'),
-        expect.objectContaining({
-          headers: expect.objectContaining({
-            'Authorization': 'test-pexels-key',
-          }),
-        })
-      );
-      expect(result).toBe('https://pexels.com/photo.jpg');
-
-      delete process.env.PEXELS_API_KEY;
-    });
-
-    it('returns fallback on Pexels API error', async () => {
-      process.env.PEXELS_API_KEY = 'test-pexels-key';
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-      } as Response);
-
-      const result = await getVehicleImageServerSide(mockVehicle);
+      const result = await getVehicleImageServerSide(suvVehicle);
 
       expect(result).toContain('unsplash');
-
-      delete process.env.PEXELS_API_KEY;
+      expect(result).toContain('1519641471654'); // SUV image
     });
 
-    it('returns fallback when no photos found', async () => {
-      process.env.PEXELS_API_KEY = 'test-pexels-key';
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          photos: [],
-        }),
-      } as Response);
+    it('returns default image for unknown body type', async () => {
+      const unknownVehicle: VehicleInfo = {
+        vin: '123',
+        year: 2022,
+        make: 'GENERIC',
+        model: 'Vehicle',
+        bodyClass: 'Unknown',
+      };
 
-      const result = await getVehicleImageServerSide(mockVehicle);
+      const result = await getVehicleImageServerSide(unknownVehicle);
 
       expect(result).toContain('unsplash');
+      expect(result).toContain('1494976388531'); // default image
+    });
+  });
 
-      delete process.env.PEXELS_API_KEY;
+  describe('getVehicleImage', () => {
+    const mockVehicle: VehicleInfo = {
+      vin: '1GCVKNEC0MZ123456',
+      year: 2021,
+      make: 'CHEVROLET',
+      model: 'Silverado',
+      bodyClass: 'Pickup',
+    };
+
+    it('returns fallback image in server environment', async () => {
+      // In node test environment, window is undefined
+      const result = await getVehicleImage(mockVehicle);
+
+      expect(result).toContain('unsplash');
     });
   });
 });
