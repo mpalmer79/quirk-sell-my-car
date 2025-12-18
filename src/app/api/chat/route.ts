@@ -3,12 +3,12 @@ import { NextRequest, NextResponse } from 'next/server';
 // ============================================================
 // RATE LIMITING (In-memory for demo; use Redis in production)
 // ============================================================
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+// Export for testing - allows clearing between tests
+export const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
 const RATE_LIMIT_MAX_REQUESTS = 10; // 10 requests per minute per IP
 
 function getRateLimitKey(request: NextRequest): string {
-  // Get IP from various headers (works with proxies/load balancers)
   const forwarded = request.headers.get('x-forwarded-for');
   const realIp = request.headers.get('x-real-ip');
   const ip = forwarded?.split(',')[0]?.trim() || realIp || 'anonymous';
@@ -32,18 +32,20 @@ function checkRateLimit(key: string): { allowed: boolean; remaining: number } {
   return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - record.count };
 }
 
-// Clean up old entries periodically (in production, use Redis with TTL)
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, record] of rateLimitMap.entries()) {
-    if (now > record.resetTime) {
-      rateLimitMap.delete(key);
+// Only run cleanup interval in non-test environment
+if (typeof jest === 'undefined' && typeof process !== 'undefined' && process.env.NODE_ENV !== 'test') {
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, record] of rateLimitMap.entries()) {
+      if (now > record.resetTime) {
+        rateLimitMap.delete(key);
+      }
     }
-  }
-}, 60000); // Clean every minute
+  }, 60000);
+}
 
 // ============================================================
-// LOGGING (In production, use structured logging service)
+// LOGGING
 // ============================================================
 interface ChatLogEntry {
   timestamp: string;
@@ -56,18 +58,13 @@ interface ChatLogEntry {
 }
 
 function logChatInteraction(entry: ChatLogEntry): void {
-  // In production: send to logging service (DataDog, CloudWatch, etc.)
-  // For now: structured console log for demo purposes
   if (process.env.NODE_ENV === 'production') {
-    console.log(JSON.stringify({
-      type: 'CHAT_INTERACTION',
-      ...entry,
-    }));
+    console.log(JSON.stringify({ type: 'CHAT_INTERACTION', ...entry }));
   }
 }
 
 // ============================================================
-// SYSTEM PROMPT - Production Safe (No operational promises)
+// SYSTEM PROMPT
 // ============================================================
 const SYSTEM_PROMPT = `You are a helpful assistant for Quirk Auto Dealers, a trusted automotive dealership network in Massachusetts and New Hampshire.
 
@@ -89,10 +86,10 @@ GENERAL INFORMATION YOU CAN SHARE:
 - Multiple Quirk locations are available across MA and NH
 - For questions: call (603) 263-4552 or visit quirkchevynh.com
 
-Be friendly, helpful, and concise. When uncertain, encourage customers to contact a representative for accurate information.`;
+Be friendly, helpful, and concise.`;
 
 // ============================================================
-// FALLBACK RESPONSES (No API key mode)
+// FALLBACK RESPONSES
 // ============================================================
 const FALLBACK_RESPONSES: Record<string, string> = {
   'offer': `Getting a preliminary estimate is easy! Enter your VIN on our homepage and follow the steps. The online estimate takes about 5 minutes.
@@ -134,8 +131,13 @@ What would you like to know more about?`,
 function getFallbackResponse(userMessage: string): string {
   const messageLower = userMessage.toLowerCase();
   
+  // Check 'valid' before 'offer' since "offer valid" contains both
+  if (messageLower.includes('valid')) {
+    return FALLBACK_RESPONSES['valid'];
+  }
+  
   for (const [key, response] of Object.entries(FALLBACK_RESPONSES)) {
-    if (key !== 'default' && messageLower.includes(key)) {
+    if (key !== 'default' && key !== 'valid' && messageLower.includes(key)) {
       return response;
     }
   }
@@ -171,10 +173,10 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { messages } = await request.json();
-    const userMessage = messages[messages.length - 1]?.content || '';
+    const body = await request.json();
+    const messages = body?.messages;
     
-    // Input validation
+    // Input validation - MUST check before accessing messages properties
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json(
         { content: 'Invalid request format', error: 'INVALID_REQUEST' },
@@ -182,7 +184,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check for excessively long messages (abuse prevention)
+    const userMessage = messages[messages.length - 1]?.content || '';
+
+    // Check for excessively long messages
     if (userMessage.length > 2000) {
       return NextResponse.json(
         { content: 'Message too long. Please keep messages under 2000 characters.', error: 'MESSAGE_TOO_LONG' },
@@ -199,7 +203,7 @@ export async function POST(request: NextRequest) {
       logChatInteraction({
         timestamp: new Date().toISOString(),
         sessionId,
-        userMessage: userMessage.substring(0, 100), // Truncate for logging
+        userMessage: userMessage.substring(0, 100),
         responseType: 'fallback',
         responseLength: response.length,
         latencyMs: Date.now() - startTime,
@@ -226,7 +230,7 @@ export async function POST(request: NextRequest) {
         system: SYSTEM_PROMPT,
         messages: messages.slice(-10).map((m: { role: string; content: string }) => ({
           role: m.role,
-          content: m.content.substring(0, 2000), // Truncate long messages
+          content: m.content.substring(0, 2000),
         })),
       }),
     });
