@@ -123,7 +123,7 @@ export default function ChatWidget() {
               </div>
               <div>
                 <h3 className="text-white font-semibold">Quirk Assistant</h3>
-                <p className="text-white/80 text-xs">Powered by AI • Available 24/7</p>
+                <p className="text-white/80 text-xs">Powered by Quirk AI • Available 24/7</p>
               </div>
             </div>
           </div>
