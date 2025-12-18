@@ -1,107 +1,172 @@
-// Vehicle Image Service
-// Uses body-type specific images for reliability
-// Pexels is unreliable for specific vehicle matches (returns wrong cars)
+'use client';
 
+import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { VehicleInfo } from '@/types/vehicle';
+import { getVehicleImage } from '@/services/vehicleImage';
 
-// High-quality curated images by body type
-// These are reliable and always show the correct type of vehicle
-const BODY_TYPE_IMAGES: Record<string, string> = {
-  // Trucks/Pickups - Modern pickup truck
-  'pickup': 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=800&auto=format',
-  'truck': 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=800&auto=format',
-  
-  // SUVs/Crossovers - Modern SUV
-  'suv': 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&auto=format',
-  'sport utility': 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&auto=format',
-  'utility': 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&auto=format',
-  'crossover': 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&auto=format',
-  
-  // Sedans - Modern sedan
-  'sedan': 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&auto=format',
-  
-  // Coupes/Sports - Sports car
-  'coupe': 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800&auto=format',
-  'sports': 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800&auto=format',
-  
-  // Hatchbacks
-  'hatchback': 'https://images.unsplash.com/photo-1609521263047-f8f205293f24?w=800&auto=format',
-  
-  // Wagons
-  'wagon': 'https://images.unsplash.com/photo-1626668893632-6f3a4466d22f?w=800&auto=format',
-  'estate': 'https://images.unsplash.com/photo-1626668893632-6f3a4466d22f?w=800&auto=format',
-  
-  // Convertibles
-  'convertible': 'https://images.unsplash.com/photo-1507136566006-cfc505b114fc?w=800&auto=format',
-  'roadster': 'https://images.unsplash.com/photo-1507136566006-cfc505b114fc?w=800&auto=format',
-  'cabriolet': 'https://images.unsplash.com/photo-1507136566006-cfc505b114fc?w=800&auto=format',
-  
-  // Vans/Minivans
-  'van': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format',
-  'minivan': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format',
-  'mpv': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format',
-};
-
-// Generic modern car as default
-const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800&auto=format';
-
-/**
- * Get fallback image based on body type
- * Works in any environment (client or server)
- */
-export function getFallbackImage(vehicleInfo: VehicleInfo): string {
-  if (vehicleInfo.bodyClass) {
-    const bodyLower = vehicleInfo.bodyClass.toLowerCase();
-    for (const [type, url] of Object.entries(BODY_TYPE_IMAGES)) {
-      if (bodyLower.includes(type)) {
-        return url;
-      }
-    }
-  }
-  return DEFAULT_IMAGE;
+interface VehicleImageProps {
+  vehicleInfo: VehicleInfo | null;
+  className?: string;
 }
 
 /**
- * Get vehicle image - uses body-type matching for reliability
- * Pexels/other APIs are too unreliable (return wrong vehicles)
- * Body-type images always show correct type of vehicle
+ * Full-size vehicle image component with overlay
  */
-export async function getVehicleImageServerSide(vehicleInfo: VehicleInfo): Promise<string> {
-  // Use body-type image for reliability
-  // This ensures a pickup shows a pickup, SUV shows an SUV, etc.
-  return getFallbackImage(vehicleInfo);
+export default function VehicleImage({ vehicleInfo, className = '' }: VehicleImageProps) {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (vehicleInfo) {
+      setIsLoading(true);
+      getVehicleImage(vehicleInfo)
+        .then(setImageUrl)
+        .catch(() => setImageUrl(null))
+        .finally(() => setIsLoading(false));
+    } else {
+      setImageUrl(null);
+    }
+  }, [vehicleInfo]);
+
+  if (!vehicleInfo) {
+    return (
+      <div className={`relative bg-gray-100 rounded-lg overflow-hidden ${className}`}>
+        <div className="aspect-video flex items-center justify-center">
+          <div className="text-center text-gray-500">
+            <svg
+              className="mx-auto h-12 w-12 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
+              />
+            </svg>
+            <p className="mt-2 text-sm">Enter your VIN to see your vehicle</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const vehicleName = `${vehicleInfo.year} ${vehicleInfo.make} ${vehicleInfo.model}`;
+
+  return (
+    <div className={`relative bg-gray-100 rounded-lg overflow-hidden ${className}`}>
+      <div className="aspect-video relative">
+        {isLoading ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0070cc]"></div>
+          </div>
+        ) : imageUrl ? (
+          <Image
+            src={imageUrl}
+            alt={vehicleName}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 50vw"
+            priority
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
+            <span className="text-gray-500">Image unavailable</span>
+          </div>
+        )}
+        
+        {/* Vehicle info overlay */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+          <h3 className="text-white font-semibold text-lg">{vehicleName}</h3>
+          {vehicleInfo.trim && (
+            <p className="text-white/80 text-sm">{vehicleInfo.trim}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 /**
- * Client-side image fetcher
- * Returns body-type appropriate image
+ * Compact vehicle image component for sidebars/cards
  */
-export async function getVehicleImage(vehicleInfo: VehicleInfo): Promise<string> {
-  // Check if we're in a browser environment
-  const isBrowser = typeof window !== 'undefined';
-  
-  if (!isBrowser) {
-    return getVehicleImageServerSide(vehicleInfo);
+export function VehicleImageCompact({ vehicleInfo, className = '' }: VehicleImageProps) {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (vehicleInfo) {
+      setIsLoading(true);
+      getVehicleImage(vehicleInfo)
+        .then(setImageUrl)
+        .catch(() => setImageUrl(null))
+        .finally(() => setIsLoading(false));
+    } else {
+      setImageUrl(null);
+    }
+  }, [vehicleInfo]);
+
+  if (!vehicleInfo) {
+    return null;
   }
 
-  // Client-side: use the API route
-  try {
-    const params = new URLSearchParams({
-      year: vehicleInfo.year.toString(),
-      make: vehicleInfo.make,
-      model: vehicleInfo.model,
-      bodyClass: vehicleInfo.bodyClass || '',
-    });
-    
-    const response = await fetch(`/api/vehicle-image?${params}`);
-    
-    if (response.ok) {
-      const data = await response.json();
-      return data.imageUrl;
-    }
-  } catch (error) {
-    console.error('Error fetching vehicle image:', error);
-  }
-  
-  return getFallbackImage(vehicleInfo);
+  return (
+    <div className={`bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden ${className}`}>
+      <div className="aspect-[16/9] relative bg-gray-100">
+        {isLoading ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#0070cc]"></div>
+          </div>
+        ) : imageUrl ? (
+          <Image
+            src={imageUrl}
+            alt={`${vehicleInfo.year} ${vehicleInfo.make} ${vehicleInfo.model}`}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 300px"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <svg
+              className="h-8 w-8 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
+              />
+            </svg>
+          </div>
+        )}
+      </div>
+      <div className="p-3">
+        <p className="text-sm font-medium text-gray-900">
+          {vehicleInfo.year} {vehicleInfo.make}
+        </p>
+        <p className="text-sm text-gray-600">{vehicleInfo.model}</p>
+        {vehicleInfo.trim && (
+          <p className="text-xs text-gray-500 mt-1">{vehicleInfo.trim}</p>
+        )}
+      </div>
+    </div>
+  );
 }
