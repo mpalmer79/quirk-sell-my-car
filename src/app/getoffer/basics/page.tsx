@@ -277,7 +277,7 @@ export default function BasicsPage() {
           {/* Sidebar */}
           <div className="lg:w-80 flex-shrink-0">
             <div className="lg:sticky lg:top-8">
-              <StepNavigation currentStep={2} />
+              <StepNavigation currentStep="2" />
             </div>
           </div>
 
