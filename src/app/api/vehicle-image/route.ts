@@ -12,7 +12,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
   }
 
-  // Use the vehicleImage service which prioritizes make + body type
   const vehicleInfo = {
     vin: '',
     year: parseInt(year, 10),
