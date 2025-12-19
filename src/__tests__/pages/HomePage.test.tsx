@@ -202,7 +202,7 @@ describe('HomePage', () => {
       
       expect(screen.getByText(/competitive offer in minutes/i)).toBeInTheDocument();
       expect(screen.getByText(/completely free/i)).toBeInTheDocument();
-      expect(screen.getByText(/17\+ locations/i)).toBeInTheDocument();
+      expect(screen.getByText(/18 locations/i)).toBeInTheDocument();
     });
   });
 
