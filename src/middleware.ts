@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// ============================================
+// AUTH BYPASS MODE - Set to false when going live
+// ============================================
+const BYPASS_AUTH = true;
+
 const PUBLIC_ROUTES = [
   '/admin/login',
   '/api/admin/auth/login',
@@ -14,10 +19,19 @@ const PARTIAL_AUTH_ROUTES = [
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
+  // Skip non-admin routes
   if (!pathname.startsWith('/admin') && !pathname.startsWith('/api/admin')) {
     return NextResponse.next();
   }
 
+  // ============================================
+  // BYPASS: Allow all admin access without login
+  // ============================================
+  if (BYPASS_AUTH) {
+    return NextResponse.next();
+  }
+
+  // Normal auth flow (used when BYPASS_AUTH = false)
   if (PUBLIC_ROUTES.some(route => pathname.startsWith(route))) {
     return NextResponse.next();
   }
