@@ -101,7 +101,7 @@ export interface Enable2FARequest {
   code: string;
 }
 
-export type SafeAdminUser = Omit
+export type SafeAdminUser = Omit<
   AdminUser,
   'password_hash' | 'two_factor_secret' | 'password_reset_token' | 'password_reset_expires'
 >;
