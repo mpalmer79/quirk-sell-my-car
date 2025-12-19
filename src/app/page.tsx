@@ -257,16 +257,16 @@ export default function HomePage() {
             </div>
 
             {/* Image Grid */}
-            <div className="relative grid grid-cols-2 gap-4">
-              <div className="space-y-4">
-                <div className="rounded-2xl overflow-hidden shadow-lg">
+            <div className="relative grid grid-cols-2 gap-6">
+              <div className="space-y-6">
+                <div className="rounded-2xl overflow-hidden shadow-md ring-1 ring-gray-200">
                   <img
                     src="/card1.jpg"
                     alt="Handshake deal"
                     className="w-full h-48 object-cover"
                   />
                 </div>
-                <div className="rounded-2xl overflow-hidden shadow-lg">
+                <div className="rounded-2xl overflow-hidden shadow-md ring-1 ring-gray-200">
                   <img
                     src="/card2.jpg"
                     alt="Car keys handover"
@@ -274,15 +274,15 @@ export default function HomePage() {
                   />
                 </div>
               </div>
-              <div className="space-y-4 pt-8">
-                <div className="rounded-2xl overflow-hidden shadow-lg">
+              <div className="space-y-6 pt-8">
+                <div className="rounded-2xl overflow-hidden shadow-md ring-1 ring-gray-200">
                   <img
                     src="/card3.jpg"
                     alt="Signing paperwork"
                     className="w-full h-56 object-cover"
                   />
                 </div>
-                <div className="rounded-2xl overflow-hidden shadow-lg">
+                <div className="rounded-2xl overflow-hidden shadow-md ring-1 ring-gray-200">
                   <img
                     src="/card4.jpg"
                     alt="Driving experience"
