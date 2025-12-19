@@ -2,9 +2,10 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import HomePage from '@/app/page';
 
 // Mock next/navigation
+const mockPush = jest.fn();
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
-    push: jest.fn(),
+    push: mockPush,
     replace: jest.fn(),
     prefetch: jest.fn(),
   }),
@@ -13,9 +14,10 @@ jest.mock('next/navigation', () => ({
 // Mock next/image
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: (props: React.ImgHTMLAttributes<HTMLImageElement> & { src: string; alt: string }) => {
+  default: (props: React.ImgHTMLAttributes<HTMLImageElement> & { src: string; alt: string; priority?: boolean }) => {
+    const { priority, ...rest } = props;
     // eslint-disable-next-line @next/next/no-img-element
-    return <img {...props} alt={props.alt} />;
+    return <img {...rest} data-priority={priority ? 'true' : undefined} alt={props.alt} />;
   },
 }));
 
@@ -110,6 +112,17 @@ describe('HomePage', () => {
         expect(screen.getByText(/Please enter a valid 17-character VIN/i)).toBeInTheDocument();
       });
     });
+
+    it('shows error when VIN is empty on submit', async () => {
+      render(<HomePage />);
+      
+      const submitButton = screen.getByText(/Get Your Offer/i);
+      fireEvent.click(submitButton);
+      
+      await waitFor(() => {
+        expect(screen.getByText(/Please enter your VIN/i)).toBeInTheDocument();
+      });
+    });
   });
 
   describe('VIN help section', () => {
@@ -119,15 +132,27 @@ describe('HomePage', () => {
       const helpButton = screen.getByText(/Where do I find my VIN/i);
       
       // Initially hidden
-      expect(screen.queryByText(/Driver's side dashboard/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Driver-side dashboard/i)).not.toBeInTheDocument();
       
       // Click to show
       fireEvent.click(helpButton);
-      expect(screen.getByText(/Driver's side dashboard/i)).toBeInTheDocument();
+      expect(screen.getByText(/Driver-side dashboard/i)).toBeInTheDocument();
       
       // Click to hide
       fireEvent.click(helpButton);
-      expect(screen.queryByText(/Driver's side dashboard/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Driver-side dashboard/i)).not.toBeInTheDocument();
+    });
+
+    it('shows all VIN location options when help is expanded', () => {
+      render(<HomePage />);
+      
+      const helpButton = screen.getByText(/Where do I find my VIN/i);
+      fireEvent.click(helpButton);
+      
+      expect(screen.getByText(/Driver-side dashboard/i)).toBeInTheDocument();
+      expect(screen.getByText(/driver-side door jamb/i)).toBeInTheDocument();
+      expect(screen.getByText(/Vehicle registration card/i)).toBeInTheDocument();
+      expect(screen.getByText(/Insurance documents/i)).toBeInTheDocument();
     });
   });
 
@@ -135,15 +160,23 @@ describe('HomePage', () => {
     it('renders section heading', () => {
       render(<HomePage />);
       
-      expect(screen.getByText('How It Works')).toBeInTheDocument();
+      expect(screen.getByText('How it works')).toBeInTheDocument();
     });
 
     it('renders all three steps', () => {
       render(<HomePage />);
       
-      expect(screen.getByText('Enter Your VIN')).toBeInTheDocument();
-      expect(screen.getByText('Answer Questions')).toBeInTheDocument();
-      expect(screen.getByText('Get Your Offer')).toBeInTheDocument();
+      expect(screen.getByText('Enter your VIN')).toBeInTheDocument();
+      expect(screen.getByText('Tell us about your car')).toBeInTheDocument();
+      expect(screen.getByText('Get your offer')).toBeInTheDocument();
+    });
+
+    it('renders step descriptions', () => {
+      render(<HomePage />);
+      
+      expect(screen.getByText(/decode your VIN/i)).toBeInTheDocument();
+      expect(screen.getByText(/quick questions about mileage/i)).toBeInTheDocument();
+      expect(screen.getByText(/competitive cash offer/i)).toBeInTheDocument();
     });
   });
 
@@ -151,16 +184,44 @@ describe('HomePage', () => {
     it('renders section heading', () => {
       render(<HomePage />);
       
-      expect(screen.getByText(/Why Quirk/i)).toBeInTheDocument();
+      expect(screen.getByText(/Why sell to Quirk/i)).toBeInTheDocument();
     });
 
-    it('renders benefit cards', () => {
+    it('renders benefit items', () => {
       render(<HomePage />);
       
-      expect(screen.getByText('Instant Online Offers')).toBeInTheDocument();
-      expect(screen.getByText('No Hidden Fees')).toBeInTheDocument();
-      expect(screen.getByText('Same-Day Payment')).toBeInTheDocument();
-      expect(screen.getByText('Trade or Sell')).toBeInTheDocument();
+      expect(screen.getByText('Same-day payment')).toBeInTheDocument();
+      expect(screen.getByText('Fair market pricing')).toBeInTheDocument();
+      expect(screen.getByText('We handle the paperwork')).toBeInTheDocument();
+      expect(screen.getByText('Trade-in or sell outright')).toBeInTheDocument();
+    });
+
+    it('renders benefit descriptions', () => {
+      render(<HomePage />);
+      
+      expect(screen.getByText(/Get paid the same day/i)).toBeInTheDocument();
+      expect(screen.getByText(/real-time market data/i)).toBeInTheDocument();
+      expect(screen.getByText(/Title transfer, registration/i)).toBeInTheDocument();
+    });
+  });
+
+  describe('Trust Bar section', () => {
+    it('renders trust statistics', () => {
+      render(<HomePage />);
+      
+      expect(screen.getByText('17+')).toBeInTheDocument();
+      expect(screen.getByText('30K+')).toBeInTheDocument();
+      expect(screen.getByText('4.3★')).toBeInTheDocument();
+      expect(screen.getByText('24hr')).toBeInTheDocument();
+    });
+
+    it('renders trust labels', () => {
+      render(<HomePage />);
+      
+      expect(screen.getByText('Dealership Locations')).toBeInTheDocument();
+      expect(screen.getByText('Cars Purchased')).toBeInTheDocument();
+      expect(screen.getByText('Customer Rating')).toBeInTheDocument();
+      expect(screen.getByText('Offer Valid')).toBeInTheDocument();
     });
   });
 
@@ -171,6 +232,13 @@ describe('HomePage', () => {
       expect(screen.getByText('Contact')).toBeInTheDocument();
       expect(screen.getByText('(603) 263-4552')).toBeInTheDocument();
       expect(screen.getByText('steve.obrien@quirkcars.com')).toBeInTheDocument();
+    });
+
+    it('renders business hours', () => {
+      render(<HomePage />);
+      
+      expect(screen.getByText('Mon-Sat: 9AM-8PM')).toBeInTheDocument();
+      expect(screen.getByText('Sun: 11AM-5PM')).toBeInTheDocument();
     });
 
     it('renders company description', () => {
@@ -207,14 +275,7 @@ describe('HomePage', () => {
   });
 
   describe('form submission', () => {
-    it('shows loading state during submission', async () => {
-      (global.fetch as jest.Mock).mockImplementationOnce(() => 
-        new Promise(resolve => setTimeout(() => resolve({
-          ok: true,
-          json: () => Promise.resolve({ success: true, data: {} })
-        }), 100))
-      );
-
+    it('navigates to vehicle page with valid VIN', async () => {
       render(<HomePage />);
       
       const vinInput = screen.getByPlaceholderText(/Enter your 17-character VIN/i);
@@ -224,13 +285,11 @@ describe('HomePage', () => {
       fireEvent.click(submitButton);
       
       await waitFor(() => {
-        expect(screen.getByText(/Looking up/i)).toBeInTheDocument();
+        expect(mockPush).toHaveBeenCalledWith('/getoffer/vehicle?vin=1HGBH41JXMN109186');
       });
     });
 
-    it('handles API error gracefully', async () => {
-      (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
-
+    it('shows loading state during submission', async () => {
       render(<HomePage />);
       
       const vinInput = screen.getByPlaceholderText(/Enter your 17-character VIN/i);
@@ -240,7 +299,21 @@ describe('HomePage', () => {
       fireEvent.click(submitButton);
       
       await waitFor(() => {
-        expect(screen.getByText(/Unable to decode VIN/i)).toBeInTheDocument();
+        expect(screen.getByText(/Looking up your vehicle/i)).toBeInTheDocument();
+      });
+    });
+
+    it('does not submit with invalid VIN', async () => {
+      render(<HomePage />);
+      
+      const vinInput = screen.getByPlaceholderText(/Enter your 17-character VIN/i);
+      const submitButton = screen.getByText(/Get Your Offer/i);
+      
+      fireEvent.change(vinInput, { target: { value: 'INVALID' } });
+      fireEvent.click(submitButton);
+      
+      await waitFor(() => {
+        expect(mockPush).not.toHaveBeenCalled();
       });
     });
   });
