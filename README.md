@@ -1,6 +1,6 @@
 # Quirk Sell My Car
 
-A vehicle appraisal and instant offer system for Quirk Chevrolet NH. Built with Next.js 14, React 18, and Tailwind CSS.
+A vehicle appraisal and instant offer system for Quirk Chevrolet NH. Built with Next.js 14, React 18, and also with Tailwind CSS.
 
 ## Features
 
