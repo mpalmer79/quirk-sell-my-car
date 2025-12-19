@@ -246,7 +246,7 @@ describe('HomePage', () => {
     it('renders company description', () => {
       render(<HomePage />);
       
-      expect(screen.getByText(/Quirk Auto Dealers is the New England/i)).toBeInTheDocument();
+      expect(screen.getByText(/Quirk Auto Dealers is New England/i)).toBeInTheDocument();
     });
 
     it('renders legal links', () => {
@@ -268,15 +268,16 @@ describe('HomePage', () => {
       expect(screen.getByText(new RegExp(`© ${currentYear} Quirk Auto Dealers`))).toBeInTheDocument();
     });
 
-    it('renders social media icons', () => {
+  it('renders social media icons', () => {
       render(<HomePage />);
       
-      expect(screen.getByAltText('Facebook')).toBeInTheDocument();
-      expect(screen.getByAltText('LinkedIn')).toBeInTheDocument();
-      expect(screen.getByAltText('X')).toBeInTheDocument();
-      expect(screen.getByAltText('Instagram')).toBeInTheDocument();
-      expect(screen.getByAltText('YouTube')).toBeInTheDocument();
-    });
+      // Social icons now use inline SVGs with aria-labels
+      expect(screen.getByLabelText('Facebook')).toBeInTheDocument();
+      expect(screen.getByLabelText('LinkedIn')).toBeInTheDocument();
+      expect(screen.getByLabelText('X (Twitter)')).toBeInTheDocument();
+      expect(screen.getByLabelText('Instagram')).toBeInTheDocument();
+      expect(screen.getByLabelText('YouTube')).toBeInTheDocument();
+    });  
   });
 
   describe('form submission', () => {
