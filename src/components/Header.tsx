@@ -25,7 +25,7 @@ export default function Header() {
         <div className="flex items-center justify-center h-16 lg:h-20">
           {/* Logo */}
           <a 
-            href="https://www.quirkcars.com" 
+            href="https://www.quirkchevynh.com" 
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center group"
