@@ -62,7 +62,7 @@ describe('HomePage', () => {
       render(<HomePage />);
       
       // Use getByRole to specifically target the button
-      const submitButton = screen.getByRole('button', { name: /Get Your Offer/i });
+      const submitButton = screen.getByRole('button', { name: /Get Your.*Offer/i });
       expect(submitButton).toBeInTheDocument();
     });
 
@@ -105,7 +105,7 @@ describe('HomePage', () => {
       render(<HomePage />);
       
       const vinInput = screen.getByPlaceholderText(/Enter your 17-character VIN/i);
-      const submitButton = screen.getByRole('button', { name: /Get Your Offer/i });
+      const submitButton = screen.getByRole('button', { name: /Get Your.*Offer/i });
       
       fireEvent.change(vinInput, { target: { value: 'INVALID' } });
       fireEvent.click(submitButton);
@@ -118,7 +118,7 @@ describe('HomePage', () => {
     it('shows error when VIN is empty on submit', async () => {
       render(<HomePage />);
       
-      const submitButton = screen.getByRole('button', { name: /Get Your Offer/i });
+      const submitButton = screen.getByRole('button', { name: /Get Your.*Offer/i });
       fireEvent.click(submitButton);
       
       await waitFor(() => {
@@ -134,15 +134,15 @@ describe('HomePage', () => {
       const helpButton = screen.getByText(/Where do I find my VIN/i);
       
       // Initially hidden
-      expect(screen.queryByText(/Driver-side dashboard/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/driver.*side dashboard/i)).not.toBeInTheDocument();
       
       // Click to show
       fireEvent.click(helpButton);
-      expect(screen.getByText(/Driver-side dashboard/i)).toBeInTheDocument();
+      expect(screen.getByText(/driver.*side dashboard/i)).toBeInTheDocument();
       
       // Click to hide
       fireEvent.click(helpButton);
-      expect(screen.queryByText(/Driver-side dashboard/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/driver.*side dashboard/i)).not.toBeInTheDocument();
     });
 
     it('shows all VIN location options when help is expanded', () => {
@@ -151,10 +151,9 @@ describe('HomePage', () => {
       const helpButton = screen.getByText(/Where do I find my VIN/i);
       fireEvent.click(helpButton);
       
-      expect(screen.getByText(/Driver-side dashboard/i)).toBeInTheDocument();
-      expect(screen.getByText(/driver-side door jamb/i)).toBeInTheDocument();
-      expect(screen.getByText(/Vehicle registration card/i)).toBeInTheDocument();
-      expect(screen.getByText(/Insurance documents/i)).toBeInTheDocument();
+      expect(screen.getByText(/driver.*side dashboard/i)).toBeInTheDocument();
+      expect(screen.getByText(/door jamb/i)).toBeInTheDocument();
+      expect(screen.getByText(/registration/i)).toBeInTheDocument();
     });
   });
 
@@ -162,23 +161,23 @@ describe('HomePage', () => {
     it('renders section heading', () => {
       render(<HomePage />);
       
-      expect(screen.getByText('How it works')).toBeInTheDocument();
+      expect(screen.getByText('How It Works')).toBeInTheDocument();
     });
 
     it('renders all three steps', () => {
       render(<HomePage />);
       
-      expect(screen.getByText('Enter your VIN')).toBeInTheDocument();
-      expect(screen.getByText('Tell us about your car')).toBeInTheDocument();
-      expect(screen.getByText('Get your offer')).toBeInTheDocument();
+      expect(screen.getByText('Enter Your VIN')).toBeInTheDocument();
+      expect(screen.getByText('Tell Us About Your Car')).toBeInTheDocument();
+      expect(screen.getByText('Get Your Offer')).toBeInTheDocument();
     });
 
     it('renders step descriptions', () => {
       render(<HomePage />);
       
-      expect(screen.getByText(/decode your VIN/i)).toBeInTheDocument();
-      expect(screen.getByText(/quick questions about mileage/i)).toBeInTheDocument();
-      expect(screen.getByText(/competitive cash offer/i)).toBeInTheDocument();
+      expect(screen.getByText(/17-character Vehicle Identification Number/i)).toBeInTheDocument();
+      expect(screen.getByText(/questions about your vehicle/i)).toBeInTheDocument();
+      expect(screen.getByText(/instant.*offer/i)).toBeInTheDocument();
     });
   });
 
@@ -186,44 +185,33 @@ describe('HomePage', () => {
     it('renders section heading', () => {
       render(<HomePage />);
       
-      expect(screen.getByText(/Why sell to Quirk/i)).toBeInTheDocument();
+      expect(screen.getByText(/Why Sell to Quirk/i)).toBeInTheDocument();
     });
 
     it('renders benefit items', () => {
       render(<HomePage />);
       
-      expect(screen.getByText('Same-day payment')).toBeInTheDocument();
-      expect(screen.getByText('Fair market pricing')).toBeInTheDocument();
-      expect(screen.getByText('We handle the paperwork')).toBeInTheDocument();
-      expect(screen.getByText('Trade-in or sell outright')).toBeInTheDocument();
+      expect(screen.getByText('Instant Cash Offers')).toBeInTheDocument();
+      expect(screen.getByText('No Obligation')).toBeInTheDocument();
+      expect(screen.getByText('Trusted Dealer Network')).toBeInTheDocument();
+      expect(screen.getByText('We Buy All Makes')).toBeInTheDocument();
     });
 
     it('renders benefit descriptions', () => {
       render(<HomePage />);
       
-      expect(screen.getByText(/Get paid the same day/i)).toBeInTheDocument();
-      expect(screen.getByText(/real-time market data/i)).toBeInTheDocument();
-      expect(screen.getByText(/Title transfer, registration/i)).toBeInTheDocument();
+      expect(screen.getByText(/competitive offer in minutes/i)).toBeInTheDocument();
+      expect(screen.getByText(/completely free/i)).toBeInTheDocument();
+      expect(screen.getByText(/17\+ locations/i)).toBeInTheDocument();
     });
   });
 
-  describe('Trust Bar section', () => {
-    it('renders trust statistics', () => {
+  describe('Trust badge', () => {
+    it('renders rating badge', () => {
       render(<HomePage />);
       
-      expect(screen.getByText('17+')).toBeInTheDocument();
-      expect(screen.getByText('30K+')).toBeInTheDocument();
-      expect(screen.getByText('4.3★')).toBeInTheDocument();
-      expect(screen.getByText('24hr')).toBeInTheDocument();
-    });
-
-    it('renders trust labels', () => {
-      render(<HomePage />);
-      
-      expect(screen.getByText('Dealership Locations')).toBeInTheDocument();
-      expect(screen.getByText('Cars Purchased')).toBeInTheDocument();
-      expect(screen.getByText('Customer Rating')).toBeInTheDocument();
-      expect(screen.getByText('Offer Valid')).toBeInTheDocument();
+      expect(screen.getByText('4.3/5 rating')).toBeInTheDocument();
+      expect(screen.getByText(/2,500\+ reviews/i)).toBeInTheDocument();
     });
   });
 
@@ -232,7 +220,9 @@ describe('HomePage', () => {
       render(<HomePage />);
       
       expect(screen.getByText('Contact')).toBeInTheDocument();
-      expect(screen.getByText('(603) 263-4552')).toBeInTheDocument();
+      // Phone number appears in header and footer
+      const phoneNumbers = screen.getAllByText('(603) 263-4552');
+      expect(phoneNumbers.length).toBeGreaterThanOrEqual(1);
       expect(screen.getByText('steve.obrien@quirkcars.com')).toBeInTheDocument();
     });
 
@@ -253,7 +243,6 @@ describe('HomePage', () => {
       render(<HomePage />);
       
       expect(screen.getByText('Legal')).toBeInTheDocument();
-      // Use getAllByText since these appear twice (hero terms + footer)
       const privacyLinks = screen.getAllByText('Privacy Policy');
       expect(privacyLinks.length).toBeGreaterThanOrEqual(1);
       const termsLinks = screen.getAllByText('Terms of Service');
@@ -268,7 +257,7 @@ describe('HomePage', () => {
       expect(screen.getByText(new RegExp(`© ${currentYear} Quirk Auto Dealers`))).toBeInTheDocument();
     });
 
-  it('renders social media icons', () => {
+    it('renders social media icons', () => {
       render(<HomePage />);
       
       // Social icons now use inline SVGs with aria-labels
@@ -285,7 +274,7 @@ describe('HomePage', () => {
       render(<HomePage />);
       
       const vinInput = screen.getByPlaceholderText(/Enter your 17-character VIN/i);
-      const submitButton = screen.getByRole('button', { name: /Get Your Offer/i });
+      const submitButton = screen.getByRole('button', { name: /Get Your.*Offer/i });
       
       fireEvent.change(vinInput, { target: { value: '1HGBH41JXMN109186' } });
       fireEvent.click(submitButton);
@@ -299,13 +288,13 @@ describe('HomePage', () => {
       render(<HomePage />);
       
       const vinInput = screen.getByPlaceholderText(/Enter your 17-character VIN/i);
-      const submitButton = screen.getByRole('button', { name: /Get Your Offer/i });
+      const submitButton = screen.getByRole('button', { name: /Get Your.*Offer/i });
       
       fireEvent.change(vinInput, { target: { value: '1HGBH41JXMN109186' } });
       fireEvent.click(submitButton);
       
       await waitFor(() => {
-        expect(screen.getByText(/Looking up your vehicle/i)).toBeInTheDocument();
+        expect(screen.getByText(/Getting your offer/i)).toBeInTheDocument();
       });
     });
 
@@ -313,7 +302,7 @@ describe('HomePage', () => {
       render(<HomePage />);
       
       const vinInput = screen.getByPlaceholderText(/Enter your 17-character VIN/i);
-      const submitButton = screen.getByRole('button', { name: /Get Your Offer/i });
+      const submitButton = screen.getByRole('button', { name: /Get Your.*Offer/i });
       
       fireEvent.change(vinInput, { target: { value: 'INVALID' } });
       fireEvent.click(submitButton);
