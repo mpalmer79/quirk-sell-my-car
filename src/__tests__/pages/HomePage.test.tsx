@@ -1,34 +1,32 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import HomePage from '@/app/page';
 
 // Mock next/navigation
-const mockPush = jest.fn();
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
-    push: mockPush,
+    push: jest.fn(),
+    replace: jest.fn(),
+    prefetch: jest.fn(),
   }),
 }));
 
 // Mock next/image
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: (props: React.ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean }) => {
-    const { priority, ...rest } = props;
-    // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
-    return <img {...rest} />;
+  default: (props: React.ImgHTMLAttributes<HTMLImageElement> & { src: string; alt: string }) => {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img {...props} alt={props.alt} />;
   },
 }));
 
-// Mock window.scrollTo
-Object.defineProperty(window, 'scrollTo', {
-  value: jest.fn(),
-  writable: true,
-});
+// Mock fetch for VIN decoding
+global.fetch = jest.fn();
 
 describe('HomePage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Mock window.scrollTo
+    window.scrollTo = jest.fn();
   });
 
   describe('hero section', () => {
@@ -39,219 +37,211 @@ describe('HomePage', () => {
       expect(screen.getByText('IN 2 MINUTES')).toBeInTheDocument();
     });
 
+    it('renders subheading', () => {
+      render(<HomePage />);
+      
+      expect(screen.getByText(/Sell or trade your car 100% online/)).toBeInTheDocument();
+    });
+
     it('renders VIN input field', () => {
       render(<HomePage />);
       
-      const input = screen.getByPlaceholderText('Enter your 17-character VIN');
-      expect(input).toBeInTheDocument();
+      const vinInput = screen.getByPlaceholderText(/Enter your 17-character VIN/i);
+      expect(vinInput).toBeInTheDocument();
+    });
+
+    it('renders VIN help button', () => {
+      render(<HomePage />);
+      
+      expect(screen.getByText(/Where do I find my VIN/i)).toBeInTheDocument();
     });
 
     it('renders Get Your Offer button', () => {
       render(<HomePage />);
       
-      expect(screen.getByText('Get Your Offer')).toBeInTheDocument();
+      expect(screen.getByText(/Get Your Offer/i)).toBeInTheDocument();
     });
 
-    it('shows VIN help when button clicked', () => {
+    it('renders Admin Login link', () => {
       render(<HomePage />);
       
-      const helpButton = screen.getByText('Where do I find my VIN?');
-      fireEvent.click(helpButton);
-      
-      expect(screen.getByText('Find your VIN in these locations:')).toBeInTheDocument();
+      const adminLink = screen.getByText('Admin Login');
+      expect(adminLink).toBeInTheDocument();
+      expect(adminLink).toHaveAttribute('href', '/admin/offers');
     });
   });
 
-  describe('VIN validation', () => {
-    it('shows error for empty VIN submission', async () => {
+  describe('VIN input validation', () => {
+    it('accepts valid VIN input', () => {
       render(<HomePage />);
       
-      const submitButton = screen.getByText('Get Your Offer');
-      fireEvent.click(submitButton);
+      const vinInput = screen.getByPlaceholderText(/Enter your 17-character VIN/i) as HTMLInputElement;
+      fireEvent.change(vinInput, { target: { value: '1HGBH41JXMN109186' } });
       
-      expect(await screen.findByText('Please enter your VIN')).toBeInTheDocument();
-    });
-
-    it('shows error for invalid VIN length', async () => {
-      render(<HomePage />);
-      
-      const input = screen.getByPlaceholderText('Enter your 17-character VIN');
-      fireEvent.change(input, { target: { value: 'ABC123' } });
-      
-      const submitButton = screen.getByText('Get Your Offer');
-      fireEvent.click(submitButton);
-      
-      expect(await screen.findByText('Please enter a valid 17-character VIN')).toBeInTheDocument();
+      expect(vinInput.value).toBe('1HGBH41JXMN109186');
     });
 
     it('converts VIN to uppercase', () => {
       render(<HomePage />);
       
-      const input = screen.getByPlaceholderText('Enter your 17-character VIN') as HTMLInputElement;
-      fireEvent.change(input, { target: { value: 'abc123' } });
+      const vinInput = screen.getByPlaceholderText(/Enter your 17-character VIN/i) as HTMLInputElement;
+      fireEvent.change(vinInput, { target: { value: '1hgbh41jxmn109186' } });
       
-      expect(input.value).toBe('ABC123');
+      expect(vinInput.value).toBe('1HGBH41JXMN109186');
     });
 
-    it('shows checkmark for valid 17-character VIN', () => {
+    it('limits VIN to 17 characters', () => {
       render(<HomePage />);
       
-      const input = screen.getByPlaceholderText('Enter your 17-character VIN');
-      fireEvent.change(input, { target: { value: '1GCVKNEC0MZ123456' } });
-      
-      // The checkmark should appear (green circle with check)
-      const checkIcon = document.querySelector('.bg-green-500');
-      expect(checkIcon).toBeInTheDocument();
+      const vinInput = screen.getByPlaceholderText(/Enter your 17-character VIN/i) as HTMLInputElement;
+      expect(vinInput).toHaveAttribute('maxLength', '17');
     });
 
-    it('navigates to vehicle page on valid VIN submit', async () => {
+    it('shows error for invalid VIN on submit', async () => {
       render(<HomePage />);
       
-      const input = screen.getByPlaceholderText('Enter your 17-character VIN');
-      fireEvent.change(input, { target: { value: '1GCVKNEC0MZ123456' } });
+      const vinInput = screen.getByPlaceholderText(/Enter your 17-character VIN/i);
+      const submitButton = screen.getByText(/Get Your Offer/i);
       
-      const submitButton = screen.getByText('Get Your Offer');
+      fireEvent.change(vinInput, { target: { value: 'INVALID' } });
       fireEvent.click(submitButton);
       
-      expect(mockPush).toHaveBeenCalledWith('/getoffer/vehicle?vin=1GCVKNEC0MZ123456');
+      await waitFor(() => {
+        expect(screen.getByText(/Please enter a valid 17-character VIN/i)).toBeInTheDocument();
+      });
     });
   });
 
-  describe('trust bar', () => {
-    it('renders dealership count', () => {
+  describe('VIN help section', () => {
+    it('toggles VIN help when clicking help button', () => {
       render(<HomePage />);
       
-      expect(screen.getByText('17+')).toBeInTheDocument();
-      expect(screen.getByText('Dealership Locations')).toBeInTheDocument();
-    });
-
-    it('renders cars purchased count', () => {
-      render(<HomePage />);
+      const helpButton = screen.getByText(/Where do I find my VIN/i);
       
-      expect(screen.getByText('30K+')).toBeInTheDocument();
-      expect(screen.getByText('Cars Purchased')).toBeInTheDocument();
-    });
-
-    it('renders customer rating', () => {
-      render(<HomePage />);
+      // Initially hidden
+      expect(screen.queryByText(/Driver's side dashboard/i)).not.toBeInTheDocument();
       
-      expect(screen.getByText('4.3★')).toBeInTheDocument();
-      expect(screen.getByText('Customer Rating')).toBeInTheDocument();
+      // Click to show
+      fireEvent.click(helpButton);
+      expect(screen.getByText(/Driver's side dashboard/i)).toBeInTheDocument();
+      
+      // Click to hide
+      fireEvent.click(helpButton);
+      expect(screen.queryByText(/Driver's side dashboard/i)).not.toBeInTheDocument();
     });
   });
 
-  describe('how it works section', () => {
+  describe('How It Works section', () => {
     it('renders section heading', () => {
       render(<HomePage />);
       
-      expect(screen.getByText('How it works')).toBeInTheDocument();
+      expect(screen.getByText('How It Works')).toBeInTheDocument();
     });
 
     it('renders all three steps', () => {
       render(<HomePage />);
       
-      expect(screen.getByText('Enter your VIN')).toBeInTheDocument();
-      expect(screen.getByText('Tell us about your car')).toBeInTheDocument();
-      expect(screen.getByText('Get your offer')).toBeInTheDocument();
+      expect(screen.getByText('Enter Your VIN')).toBeInTheDocument();
+      expect(screen.getByText('Answer Questions')).toBeInTheDocument();
+      expect(screen.getByText('Get Your Offer')).toBeInTheDocument();
     });
   });
 
-  describe('why choose section', () => {
+  describe('Why Quirk section', () => {
     it('renders section heading', () => {
       render(<HomePage />);
       
-      expect(screen.getByText('Why sell to Quirk Auto Dealers?')).toBeInTheDocument();
+      expect(screen.getByText(/Why Quirk/i)).toBeInTheDocument();
     });
 
-    it('renders benefits', () => {
+    it('renders benefit cards', () => {
       render(<HomePage />);
       
-      expect(screen.getByText('Same-day payment')).toBeInTheDocument();
-      expect(screen.getByText('Fair market pricing')).toBeInTheDocument();
-      expect(screen.getByText('We handle the paperwork')).toBeInTheDocument();
-      expect(screen.getByText('Trade-in or sell outright')).toBeInTheDocument();
-    });
-  });
-
-  describe('CTA section', () => {
-    it('renders CTA heading', () => {
-      render(<HomePage />);
-      
-      expect(screen.getByText('Ready to get your offer?')).toBeInTheDocument();
-    });
-
-    it('renders Start Now button', () => {
-      render(<HomePage />);
-      
-      expect(screen.getByText('Start Now →')).toBeInTheDocument();
-    });
-
-    it('scrolls to top when Start Now is clicked', () => {
-      render(<HomePage />);
-      
-      const startButton = screen.getByText('Start Now →');
-      fireEvent.click(startButton);
-      
-      expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
+      expect(screen.getByText('Instant Online Offers')).toBeInTheDocument();
+      expect(screen.getByText('No Hidden Fees')).toBeInTheDocument();
+      expect(screen.getByText('Same-Day Payment')).toBeInTheDocument();
+      expect(screen.getByText('Trade or Sell')).toBeInTheDocument();
     });
   });
 
   describe('footer', () => {
-    it('renders Quirk logo', () => {
+    it('renders contact information', () => {
       render(<HomePage />);
       
-      const logos = screen.getAllByAltText('Quirk Auto Dealers');
-      expect(logos.length).toBeGreaterThan(0);
+      expect(screen.getByText('Contact')).toBeInTheDocument();
+      expect(screen.getByText('(603) 263-4552')).toBeInTheDocument();
+      expect(screen.getByText('steve.obrien@quirkcars.com')).toBeInTheDocument();
     });
 
     it('renders company description', () => {
       render(<HomePage />);
       
-      expect(screen.getByText(/Quirk Auto Dealers is the New England/)).toBeInTheDocument();
+      expect(screen.getByText(/Quirk Auto Dealers is the New England/i)).toBeInTheDocument();
     });
 
-    it('renders social media links', () => {
+    it('renders legal links', () => {
       render(<HomePage />);
       
-      // Check for social media icons by alt text
+      expect(screen.getByText('Legal')).toBeInTheDocument();
+      expect(screen.getByText('Privacy Policy')).toBeInTheDocument();
+      expect(screen.getByText('Terms of Service')).toBeInTheDocument();
+      expect(screen.getByText('Accessibility')).toBeInTheDocument();
+    });
+
+    it('renders copyright', () => {
+      render(<HomePage />);
+      
+      const currentYear = new Date().getFullYear();
+      expect(screen.getByText(new RegExp(`© ${currentYear} Quirk Auto Dealers`))).toBeInTheDocument();
+    });
+
+    it('renders social media icons', () => {
+      render(<HomePage />);
+      
       expect(screen.getByAltText('Facebook')).toBeInTheDocument();
       expect(screen.getByAltText('LinkedIn')).toBeInTheDocument();
       expect(screen.getByAltText('X')).toBeInTheDocument();
       expect(screen.getByAltText('Instagram')).toBeInTheDocument();
       expect(screen.getByAltText('YouTube')).toBeInTheDocument();
     });
+  });
 
-    it('renders contact information', () => {
+  describe('form submission', () => {
+    it('shows loading state during submission', async () => {
+      (global.fetch as jest.Mock).mockImplementationOnce(() => 
+        new Promise(resolve => setTimeout(() => resolve({
+          ok: true,
+          json: () => Promise.resolve({ success: true, data: {} })
+        }), 100))
+      );
+
       render(<HomePage />);
       
-      // Phone number appears multiple times on the page
-      const phoneNumbers = screen.getAllByText('(603) 263-4552');
-      expect(phoneNumbers.length).toBeGreaterThan(0);
+      const vinInput = screen.getByPlaceholderText(/Enter your 17-character VIN/i);
+      const submitButton = screen.getByText(/Get Your Offer/i);
+      
+      fireEvent.change(vinInput, { target: { value: '1HGBH41JXMN109186' } });
+      fireEvent.click(submitButton);
+      
+      await waitFor(() => {
+        expect(screen.getByText(/Looking up/i)).toBeInTheDocument();
+      });
     });
 
-    it('renders business hours', () => {
-      render(<HomePage />);
-      
-      expect(screen.getByText('Mon-Sat: 9AM-8PM')).toBeInTheDocument();
-      expect(screen.getByText('Sun: 11AM-5PM')).toBeInTheDocument();
-    });
+    it('handles API error gracefully', async () => {
+      (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
 
-    it('renders legal links', () => {
       render(<HomePage />);
       
-      // Multiple occurrences of these links
-      const privacyLinks = screen.getAllByText('Privacy Policy');
-      const termsLinks = screen.getAllByText('Terms of Service');
+      const vinInput = screen.getByPlaceholderText(/Enter your 17-character VIN/i);
+      const submitButton = screen.getByText(/Get Your Offer/i);
       
-      expect(privacyLinks.length).toBeGreaterThan(0);
-      expect(termsLinks.length).toBeGreaterThan(0);
-    });
-
-    it('renders copyright', () => {
-      render(<HomePage />);
+      fireEvent.change(vinInput, { target: { value: '1HGBH41JXMN109186' } });
+      fireEvent.click(submitButton);
       
-      const year = new Date().getFullYear();
-      expect(screen.getByText(`© ${year} Quirk Auto Dealers. All rights reserved.`)).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText(/Unable to decode VIN/i)).toBeInTheDocument();
+      });
     });
   });
 });
