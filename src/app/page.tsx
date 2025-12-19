@@ -495,7 +495,7 @@ export default function HomePage() {
               <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-400">Legal</h4>
               <ul className="space-y-3 text-sm">
                 <li><a href="https://www.quirkcars.com/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Terms of Service</a></li>
+                <li><a href="https://www.quirkcars.com/privacy-policy" className="text-gray-300 hover:text-white transition-colors">Terms of Service</a></li>
                 <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Accessibility</a></li>
               </ul>
             </div>
