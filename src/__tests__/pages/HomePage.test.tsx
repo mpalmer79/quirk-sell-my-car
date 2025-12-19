@@ -177,7 +177,7 @@ describe('HomePage', () => {
       
       expect(screen.getByText(/17-character Vehicle Identification Number/i)).toBeInTheDocument();
       expect(screen.getByText(/questions about your vehicle/i)).toBeInTheDocument();
-      expect(screen.getByText(/instant.*offer/i)).toBeInTheDocument();
+      expect(screen.getByText(/no-obligation offer you can redeem/i)).toBeInTheDocument();
     });
   });
 
