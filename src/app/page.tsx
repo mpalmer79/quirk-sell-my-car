@@ -260,45 +260,33 @@ export default function HomePage() {
             <div className="relative grid grid-cols-2 gap-4">
               <div className="space-y-4">
                 <div className="rounded-2xl overflow-hidden shadow-lg">
-                  <Image
+                  <img
                     src="/card1.jpg"
                     alt="Handshake deal"
-                    width={400}
-                    height={267}
                     className="w-full h-48 object-cover"
-                    unoptimized
                   />
                 </div>
                 <div className="rounded-2xl overflow-hidden shadow-lg">
-                  <Image
+                  <img
                     src="/card2.jpg"
                     alt="Car keys handover"
-                    width={400}
-                    height={267}
                     className="w-full h-56 object-cover"
-                    unoptimized
                   />
                 </div>
               </div>
               <div className="space-y-4 pt-8">
                 <div className="rounded-2xl overflow-hidden shadow-lg">
-                  <Image
+                  <img
                     src="/card3.jpg"
                     alt="Signing paperwork"
-                    width={400}
-                    height={267}
                     className="w-full h-56 object-cover"
-                    unoptimized
                   />
                 </div>
                 <div className="rounded-2xl overflow-hidden shadow-lg">
-                  <Image
+                  <img
                     src="/card4.jpg"
                     alt="Driving experience"
-                    width={400}
-                    height={267}
                     className="w-full h-48 object-cover"
-                    unoptimized
                   />
                 </div>
               </div>
