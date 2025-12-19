@@ -6,6 +6,7 @@
 import { NextRequest } from 'next/server';
 import { getClientIp, generateFingerprint } from './rateLimit';
 import { sanitizeForLogging } from './sanitize';
+import { captureError, captureMessage } from '../sentry';
 
 // =============================================================================
 // TYPES
@@ -35,6 +36,8 @@ export enum AuditEventType {
   VALUATION_REQUEST = 'VALUATION_REQUEST',
   LEAD_SUBMISSION = 'LEAD_SUBMISSION',
   OFFER_GENERATED = 'OFFER_GENERATED',
+  OFFER_CREATED = 'OFFER_CREATED',
+  OFFER_UPDATED = 'OFFER_UPDATED',
   
   // Chat
   CHAT_MESSAGE = 'CHAT_MESSAGE',
@@ -47,6 +50,10 @@ export enum AuditEventType {
   // Security Events
   SECURITY_VIOLATION = 'SECURITY_VIOLATION',
   CONFIG_CHANGE = 'CONFIG_CHANGE',
+
+  // Webhooks
+  WEBHOOK_RECEIVED = 'WEBHOOK_RECEIVED',
+  WEBHOOK_ERROR = 'WEBHOOK_ERROR',
 }
 
 export enum AuditSeverity {
@@ -175,9 +182,10 @@ export function auditLog(
   // Output to console
   const consoleMethod = CONSOLE_METHODS[severity];
   if (process.env.NODE_ENV === 'production') {
-    // Structured JSON logging for production
+    // Structured JSON logging for production (Vercel picks this up)
     consoleMethod(JSON.stringify({
       type: 'AUDIT',
+      service: 'quirk-sell-my-car',
       ...entry,
     }));
   } else {
@@ -189,7 +197,30 @@ export function auditLog(
     );
   }
   
-  // In production, send critical events to external monitoring
+  // Send errors and critical events to Sentry
+  if (severity === AuditSeverity.ERROR || severity === AuditSeverity.CRITICAL) {
+    if (details?.error) {
+      captureError(details.error, {
+        tags: {
+          eventType,
+          severity,
+        },
+        extra: {
+          ...entry.data,
+          path: entry.path,
+          method: entry.method,
+          requestId: entry.requestId,
+        },
+      });
+    } else {
+      captureMessage(message, severity === AuditSeverity.CRITICAL ? 'error' : 'warning', {
+        eventType,
+        ...entry.data,
+      });
+    }
+  }
+  
+  // Send critical events to external monitoring webhook
   if (severity === AuditSeverity.CRITICAL && process.env.NODE_ENV === 'production') {
     sendToExternalMonitoring(entry).catch(console.error);
   }
@@ -203,24 +234,43 @@ function generateRequestId(): string {
 }
 
 /**
- * Send critical events to external monitoring (placeholder)
+ * Send critical events to external monitoring (Slack, PagerDuty, etc.)
  */
 async function sendToExternalMonitoring(entry: AuditLogEntry): Promise<void> {
-  // In production, send to:
-  // - Sentry, Datadog, or similar APM
-  // - Slack/PagerDuty for alerts
-  // - S3/CloudWatch for long-term storage
-  
-  if (process.env.MONITORING_WEBHOOK_URL) {
-    try {
-      await fetch(process.env.MONITORING_WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(entry),
-      });
-    } catch (error) {
-      console.error('Failed to send to monitoring:', error);
-    }
+  const webhookUrl = process.env.MONITORING_WEBHOOK_URL;
+  if (!webhookUrl) return;
+
+  try {
+    // Format for Slack webhook
+    const payload = {
+      text: `🚨 *${entry.severity}*: ${entry.message}`,
+      blocks: [
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: `*${entry.eventType}*\n${entry.message}`,
+          },
+        },
+        {
+          type: 'context',
+          elements: [
+            {
+              type: 'mrkdwn',
+              text: `*Time:* ${entry.timestamp} | *Path:* ${entry.path || 'N/A'} | *IP:* ${entry.ip || 'N/A'}`,
+            },
+          ],
+        },
+      ],
+    };
+
+    await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  } catch (error) {
+    console.error('Failed to send to monitoring webhook:', error);
   }
 }
 
@@ -235,6 +285,7 @@ export function logVinLookup(
   request: NextRequest,
   vin: string,
   success: boolean,
+  durationMs?: number,
   details?: Record<string, unknown>
 ): void {
   auditLog(
@@ -243,6 +294,7 @@ export function logVinLookup(
     success ? `VIN lookup successful: ${vin}` : `VIN lookup failed: ${vin}`,
     {
       request,
+      durationMs,
       data: {
         vin,
         success,
@@ -329,6 +381,52 @@ export function logLeadSubmission(
 }
 
 /**
+ * Log offer creation
+ */
+export function logOfferCreated(
+  request: NextRequest,
+  offerId: string,
+  vin: string,
+  offerAmount: number
+): void {
+  auditLog(
+    AuditEventType.OFFER_CREATED,
+    AuditSeverity.INFO,
+    `Offer created: ${offerId}`,
+    {
+      request,
+      data: {
+        offerId,
+        vin,
+        offerAmount: `$${offerAmount}`,
+      },
+    }
+  );
+}
+
+/**
+ * Log offer update
+ */
+export function logOfferUpdated(
+  request: NextRequest,
+  offerId: string,
+  changes: Record<string, unknown>
+): void {
+  auditLog(
+    AuditEventType.OFFER_UPDATED,
+    AuditSeverity.INFO,
+    `Offer updated: ${offerId}`,
+    {
+      request,
+      data: {
+        offerId,
+        changes,
+      },
+    }
+  );
+}
+
+/**
  * Log rate limit hit
  */
 export function logRateLimitHit(
@@ -409,6 +507,74 @@ export function logSecurityViolation(
     {
       request,
       data: details,
+    }
+  );
+}
+
+/**
+ * Log API error
+ */
+export function logApiError(
+  request: NextRequest,
+  endpoint: string,
+  error: Error,
+  durationMs?: number
+): void {
+  auditLog(
+    AuditEventType.API_ERROR,
+    AuditSeverity.ERROR,
+    `API error: ${endpoint}`,
+    {
+      request,
+      error,
+      durationMs,
+      data: {
+        endpoint,
+      },
+    }
+  );
+}
+
+/**
+ * Log webhook received
+ */
+export function logWebhookReceived(
+  request: NextRequest,
+  source: string,
+  eventType: string
+): void {
+  auditLog(
+    AuditEventType.WEBHOOK_RECEIVED,
+    AuditSeverity.INFO,
+    `Webhook received from ${source}: ${eventType}`,
+    {
+      request,
+      data: {
+        source,
+        webhookEventType: eventType,
+      },
+    }
+  );
+}
+
+/**
+ * Log webhook error
+ */
+export function logWebhookError(
+  request: NextRequest,
+  source: string,
+  error: Error
+): void {
+  auditLog(
+    AuditEventType.WEBHOOK_ERROR,
+    AuditSeverity.ERROR,
+    `Webhook error from ${source}`,
+    {
+      request,
+      error,
+      data: {
+        source,
+      },
     }
   );
 }
