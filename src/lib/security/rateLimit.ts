@@ -83,7 +83,7 @@ export const rateLimitStore = new Map<string, RateLimitRecord>();
 if (typeof setInterval !== 'undefined' && process.env.NODE_ENV !== 'test') {
   setInterval(() => {
     const now = Date.now();
-    for (const [key, record] of rateLimitStore.entries()) {
+    rateLimitStore.forEach((record, key) => {
       // Remove entries with no recent requests and not blocked
       const recentRequests = record.requests.filter(
         (time) => now - time < 60 * 60 * 1000 // Keep 1 hour of history
@@ -94,7 +94,7 @@ if (typeof setInterval !== 'undefined' && process.env.NODE_ENV !== 'test') {
       } else {
         record.requests = recentRequests;
       }
-    }
+    });
   }, 5 * 60 * 1000);
 }
 
