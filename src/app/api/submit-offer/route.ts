@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { submitTradeInOffer, TradeInSubmission } from '@/services/crm';
+import { logLeadSubmission, logApiError, logRateLimitHit } from '@/lib/security/auditLog';
+import { logger } from '@/lib/logger';
 
 // Rate limiting for offer submissions
 const submissionRateLimit = new Map<string, { count: number; resetTime: number }>();
@@ -24,11 +26,14 @@ function checkSubmissionRateLimit(ip: string): boolean {
 }
 
 export async function POST(request: NextRequest) {
+  const timer = logger.startTimer();
+  
   // Rate limit check
   const forwarded = request.headers.get('x-forwarded-for');
   const ip = forwarded?.split(',')[0]?.trim() || 'anonymous';
   
   if (!checkSubmissionRateLimit(ip)) {
+    logRateLimitHit(request, '/api/submit-offer', true);
     return NextResponse.json(
       { 
         success: false, 
@@ -100,16 +105,38 @@ export async function POST(request: NextRequest) {
     };
 
     const result = await submitTradeInOffer(submission);
+    const durationMs = timer.end();
 
     if (result.success) {
+      logLeadSubmission(
+        request,
+        body.vehicle?.vin || 'unknown',
+        customer.email,
+        true,
+        result.confirmationNumber
+      );
+      
+      logger.info('Offer submitted successfully', {
+        confirmationNumber: result.confirmationNumber,
+        vin: body.vehicle?.vin,
+        durationMs,
+      });
+
       return NextResponse.json({
         success: true,
         confirmationNumber: result.confirmationNumber,
         message: 'Your offer request has been submitted! A Quirk representative will contact you shortly.',
       });
     } else {
-      // Log the error but return user-friendly message
-      console.error('CRM submission failed:', result.error);
+      logLeadSubmission(
+        request,
+        body.vehicle?.vin || 'unknown',
+        customer.email,
+        false
+      );
+      
+      logger.error('CRM submission failed', { error: result.error, durationMs });
+      
       return NextResponse.json({
         success: false,
         error: 'Unable to submit your request. Please call (603) 263-4552 for immediate assistance.',
@@ -117,7 +144,12 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
+    const durationMs = timer.end();
+    const err = error instanceof Error ? error : new Error('Submit offer error');
+    
+    logApiError(request, '/api/submit-offer', err, durationMs);
     console.error('Submit offer error:', error);
+    
     return NextResponse.json(
       { 
         success: false, 
