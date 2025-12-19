@@ -69,6 +69,24 @@ export const RATE_LIMIT_CONFIGS: Record<string, RateLimitConfig> = {
     blockDurationMs: 24 * 60 * 60 * 1000, // 24 hour block
     suspicionThreshold: 20,
   },
+  '/api/submit-offer': {
+    windowMs: 60 * 60 * 1000, // 1 hour
+    maxRequests: 10,
+    blockDurationMs: 60 * 60 * 1000, // 1 hour block
+    suspicionThreshold: 40,
+  },
+  '/api/vehicle-image': {
+    windowMs: 60 * 1000,
+    maxRequests: 30,
+    blockDurationMs: 5 * 60 * 1000,
+    suspicionThreshold: 75,
+  },
+  '/api/offers': {
+    windowMs: 60 * 1000,
+    maxRequests: 30,
+    blockDurationMs: 10 * 60 * 1000,
+    suspicionThreshold: 60,
+  },
 };
 
 // =============================================================================
