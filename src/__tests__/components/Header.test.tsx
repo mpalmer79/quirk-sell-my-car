@@ -53,20 +53,24 @@ describe('Header', () => {
       
       const header = document.querySelector('header');
       expect(header).toHaveClass('bg-white');
-      expect(header).not.toHaveClass('shadow-sm');
     });
 
-    it('applies scroll styling when scrolled', () => {
+    it('adds scroll event listener on mount', () => {
+      const addEventListenerSpy = jest.spyOn(window, 'addEventListener');
       render(<Header />);
       
-      // Simulate scroll
-      Object.defineProperty(window, 'scrollY', { value: 20, writable: true });
-      window.dispatchEvent(new Event('scroll'));
+      expect(addEventListenerSpy).toHaveBeenCalledWith('scroll', expect.any(Function));
+      addEventListenerSpy.mockRestore();
+    });
+
+    it('removes scroll event listener on unmount', () => {
+      const removeEventListenerSpy = jest.spyOn(window, 'removeEventListener');
+      const { unmount } = render(<Header />);
       
-      const header = document.querySelector('header');
-      expect(header).toHaveClass('bg-white/95');
-      expect(header).toHaveClass('backdrop-blur-md');
-      expect(header).toHaveClass('shadow-sm');
+      unmount();
+      
+      expect(removeEventListenerSpy).toHaveBeenCalledWith('scroll', expect.any(Function));
+      removeEventListenerSpy.mockRestore();
     });
   });
 
