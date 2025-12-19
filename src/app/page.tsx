@@ -156,7 +156,7 @@ export default function HomePage() {
               <div className={`relative transition-all duration-700 delay-200 ${mounted ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}>
                 <div className="relative">
                   <Image
-                    src="https://images.unsplash.com/photo-1544636331-e26879cd4d9b?auto=format&fit=crop&w=800&q=80"
+                    src="/silverado.jpg"
                     alt="Sell your car"
                     width={800}
                     height={500}
