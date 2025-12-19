@@ -253,10 +253,11 @@ describe('HomePage', () => {
       render(<HomePage />);
       
       expect(screen.getByText('Legal')).toBeInTheDocument();
-      // Use getAllByText since Privacy Policy appears twice (hero terms + footer)
+      // Use getAllByText since these appear twice (hero terms + footer)
       const privacyLinks = screen.getAllByText('Privacy Policy');
       expect(privacyLinks.length).toBeGreaterThanOrEqual(1);
-      expect(screen.getByText('Terms of Service')).toBeInTheDocument();
+      const termsLinks = screen.getAllByText('Terms of Service');
+      expect(termsLinks.length).toBeGreaterThanOrEqual(1);
       expect(screen.getByText('Accessibility')).toBeInTheDocument();
     });
 
