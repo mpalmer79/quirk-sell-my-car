@@ -1,49 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { VinSolutionsWebhookPayload, WebhookEvent } from '@/services/crm';
+import { logWebhookReceived, logWebhookError, logSecurityViolation } from '@/lib/security/auditLog';
+import { logger } from '@/lib/logger';
 
 // Verify webhook signature from VIN Solutions
 function verifySignature(payload: string, signature: string, secret: string): boolean {
-  const expectedSignature = crypto
-    .createHmac('sha256', secret)
-    .update(payload)
-    .digest('hex');
-  
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expectedSignature)
-  );
-}
-
-// Log webhook events (in production, use proper logging service)
-function logWebhookEvent(event: WebhookEvent, data: Record<string, unknown>): void {
-  console.log(JSON.stringify({
-    type: 'WEBHOOK_EVENT',
-    event,
-    timestamp: new Date().toISOString(),
-    data,
-  }));
+  try {
+    const expectedSignature = crypto
+      .createHmac('sha256', secret)
+      .update(payload)
+      .digest('hex');
+    
+    return crypto.timingSafeEqual(
+      Buffer.from(signature),
+      Buffer.from(expectedSignature)
+    );
+  } catch {
+    return false;
+  }
 }
 
 // Handle different webhook events
-async function handleWebhookEvent(payload: VinSolutionsWebhookPayload): Promise<void> {
+async function handleWebhookEvent(
+  request: NextRequest,
+  payload: VinSolutionsWebhookPayload
+): Promise<void> {
+  logWebhookReceived(request, 'vinsolutions', payload.event);
+
   switch (payload.event) {
     case 'lead.assigned':
-      // Lead was assigned to a sales rep
-      logWebhookEvent(payload.event, payload.data);
-      // Could trigger notification to customer that someone will contact them
+      logger.info('Lead assigned', {
+        event: payload.event,
+        leadId: payload.data?.leadId,
+        assignedTo: payload.data?.assignedTo,
+      });
       break;
 
     case 'appraisal.completed':
-      // Appraisal was completed by appraiser
-      logWebhookEvent(payload.event, payload.data);
-      // Could send email to customer with final offer
+      logger.info('Appraisal completed', {
+        event: payload.event,
+        appraisalId: payload.data?.appraisalId,
+        vin: payload.data?.vin,
+      });
       break;
 
     case 'appointment.scheduled':
-      // Appointment was scheduled
-      logWebhookEvent(payload.event, payload.data);
-      // Could send confirmation email/SMS to customer
+      logger.info('Appointment scheduled', {
+        event: payload.event,
+        appointmentId: payload.data?.appointmentId,
+        scheduledTime: payload.data?.scheduledTime,
+      });
       break;
 
     case 'lead.updated':
@@ -52,21 +59,24 @@ async function handleWebhookEvent(payload: VinSolutionsWebhookPayload): Promise<
     case 'lead.created':
     case 'appraisal.created':
     case 'appointment.completed':
-      // Log other events for monitoring
-      logWebhookEvent(payload.event, payload.data);
+      logger.debug('Webhook event received', {
+        event: payload.event,
+        entityId: payload.data?.id || payload.data?.leadId,
+      });
       break;
 
     default:
-      console.warn(`Unhandled webhook event: ${payload.event}`);
+      logger.warn('Unhandled webhook event', { event: payload.event });
   }
 }
 
 export async function POST(request: NextRequest) {
+  const timer = logger.startTimer();
   const webhookSecret = process.env.VINSOLUTIONS_WEBHOOK_SECRET;
 
   // If no secret configured, reject webhooks
   if (!webhookSecret) {
-    console.warn('VINSOLUTIONS_WEBHOOK_SECRET not configured');
+    logger.warn('VINSOLUTIONS_WEBHOOK_SECRET not configured');
     return NextResponse.json(
       { error: 'Webhook not configured' },
       { status: 501 }
@@ -80,7 +90,10 @@ export async function POST(request: NextRequest) {
     // Verify signature
     const signature = request.headers.get('x-vinsolutions-signature');
     if (!signature || !verifySignature(rawBody, signature, webhookSecret)) {
-      console.error('Invalid webhook signature');
+      logSecurityViolation(request, 'Invalid webhook signature', {
+        source: 'vinsolutions',
+        hasSignature: !!signature,
+      });
       return NextResponse.json(
         { error: 'Invalid signature' },
         { status: 401 }
@@ -93,7 +106,11 @@ export async function POST(request: NextRequest) {
     // Verify dealer ID matches
     const expectedDealerId = process.env.VINSOLUTIONS_DEALER_ID;
     if (expectedDealerId && payload.dealerId !== expectedDealerId) {
-      console.error(`Dealer ID mismatch: expected ${expectedDealerId}, got ${payload.dealerId}`);
+      logSecurityViolation(request, 'Dealer ID mismatch', {
+        source: 'vinsolutions',
+        expected: expectedDealerId,
+        received: payload.dealerId,
+      });
       return NextResponse.json(
         { error: 'Invalid dealer ID' },
         { status: 403 }
@@ -101,13 +118,21 @@ export async function POST(request: NextRequest) {
     }
 
     // Process the webhook event
-    await handleWebhookEvent(payload);
+    await handleWebhookEvent(request, payload);
+
+    const durationMs = timer.end();
+    logger.debug('Webhook processed', { event: payload.event, durationMs });
 
     // Acknowledge receipt
     return NextResponse.json({ received: true });
 
   } catch (error) {
-    console.error('Webhook processing error:', error);
+    const durationMs = timer.end();
+    const err = error instanceof Error ? error : new Error('Failed to process webhook');
+    
+    logWebhookError(request, 'vinsolutions', err);
+    logger.error('Webhook processing error', { durationMs }, err);
+    
     return NextResponse.json(
       { error: 'Failed to process webhook' },
       { status: 500 }
@@ -120,7 +145,7 @@ export async function GET(request: NextRequest) {
   const challenge = request.nextUrl.searchParams.get('challenge');
   
   if (challenge) {
-    // Echo back challenge for webhook verification
+    logger.debug('Webhook challenge received', { challenge: challenge.substring(0, 8) + '...' });
     return NextResponse.json({ challenge });
   }
 
