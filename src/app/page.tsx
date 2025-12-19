@@ -236,7 +236,7 @@ export default function HomePage() {
                   },
                   {
                     title: 'Trusted Dealer Network',
-                    description: '17+ locations across MA & NH. New England\'s largest family-owned auto group.'
+                    description: '18 locations across MA & NH. New England\'s largest family-owned auto group.'
                   },
                   {
                     title: 'We Buy All Makes',
@@ -259,14 +259,14 @@ export default function HomePage() {
             {/* Image Grid */}
             <div className="relative grid grid-cols-2 gap-6">
               <div className="space-y-6">
-                <div className="rounded-2xl overflow-hidden shadow-md ring-1 ring-gray-200">
+                <div className="rounded-2xl overflow-hidden border border-gray-300 shadow-lg">
                   <img
                     src="/card1.jpg"
                     alt="Handshake deal"
                     className="w-full h-48 object-cover"
                   />
                 </div>
-                <div className="rounded-2xl overflow-hidden shadow-md ring-1 ring-gray-200">
+                <div className="rounded-2xl overflow-hidden border border-gray-300 shadow-lg">
                   <img
                     src="/card2.jpg"
                     alt="Car keys handover"
@@ -275,14 +275,14 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="space-y-6 pt-8">
-                <div className="rounded-2xl overflow-hidden shadow-md ring-1 ring-gray-200">
+                <div className="rounded-2xl overflow-hidden border border-gray-300 shadow-lg">
                   <img
                     src="/card3.jpg"
                     alt="Signing paperwork"
                     className="w-full h-56 object-cover"
                   />
                 </div>
-                <div className="rounded-2xl overflow-hidden shadow-md ring-1 ring-gray-200">
+                <div className="rounded-2xl overflow-hidden border border-gray-300 shadow-lg">
                   <img
                     src="/card4.jpg"
                     alt="Driving experience"
