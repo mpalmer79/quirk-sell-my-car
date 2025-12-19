@@ -261,7 +261,7 @@ export default function HomePage() {
               <div className="space-y-4">
                 <div className="rounded-2xl overflow-hidden shadow-lg">
                   <Image
-                    src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=400&q=80"
+                    src="/card1.jfif"
                     alt="Handshake deal"
                     width={400}
                     height={300}
@@ -270,7 +270,7 @@ export default function HomePage() {
                 </div>
                 <div className="rounded-2xl overflow-hidden shadow-lg">
                   <Image
-                    src="https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=400&q=80"
+                    src="/card2.jfif"
                     alt="Car keys handover"
                     width={400}
                     height={400}
@@ -281,7 +281,7 @@ export default function HomePage() {
               <div className="space-y-4 pt-8">
                 <div className="rounded-2xl overflow-hidden shadow-lg">
                   <Image
-                    src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=400&q=80"
+                    src="/card3.jfif"
                     alt="Signing paperwork"
                     width={400}
                     height={400}
@@ -290,7 +290,7 @@ export default function HomePage() {
                 </div>
                 <div className="rounded-2xl overflow-hidden shadow-lg">
                   <Image
-                    src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=400&q=80"
+                    src="/card4.jfif"
                     alt="Driving experience"
                     width={400}
                     height={300}
