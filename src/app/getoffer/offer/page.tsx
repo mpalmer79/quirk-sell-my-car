@@ -409,7 +409,7 @@ export default function OfferPage() {
               <h3 className="font-semibold text-quirk-gray-900 mb-4">
                 Questions?
               </h3>
-              <div className="space-y-3">
+            <div className="space-y-3">
                 
                   href="tel:+16032634552"
                   className="flex items-center gap-3 text-quirk-gray-600 hover:text-quirk-red transition-colors"
@@ -424,7 +424,7 @@ export default function OfferPage() {
                   <Mail className="w-5 h-5" />
                   <span>sell@quirkautodealers.com</span>
                 </a>
-              </div>
+              </div>  
             </div>
 
             {/* Find Location */}
