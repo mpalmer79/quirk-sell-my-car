@@ -42,6 +42,16 @@ export default function HomePage() {
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-[#00264d]">
+        {/* Admin Login Link - Top Right */}
+        <div className="absolute top-4 right-4 z-10">
+          <a 
+            href="/admin/offers" 
+            className="text-xs text-white/50 hover:text-white/80 transition-colors"
+          >
+            Admin Login
+          </a>
+        </div>
+        
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="pt-12 pb-20 lg:pt-20 lg:pb-32">
             
@@ -403,48 +413,29 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-[#0070cc]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white">
-            Ready to get your offer?
-          </h2>
-          <p className="mt-4 text-xl text-white/80">
-            It only takes 2 minutes. No obligation, no pressure.
-          </p>
-          <button
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="mt-8 px-8 py-4 bg-white text-[#0070cc] font-semibold text-lg rounded-xl hover:bg-gray-100 transition-colors shadow-lg"
-          >
-            Start Now →
-          </button>
-        </div>
-      </section>
-
       {/* Footer */}
-      <footer className="bg-slate-900 text-white py-16">
+      <footer className="bg-slate-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {/* Column 1: Logo, Description, Social Icons */}
-            <div className="text-center md:text-left">
-              {/* Quirk Logo */}
-              <div className="flex justify-center md:justify-start mb-6">
-                <Image
-                  src="/quirk-logo.png"
-                  alt="Quirk Auto Dealers"
-                  width={200}
-                  height={50}
-                  className="h-12 w-auto object-contain"
-                />
-              </div>
-              
-              {/* Description */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Column 1: Contact - Left aligned */}
+            <div>
+              <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-400">Contact</h4>
+              <ul className="space-y-3 text-sm text-gray-300">
+                <li>(603) 263-4552</li>
+                <li>steve.obrien@quirkcars.com</li>
+                <li>Mon-Sat: 9AM-8PM</li>
+                <li>Sun: 11AM-5PM</li>
+              </ul>
+            </div>
+
+            {/* Column 2: Description + Social Icons - Center aligned */}
+            <div className="text-center">
               <p className="text-gray-300 text-sm leading-relaxed mb-6">
                 Quirk Auto Dealers is the New England&apos;s largest family-owned auto group, proudly serving Massachusetts and New Hampshire drivers. From Manchester NH to Greater Boston MA, explore our huge inventory of new and used vehicles across 18 dealerships. Get competitive pricing, easy financing, certified pre-owned cars, trucks &amp; SUVs from top brands, plus expert service and genuine OEM parts.
               </p>
               
               {/* Social Media Icons */}
-              <div className="flex justify-center md:justify-start gap-4">
+              <div className="flex justify-center gap-4">
                 <a 
                   href="https://www.facebook.com/QuirkAutoDealers/" 
                   target="_blank" 
@@ -493,19 +484,8 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Column 2: Contact */}
-            <div>
-              <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-400">Contact</h4>
-              <ul className="space-y-3 text-sm text-gray-300">
-                <li>(603) 263-4552</li>
-                <li>steve.obrien@quirkcars.com</li>
-                <li>Mon-Sat: 9AM-8PM</li>
-                <li>Sun: 11AM-5PM</li>
-              </ul>
-            </div>
-
-            {/* Column 3: Legal */}
-            <div>
+            {/* Column 3: Legal - Right aligned */}
+            <div className="text-right">
               <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-400">Legal</h4>
               <ul className="space-y-3 text-sm">
                 <li><a href="https://www.quirkcars.com/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">Privacy Policy</a></li>
@@ -515,7 +495,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-500">
+          <div className="border-t border-gray-800 mt-8 pt-6 text-center text-sm text-gray-500">
             © {new Date().getFullYear()} Quirk Auto Dealers. All rights reserved.
           </div>
         </div>
