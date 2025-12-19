@@ -53,7 +53,7 @@ export default function HomePage() {
         </div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="pt-12 pb-20 lg:pt-20 lg:pb-32">
+          <div className="pt-24 pb-20 lg:pt-28 lg:pb-32">
             
             {/* Main Content Grid */}
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
