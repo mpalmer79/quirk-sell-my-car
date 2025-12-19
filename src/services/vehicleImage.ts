@@ -8,8 +8,8 @@ import { VehicleInfo } from '@/types/vehicle';
 // These are reliable and always show the correct type of vehicle
 const BODY_TYPE_IMAGES: Record<string, string> = {
   // Trucks/Pickups - Modern pickup truck
-  'pickup': 'https://images.unsplash.com/photo-1559416523-140ddc3d238c?w=800&auto=format',
-  'truck': 'https://images.unsplash.com/photo-1559416523-140ddc3d238c?w=800&auto=format',
+  'pickup': 'https://images.unsplash.com/photo-1590656364826-5f13d56f6f09?w=800&auto=format',
+  'truck': 'https://images.unsplash.com/photo-1590656364826-5f13d56f6f09?w=800&auto=format',
   
   // SUVs/Crossovers - Modern SUV
   'suv': 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&auto=format',
