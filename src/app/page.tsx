@@ -188,7 +188,6 @@ export default function HomePage() {
               {/* Right: Car Image */}
               <div className={`relative transition-all duration-700 delay-200 ${mounted ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}>
                 <div className="relative">
-                  {/* Car Image */}
                   <div className="relative">
                     <Image
                       src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80"
@@ -269,18 +268,15 @@ export default function HomePage() {
                 key={item.step} 
                 className="relative group"
               >
-                {/* Connector line */}
                 {i < 2 && (
                   <div className="hidden md:block absolute top-12 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-gray-200 to-transparent" />
                 )}
                 
                 <div className="relative bg-white rounded-2xl p-8 border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300">
-                  {/* Step number */}
                   <div className="absolute -top-4 left-8 px-3 py-1 bg-[#0070cc] text-white text-xs font-bold rounded-full">
                     STEP {item.step}
                   </div>
                   
-                  {/* Icon */}
                   <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">
                     {item.icon}
                   </div>
@@ -308,7 +304,7 @@ export default function HomePage() {
                 Why sell to Quirk Auto Dealers?
               </h2>
               <p className="mt-4 text-lg text-gray-500">
-                New England's most trusted automotive network. Family-owned since 1973.
+                New England&apos;s most trusted automotive network. Family-owned since 1973.
               </p>
               
               <div className="mt-10 space-y-6">
@@ -372,7 +368,69 @@ export default function HomePage() {
                 </div>
                 <div className="space-y-4 pt-8">
                   <div className="rounded-2xl overflow-hidden shadow-lg">
-                 {/* Social Media Icons */}
+                    <Image
+                      src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=400&q=80"
+                      alt="Car inspection"
+                      width={400}
+                      height={400}
+                      className="w-full h-56 object-cover"
+                    />
+                  </div>
+                  <div className="rounded-2xl overflow-hidden shadow-lg">
+                    <Image
+                      src="https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=400&q=80"
+                      alt="Car keys handover"
+                      width={400}
+                      height={300}
+                      className="w-full h-48 object-cover"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              {/* Overlay badge */}
+              <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-white rounded-2xl shadow-xl px-6 py-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex -space-x-2">
+                    {['😊', '🙂', '😄'].map((emoji, i) => (
+                      <div key={i} className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-lg border-2 border-white">
+                        {emoji}
+                      </div>
+                    ))}
+                  </div>
+                  <div>
+                    <p className="font-bold text-gray-900">4.3/5 rating</p>
+                    <p className="text-sm text-gray-500">from 2,500+ reviews</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-slate-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Column 1: Contact - Left aligned */}
+            <div>
+              <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-400">Contact</h4>
+              <ul className="space-y-3 text-sm text-gray-300">
+                <li>(603) 263-4552</li>
+                <li>steve.obrien@quirkcars.com</li>
+                <li>Mon-Sat: 9AM-8PM</li>
+                <li>Sun: 11AM-5PM</li>
+              </ul>
+            </div>
+
+            {/* Column 2: Description + Social Icons - Center aligned */}
+            <div className="text-center">
+              <p className="text-gray-300 text-sm leading-relaxed mb-6">
+                Quirk Auto Dealers is New England&apos;s largest family-owned auto group, proudly serving Massachusetts and New Hampshire drivers. From Manchester NH to Greater Boston MA, explore our huge inventory of new and used vehicles across 18 dealerships. Get competitive pricing, easy financing, certified pre-owned cars, trucks &amp; SUVs from top brands, plus expert service and genuine OEM parts.
+              </p>
+              
+              {/* Social Media Icons - Inline SVGs */}
               <div className="flex justify-center gap-4">
                 <a 
                   href="https://www.facebook.com/QuirkAutoDealers/" 
@@ -428,70 +486,6 @@ export default function HomePage() {
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" className="w-5 h-5">
                     <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                   </svg>
-                </a>
-              </div>   
-            <div>
-              <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-gray-400">Contact</h4>
-              <ul className="space-y-3 text-sm text-gray-300">
-                <li>(603) 263-4552</li>
-                <li>steve.obrien@quirkcars.com</li>
-                <li>Mon-Sat: 9AM-8PM</li>
-                <li>Sun: 11AM-5PM</li>
-              </ul>
-            </div>
-
-            {/* Column 2: Description + Social Icons - Center aligned */}
-            <div className="text-center">
-              <p className="text-gray-300 text-sm leading-relaxed mb-6">
-                Quirk Auto Dealers is the New England&apos;s largest family-owned auto group, proudly serving Massachusetts and New Hampshire drivers. From Manchester NH to Greater Boston MA, explore our huge inventory of new and used vehicles across 18 dealerships. Get competitive pricing, easy financing, certified pre-owned cars, trucks &amp; SUVs from top brands, plus expert service and genuine OEM parts.
-              </p>
-              
-              {/* Social Media Icons */}
-              <div className="flex justify-center gap-4">
-                <a 
-                  href="https://www.facebook.com/QuirkAutoDealers/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 flex items-center justify-center rounded-md bg-slate-800 hover:bg-slate-700 transition-colors"
-                  aria-label="Facebook"
-                >
-                  <Image src="/facebook.svg" alt="Facebook" width={24} height={24} className="w-6 h-6" />
-                </a>
-                <a 
-                  href="https://www.linkedin.com/company/quirk-auto-dealers/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 flex items-center justify-center rounded-md bg-slate-800 hover:bg-slate-700 transition-colors"
-                  aria-label="LinkedIn"
-                >
-                  <Image src="/linkedin.svg" alt="LinkedIn" width={24} height={24} className="w-6 h-6" />
-                </a>
-                <a 
-                  href="https://x.com/quirkcars" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 flex items-center justify-center rounded-md bg-slate-800 hover:bg-slate-700 transition-colors"
-                  aria-label="X (Twitter)"
-                >
-                  <Image src="/x.svg" alt="X" width={24} height={24} className="w-6 h-6" />
-                </a>
-                <a 
-                  href="https://www.instagram.com/quirkcars/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 flex items-center justify-center rounded-md bg-slate-800 hover:bg-slate-700 transition-colors"
-                  aria-label="Instagram"
-                >
-                  <Image src="/instagram.svg" alt="Instagram" width={24} height={24} className="w-6 h-6" />
-                </a>
-                <a 
-                  href="https://www.youtube.com/channel/UCy99Nj1jI6PadfPxe7Zl7xQ" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 flex items-center justify-center rounded-md bg-slate-800 hover:bg-slate-700 transition-colors"
-                  aria-label="YouTube"
-                >
-                  <Image src="/youtube.svg" alt="YouTube" width={24} height={24} className="w-6 h-6" />
                 </a>
               </div>
             </div>
