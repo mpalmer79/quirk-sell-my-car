@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { VehicleProvider } from '@/context/VehicleContext';
-import Header from '@/components/Header';
-import ChatWidget from '@/components/ChatWidget';
+import { Providers } from '@/components/Providers';
 
 export const metadata: Metadata = {
   title: 'Sell Your Car | Quirk Auto Dealers',
@@ -23,13 +21,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-white">
-        <VehicleProvider>
-          <Header />
-          <main className="pt-16 lg:pt-20">
-            {children}
-          </main>
-          <ChatWidget />
-        </VehicleProvider>
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );
