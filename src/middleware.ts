@@ -1,81 +1,46 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-/**
- * Security Headers Middleware
- * Adds security headers to all responses
- */
+const PUBLIC_ROUTES = [
+  '/admin/login',
+  '/api/admin/auth/login',
+];
+
+const PARTIAL_AUTH_ROUTES = [
+  '/api/admin/auth/verify-2fa',
+  '/api/admin/auth/logout',
+];
+
 export function middleware(request: NextRequest) {
-  // Get the response
-  const response = NextResponse.next();
-
-  // ===== Security Headers =====
+  const { pathname } = request.nextUrl;
   
-  // Prevent clickjacking
-  response.headers.set('X-Frame-Options', 'DENY');
-  
-  // Prevent MIME type sniffing
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  
-  // XSS Protection (legacy browsers)
-  response.headers.set('X-XSS-Protection', '1; mode=block');
-  
-  // Referrer Policy
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  
-  // Permissions Policy (formerly Feature-Policy)
-  response.headers.set(
-    'Permissions-Policy',
-    'camera=(), microphone=(), geolocation=(), interest-cohort=()'
-  );
-  
-  // Content Security Policy
-  const cspDirectives = [
-    "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "img-src 'self' data: https: blob:",
-    "font-src 'self' https://fonts.gstatic.com",
-    "connect-src 'self' https://api.anthropic.com https://api.pexels.com https://*.vercel-insights.com",
-    "frame-ancestors 'none'",
-    "form-action 'self'",
-    "base-uri 'self'",
-    "object-src 'none'",
-  ];
-  
-  // Use report-only in development
-  if (process.env.NODE_ENV === 'production') {
-    response.headers.set('Content-Security-Policy', cspDirectives.join('; '));
-  } else {
-    response.headers.set('Content-Security-Policy-Report-Only', cspDirectives.join('; '));
-  }
-  
-  // Strict Transport Security (HTTPS only)
-  if (process.env.NODE_ENV === 'production') {
-    response.headers.set(
-      'Strict-Transport-Security',
-      'max-age=31536000; includeSubDomains; preload'
-    );
+  if (!pathname.startsWith('/admin') && !pathname.startsWith('/api/admin')) {
+    return NextResponse.next();
   }
 
-  // ===== Request ID for tracing =====
-  const requestId = request.headers.get('x-request-id') || 
-    `req_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-  response.headers.set('X-Request-ID', requestId);
+  if (PUBLIC_ROUTES.some(route => pathname.startsWith(route))) {
+    return NextResponse.next();
+  }
 
-  return response;
+  const sessionToken = request.cookies.get('admin_session')?.value;
+
+  if (!sessionToken) {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    }
+    return NextResponse.redirect(new URL('/admin/login', request.url));
+  }
+
+  if (PARTIAL_AUTH_ROUTES.some(route => pathname.startsWith(route))) {
+    return NextResponse.next();
+  }
+
+  return NextResponse.next();
 }
 
-// Configure which paths the middleware runs on
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
-    '/((?!_next/static|_next/image|favicon.ico|public/).*)',
+    '/admin/:path*',
+    '/api/admin/:path*',
   ],
 };
