@@ -15,7 +15,7 @@ A vehicle appraisal and instant offer system for Quirk Auto Dealers. Built with 
 
 ### 1. Install Dependencies
 
-```bash
+``` bash
 npm install
 
 
