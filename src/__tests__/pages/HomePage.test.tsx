@@ -61,7 +61,9 @@ describe('HomePage', () => {
     it('renders Get Your Offer button', () => {
       render(<HomePage />);
       
-      expect(screen.getByText(/Get Your Offer/i)).toBeInTheDocument();
+      // Use getByRole to specifically target the button
+      const submitButton = screen.getByRole('button', { name: /Get Your Offer/i });
+      expect(submitButton).toBeInTheDocument();
     });
 
     it('renders Admin Login link', () => {
@@ -103,7 +105,7 @@ describe('HomePage', () => {
       render(<HomePage />);
       
       const vinInput = screen.getByPlaceholderText(/Enter your 17-character VIN/i);
-      const submitButton = screen.getByText(/Get Your Offer/i);
+      const submitButton = screen.getByRole('button', { name: /Get Your Offer/i });
       
       fireEvent.change(vinInput, { target: { value: 'INVALID' } });
       fireEvent.click(submitButton);
@@ -116,7 +118,7 @@ describe('HomePage', () => {
     it('shows error when VIN is empty on submit', async () => {
       render(<HomePage />);
       
-      const submitButton = screen.getByText(/Get Your Offer/i);
+      const submitButton = screen.getByRole('button', { name: /Get Your Offer/i });
       fireEvent.click(submitButton);
       
       await waitFor(() => {
@@ -251,7 +253,9 @@ describe('HomePage', () => {
       render(<HomePage />);
       
       expect(screen.getByText('Legal')).toBeInTheDocument();
-      expect(screen.getByText('Privacy Policy')).toBeInTheDocument();
+      // Use getAllByText since Privacy Policy appears twice (hero terms + footer)
+      const privacyLinks = screen.getAllByText('Privacy Policy');
+      expect(privacyLinks.length).toBeGreaterThanOrEqual(1);
       expect(screen.getByText('Terms of Service')).toBeInTheDocument();
       expect(screen.getByText('Accessibility')).toBeInTheDocument();
     });
@@ -279,7 +283,7 @@ describe('HomePage', () => {
       render(<HomePage />);
       
       const vinInput = screen.getByPlaceholderText(/Enter your 17-character VIN/i);
-      const submitButton = screen.getByText(/Get Your Offer/i);
+      const submitButton = screen.getByRole('button', { name: /Get Your Offer/i });
       
       fireEvent.change(vinInput, { target: { value: '1HGBH41JXMN109186' } });
       fireEvent.click(submitButton);
@@ -293,7 +297,7 @@ describe('HomePage', () => {
       render(<HomePage />);
       
       const vinInput = screen.getByPlaceholderText(/Enter your 17-character VIN/i);
-      const submitButton = screen.getByText(/Get Your Offer/i);
+      const submitButton = screen.getByRole('button', { name: /Get Your Offer/i });
       
       fireEvent.change(vinInput, { target: { value: '1HGBH41JXMN109186' } });
       fireEvent.click(submitButton);
@@ -307,7 +311,7 @@ describe('HomePage', () => {
       render(<HomePage />);
       
       const vinInput = screen.getByPlaceholderText(/Enter your 17-character VIN/i);
-      const submitButton = screen.getByText(/Get Your Offer/i);
+      const submitButton = screen.getByRole('button', { name: /Get Your Offer/i });
       
       fireEvent.change(vinInput, { target: { value: 'INVALID' } });
       fireEvent.click(submitButton);
