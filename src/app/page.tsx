@@ -45,7 +45,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Left: HOME Button */}
-            
+            <a
               href="/"
               className="bg-[#0070cc] text-white px-6 py-2.5 rounded-full font-semibold hover:bg-[#005fa3] transition-colors"
             >
@@ -150,79 +150,63 @@ export default function HomePage() {
                           {error}
                         </p>
                       )}
-                      
-                      <button
-                        type="button"
-                        onClick={() => setShowVinHelp(!showVinHelp)}
-                        className="mt-3 text-sm text-white/70 hover:text-white flex items-center gap-1.5 transition-colors"
-                      >
-                        <HelpCircle className="w-4 h-4" />
-                        Where do I find my VIN?
-                        <ChevronDown className={`w-4 h-4 transition-transform ${showVinHelp ? 'rotate-180' : ''}`} />
-                      </button>
                     </div>
-
-                    {/* VIN Help Panel */}
-                    {showVinHelp && (
-                      <div className="bg-white/10 backdrop-blur rounded-xl p-5 border border-white/20 animate-fadeIn">
-                        <p className="font-semibold text-white mb-3">Find your VIN in these locations:</p>
-                        <div className="grid sm:grid-cols-2 gap-3">
-                          {[
-                            { icon: '🚗', text: 'Driver-side dashboard (visible through windshield)' },
-                            { icon: '🚪', text: 'Inside driver-side door jamb' },
-                            { icon: '📄', text: 'Vehicle registration card' },
-                            { icon: '📋', text: 'Insurance documents' },
-                          ].map((item, i) => (
-                            <div key={i} className="flex items-start gap-2 text-sm text-white/80">
-                              <span className="text-base">{item.icon}</span>
-                              <span>{item.text}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
 
                     <button
                       type="submit"
                       disabled={loading}
-                      className={`w-full sm:w-auto px-8 py-4 text-lg font-semibold text-white rounded-xl shadow-lg transition-all duration-200 flex items-center justify-center gap-3 ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#0070cc] hover:bg-[#005fa3] hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0'}`}
+                      className="w-full bg-[#00A67C] text-white py-4 px-6 rounded-xl font-bold text-lg hover:bg-[#008f6b] transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg shadow-green-900/20"
                     >
                       {loading ? (
                         <>
                           <Loader2 className="w-5 h-5 animate-spin" />
-                          Looking up your vehicle...
+                          Getting your offer...
                         </>
                       ) : (
                         <>
-                          Get Your Offer
+                          Get Your Instant Offer
                           <ArrowRight className="w-5 h-5" />
                         </>
                       )}
                     </button>
                   </form>
 
-                  <p className="mt-4 text-xs text-white/60">
-                    By continuing, you agree to our{' '}
-                    <a href="#" className="underline hover:text-white">Terms of Service</a>
-                    {' '}and{' '}
-                    <a href="#" className="underline hover:text-white">Privacy Policy</a>
-                  </p>
+                  {/* VIN Help */}
+                  <div className="mt-4">
+                    <button
+                      onClick={() => setShowVinHelp(!showVinHelp)}
+                      className="flex items-center gap-2 text-white/70 hover:text-white text-sm transition-colors"
+                    >
+                      <HelpCircle className="w-4 h-4" />
+                      Where do I find my VIN?
+                      <ChevronDown className={`w-4 h-4 transition-transform ${showVinHelp ? 'rotate-180' : ''}`} />
+                    </button>
+                    
+                    {showVinHelp && (
+                      <div className="mt-3 bg-white/10 backdrop-blur-sm rounded-xl p-4 text-sm text-white/90">
+                        <p className="font-semibold mb-2">Your VIN can be found:</p>
+                        <ul className="space-y-1 ml-4 list-disc">
+                          <li>On your vehicle registration or insurance card</li>
+                          <li>On the driver&apos;s side dashboard (visible through windshield)</li>
+                          <li>Inside the driver&apos;s door jamb</li>
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
               {/* Right: Car Image */}
               <div className={`relative transition-all duration-700 delay-200 ${mounted ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}>
                 <div className="relative">
-                  <div className="relative">
-                    <Image
-                      src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80"
-                      alt="Sell your car"
-                      width={700}
-                      height={450}
-                      className="w-full h-auto object-contain drop-shadow-2xl"
-                      priority
-                    />
-                  </div>
+                  <Image
+                    src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=800&q=80"
+                    alt="Sell your car"
+                    width={800}
+                    height={500}
+                    className="rounded-2xl shadow-2xl"
+                    priority
+                  />
                 </div>
               </div>
             </div>
@@ -230,183 +214,132 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Trust Bar */}
-      <section className="py-8 bg-gray-50 border-y border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap justify-center items-center gap-8 lg:gap-16">
-            {[
-              { value: '17+', label: 'Dealership Locations', href: 'https://www.quirkcars.com' },
-              { value: '30K+', label: 'Cars Purchased', href: null },
-              { value: '4.3★', label: 'Customer Rating', href: null },
-              { value: '24hr', label: 'Offer Valid', href: null },
-            ].map((stat, i) => (
-              stat.href ? (
-                <a key={i} href={stat.href} target="_blank" rel="noopener noreferrer" className="text-center hover:opacity-70 transition-opacity">
-                  <p className="text-2xl lg:text-3xl font-bold text-[#0070cc]">{stat.value}</p>
-                  <p className="text-sm text-gray-500">{stat.label}</p>
-                </a>
-              ) : (
-                <div key={i} className="text-center">
-                  <p className="text-2xl lg:text-3xl font-bold text-[#0070cc]">{stat.value}</p>
-                  <p className="text-sm text-gray-500">{stat.label}</p>
-                </div>
-              )
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section className="py-20 lg:py-28 bg-white">
+      {/* How It Works Section */}
+      <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
-              How it works
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
+              How It Works
             </h2>
-            <p className="mt-4 text-lg text-gray-500 max-w-2xl mx-auto">
-              Selling your car has never been easier. Get a real offer in minutes.
+            <p className="mt-4 text-xl text-gray-600">
+              Get your offer in three simple steps
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
+          <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                step: '01',
-                icon: '🔍',
-                title: 'Enter your VIN',
-                description: "We'll decode your VIN and instantly look up your vehicle's details, trim, and features.",
+                step: '1',
+                title: 'Enter Your VIN',
+                description: 'Start by entering your 17-character Vehicle Identification Number above.',
+                icon: '🔍'
               },
               {
-                step: '02',
-                icon: '📝',
-                title: 'Tell us about your car',
-                description: "Answer a few quick questions about mileage, condition, and any features or upgrades.",
+                step: '2',
+                title: 'Tell Us About Your Car',
+                description: 'Answer a few questions about your vehicle\'s condition and features.',
+                icon: '📝'
               },
               {
-                step: '03',
-                icon: '💵',
-                title: 'Get your offer',
-                description: "Receive a competitive cash offer valid for 7 days. Accept it or walk away — no pressure.",
-              },
-            ].map((item, i) => (
-              <div key={item.step} className="relative group">
-                {i < 2 && (
-                  <div className="hidden md:block absolute top-12 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-gray-200 to-transparent" />
-                )}
-                
-                <div className="relative bg-white rounded-2xl p-8 border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300">
-                  <div className="absolute -top-4 left-8 px-3 py-1 bg-[#0070cc] text-white text-xs font-bold rounded-full">
-                    STEP {item.step}
-                  </div>
-                  
-                  <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">
-                    {item.icon}
-                  </div>
-                  
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">
-                    {item.title}
-                  </h3>
-                  <p className="text-gray-500 leading-relaxed">
-                    {item.description}
-                  </p>
+                step: '3',
+                title: 'Get Your Offer',
+                description: 'Receive an instant, no-obligation offer you can redeem at any Quirk location.',
+                icon: '💰'
+              }
+            ].map((item) => (
+              <div key={item.step} className="relative bg-white rounded-2xl p-8 shadow-sm hover:shadow-lg transition-shadow">
+                <div className="absolute -top-4 left-8 w-8 h-8 bg-[#0070cc] text-white rounded-full flex items-center justify-center font-bold text-sm">
+                  {item.step}
                 </div>
+                <div className="text-4xl mb-4">{item.icon}</div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
+                <p className="text-gray-600">{item.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Why Choose Quirk Auto Dealers */}
-      <section className="py-20 lg:py-28 bg-gradient-to-b from-gray-50 to-white">
+      {/* Trust Section */}
+      <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Left content */}
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">
-                Why sell to Quirk Auto Dealers?
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6">
+                Why Sell to Quirk?
               </h2>
-              <p className="mt-4 text-lg text-gray-500">
-                New England&apos;s most trusted automotive network. Family-owned since 1973.
-              </p>
-              
-              <div className="mt-10 space-y-6">
+              <div className="space-y-6">
                 {[
                   {
-                    icon: '⚡',
-                    title: 'Same-day payment',
-                    desc: 'Get paid the same day you bring in your vehicle. No waiting for checks to clear.',
+                    title: 'Instant Cash Offers',
+                    description: 'Get a competitive offer in minutes, not days. No waiting, no games.'
                   },
                   {
-                    icon: '🎯',
-                    title: 'Fair market pricing',
-                    desc: 'Our offers are based on real-time market data. No lowball tactics.',
+                    title: 'No Obligation',
+                    description: 'Our offers are completely free with no pressure to sell.'
                   },
                   {
-                    icon: '📋',
-                    title: 'We handle the paperwork',
-                    desc: 'Title transfer, registration, payoff — we take care of everything.',
+                    title: 'Trusted Dealer Network',
+                    description: '17+ locations across MA & NH. New England\'s largest family-owned auto group.'
                   },
                   {
-                    icon: '🚗',
-                    title: 'Trade-in or sell outright',
-                    desc: 'Upgrade to a new vehicle or just cash out. Your choice.',
-                  },
-                ].map((item, i) => (
-                  <div key={i} className="flex gap-4">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-[#0070cc]/10 flex items-center justify-center text-xl">
-                      {item.icon}
+                    title: 'We Buy All Makes',
+                    description: 'Whether it\'s a Honda, Ford, Tesla, or any other brand - we want it.'
+                  }
+                ].map((item, index) => (
+                  <div key={index} className="flex gap-4">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
+                      <Check className="w-4 h-4 text-green-600" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">{item.title}</h3>
-                      <p className="text-gray-500 text-sm mt-1">{item.desc}</p>
+                      <p className="text-gray-600 mt-1">{item.description}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-            
-            {/* Right image grid */}
-            <div className="relative">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-4">
-                  <div className="rounded-2xl overflow-hidden shadow-lg">
-                    <Image
-                      src="https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=400&q=80"
-                      alt="Car dealership"
-                      width={400}
-                      height={300}
-                      className="w-full h-48 object-cover"
-                    />
-                  </div>
-                  <div className="rounded-2xl overflow-hidden shadow-lg">
-                    <Image
-                      src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=400&q=80"
-                      alt="Happy customer"
-                      width={400}
-                      height={400}
-                      className="w-full h-56 object-cover"
-                    />
-                  </div>
+
+            {/* Image Grid */}
+            <div className="relative grid grid-cols-2 gap-4">
+              <div className="space-y-4">
+                <div className="rounded-2xl overflow-hidden shadow-lg">
+                  <Image
+                    src="https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=400&q=80"
+                    alt="Car dealership"
+                    width={400}
+                    height={300}
+                    className="w-full h-48 object-cover"
+                  />
                 </div>
-                <div className="space-y-4 pt-8">
-                  <div className="rounded-2xl overflow-hidden shadow-lg">
-                    <Image
-                      src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=400&q=80"
-                      alt="Car inspection"
-                      width={400}
-                      height={400}
-                      className="w-full h-56 object-cover"
-                    />
-                  </div>
-                  <div className="rounded-2xl overflow-hidden shadow-lg">
-                    <Image
-                      src="https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=400&q=80"
-                      alt="Car keys handover"
-                      width={400}
-                      height={300}
-                      className="w-full h-48 object-cover"
-                    />
-                  </div>
+                <div className="rounded-2xl overflow-hidden shadow-lg">
+                  <Image
+                    src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=400&q=80"
+                    alt="Happy customer"
+                    width={400}
+                    height={400}
+                    className="w-full h-56 object-cover"
+                  />
+                </div>
+              </div>
+              <div className="space-y-4 pt-8">
+                <div className="rounded-2xl overflow-hidden shadow-lg">
+                  <Image
+                    src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=400&q=80"
+                    alt="Car inspection"
+                    width={400}
+                    height={400}
+                    className="w-full h-56 object-cover"
+                  />
+                </div>
+                <div className="rounded-2xl overflow-hidden shadow-lg">
+                  <Image
+                    src="https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=400&q=80"
+                    alt="Car keys handover"
+                    width={400}
+                    height={300}
+                    className="w-full h-48 object-cover"
+                  />
                 </div>
               </div>
               
