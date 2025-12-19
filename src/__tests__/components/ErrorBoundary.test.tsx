@@ -1,13 +1,29 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import React, { useState } from 'react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 
-// Component that throws an error
+// Component that throws an error based on prop
 const ThrowError = ({ shouldThrow }: { shouldThrow: boolean }) => {
   if (shouldThrow) {
     throw new Error('Test error message');
   }
   return <div>No error</div>;
+};
+
+// Wrapper component that controls the throwing state
+const TestWrapper = () => {
+  const [shouldThrow, setShouldThrow] = useState(true);
+  
+  return (
+    <ErrorBoundary
+      onError={() => {
+        // After error is caught, update state to stop throwing
+        setTimeout(() => setShouldThrow(false), 0);
+      }}
+    >
+      <ThrowError shouldThrow={shouldThrow} />
+    </ErrorBoundary>
+  );
 };
 
 // Suppress console.error for cleaner test output
@@ -71,22 +87,37 @@ describe('ErrorBoundary', () => {
     );
   });
 
-  it('resets error state when Try Again is clicked', () => {
+  it('resets error state when Try Again is clicked', async () => {
+    // Use a component that can control whether it throws
+    let shouldThrow = true;
+    
+    const ControllableThrow = () => {
+      if (shouldThrow) {
+        throw new Error('Test error');
+      }
+      return <div>No error</div>;
+    };
+
     const { rerender } = render(
       <ErrorBoundary>
-        <ThrowError shouldThrow={true} />
+        <ControllableThrow />
       </ErrorBoundary>
     );
 
     expect(screen.getByText('Something went wrong')).toBeInTheDocument();
 
-    // Click Try Again
-    fireEvent.click(screen.getByText('Try Again'));
+    // Stop throwing before clicking retry
+    shouldThrow = false;
 
-    // Rerender with non-throwing component
+    // Click Try Again - this resets the error boundary state
+    await act(async () => {
+      fireEvent.click(screen.getByText('Try Again'));
+    });
+
+    // Force rerender to pick up the new shouldThrow value
     rerender(
       <ErrorBoundary>
-        <ThrowError shouldThrow={false} />
+        <ControllableThrow />
       </ErrorBoundary>
     );
 
