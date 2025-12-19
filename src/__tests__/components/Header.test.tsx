@@ -29,12 +29,27 @@ describe('Header', () => {
       expect(logo).toBeInTheDocument();
     });
 
-    it('logo links to quirkcars.com', () => {
+    it('renders the HOME button', () => {
+      render(<Header />);
+      
+      const homeButton = screen.getByText('HOME');
+      expect(homeButton).toBeInTheDocument();
+      expect(homeButton).toHaveAttribute('href', 'https://quirk-sell-my-car.vercel.app/');
+    });
+
+    it('renders the phone number', () => {
+      render(<Header />);
+      
+      const phone = screen.getByText('(603) 263-4552');
+      expect(phone).toBeInTheDocument();
+    });
+
+    it('logo links to quirkchevynh.com', () => {
       render(<Header />);
       
       const logo = screen.getByAltText('Quirk Auto Dealers');
       const link = logo.closest('a');
-      expect(link).toHaveAttribute('href', 'https://www.quirkcars.com');
+      expect(link).toHaveAttribute('href', 'https://www.quirkchevynh.com');
       expect(link).toHaveAttribute('target', '_blank');
       expect(link).toHaveAttribute('rel', 'noopener noreferrer');
     });
@@ -75,10 +90,10 @@ describe('Header', () => {
   });
 
   describe('layout', () => {
-    it('has centered logo', () => {
+    it('has proper flex layout', () => {
       render(<Header />);
       
-      const container = document.querySelector('.flex.items-center.justify-center');
+      const container = document.querySelector('.flex.items-center.justify-between');
       expect(container).toBeInTheDocument();
     });
 
