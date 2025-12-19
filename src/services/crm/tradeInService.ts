@@ -218,7 +218,7 @@ export class TradeInService {
       trim: submission.vehicle.trim,
       bodyStyle: submission.vehicle.bodyClass,
       exteriorColor: submission.basics.color,
-      mileage: submission.basics.mileage,
+      mileage: submission.basics.mileage ?? 0,
       transmission: submission.basics.transmission,
       driveType: submission.basics.drivetrain,
       engine: submission.basics.engine,
