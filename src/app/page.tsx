@@ -261,7 +261,7 @@ export default function HomePage() {
               <div className="space-y-4">
                 <div className="rounded-2xl overflow-hidden shadow-lg">
                   <Image
-                    src="/card1.jfif"
+                    src="/card1.jpg"
                     alt="Handshake deal"
                     width={400}
                     height={300}
@@ -270,7 +270,7 @@ export default function HomePage() {
                 </div>
                 <div className="rounded-2xl overflow-hidden shadow-lg">
                   <Image
-                    src="/card2.jfif"
+                    src="/card2.jpg"
                     alt="Car keys handover"
                     width={400}
                     height={400}
@@ -281,7 +281,7 @@ export default function HomePage() {
               <div className="space-y-4 pt-8">
                 <div className="rounded-2xl overflow-hidden shadow-lg">
                   <Image
-                    src="/card3.jfif"
+                    src="/card3.jpg"
                     alt="Signing paperwork"
                     width={400}
                     height={400}
@@ -290,7 +290,7 @@ export default function HomePage() {
                 </div>
                 <div className="rounded-2xl overflow-hidden shadow-lg">
                   <Image
-                    src="/card4.jfif"
+                    src="/card4.jpg"
                     alt="Driving experience"
                     width={400}
                     height={300}
