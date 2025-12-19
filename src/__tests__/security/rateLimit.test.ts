@@ -267,6 +267,21 @@ describe('Rate Limiting', () => {
       expect(RATE_LIMIT_CONFIGS['/api/submit-lead'].maxRequests).toBe(3);
     });
 
+    it('has config for submit-offer endpoint', () => {
+      expect(RATE_LIMIT_CONFIGS['/api/submit-offer']).toBeDefined();
+      expect(RATE_LIMIT_CONFIGS['/api/submit-offer'].maxRequests).toBe(10);
+    });
+
+    it('has config for vehicle-image endpoint', () => {
+      expect(RATE_LIMIT_CONFIGS['/api/vehicle-image']).toBeDefined();
+      expect(RATE_LIMIT_CONFIGS['/api/vehicle-image'].maxRequests).toBe(30);
+    });
+
+    it('has config for offers endpoint', () => {
+      expect(RATE_LIMIT_CONFIGS['/api/offers']).toBeDefined();
+      expect(RATE_LIMIT_CONFIGS['/api/offers'].maxRequests).toBe(30);
+    });
+
     it('all configs have required fields', () => {
       for (const [endpoint, config] of Object.entries(RATE_LIMIT_CONFIGS)) {
         expect(config.windowMs).toBeDefined();
