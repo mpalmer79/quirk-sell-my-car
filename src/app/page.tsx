@@ -261,8 +261,8 @@ export default function HomePage() {
               <div className="space-y-4">
                 <div className="rounded-2xl overflow-hidden shadow-lg">
                   <Image
-                    src="https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=400&q=80"
-                    alt="Car dealership"
+                    src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=400&q=80"
+                    alt="Handshake deal"
                     width={400}
                     height={300}
                     className="w-full h-48 object-cover"
@@ -270,7 +270,7 @@ export default function HomePage() {
                 </div>
                 <div className="rounded-2xl overflow-hidden shadow-lg">
                   <Image
-                    src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=400&q=80"
+                    src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=400&q=80"
                     alt="Happy customer"
                     width={400}
                     height={400}
@@ -281,8 +281,8 @@ export default function HomePage() {
               <div className="space-y-4 pt-8">
                 <div className="rounded-2xl overflow-hidden shadow-lg">
                   <Image
-                    src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=400&q=80"
-                    alt="Car inspection"
+                    src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=400&q=80"
+                    alt="Quality vehicle"
                     width={400}
                     height={400}
                     className="w-full h-56 object-cover"
@@ -290,8 +290,8 @@ export default function HomePage() {
                 </div>
                 <div className="rounded-2xl overflow-hidden shadow-lg">
                   <Image
-                    src="https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=400&q=80"
-                    alt="Car keys handover"
+                    src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=400&q=80"
+                    alt="Driving experience"
                     width={400}
                     height={300}
                     className="w-full h-48 object-cover"
