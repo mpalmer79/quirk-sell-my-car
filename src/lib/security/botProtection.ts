@@ -5,6 +5,7 @@
 
 import { NextRequest } from 'next/server';
 import { createHash } from 'crypto';
+import type { CSSProperties } from 'react';
 
 // =============================================================================
 // TYPES
@@ -261,7 +262,7 @@ export function getHoneypotFieldProps(): {
   tabIndex: number;
   'aria-hidden': boolean;
   className: string;
-  style: React.CSSProperties;
+  style: CSSProperties;
 } {
   return {
     name: HONEYPOT_CONFIG.fieldName,
