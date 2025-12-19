@@ -20,7 +20,21 @@ import {
   Eye,
   BarChart3,
   Download,
-  ArrowLeft
+  ArrowLeft,
+  Key,
+  Cigarette,
+  Wrench,
+  CircleDot,
+  Shield,
+  Paintbrush,
+  Sofa,
+  Cpu,
+  Wind,
+  FileText,
+  MapPin,
+  Gauge,
+  CreditCard,
+  Truck
 } from 'lucide-react';
 
 // Types
@@ -33,14 +47,37 @@ interface OfferRecord {
   make: string;
   model: string;
   trim: string | null;
+  body_class: string | null;
+  drive_type: string | null;
+  engine_cylinders: string | null;
+  engine_displacement: string | null;
+  fuel_type: string | null;
+  transmission_style: string | null;
   mileage: number;
+  zip_code: string | null;
+  color: string | null;
+  sell_or_trade: string | null;
+  loan_or_lease: string | null;
   offer_amount: number;
   estimated_value: number;
   status: string;
   customer_email: string | null;
   customer_name: string | null;
+  customer_phone: string | null;
   overall_condition: string | null;
-  zip_code: string | null;
+  accident_history: string | null;
+  drivability: string | null;
+  mechanical_issues: string[] | null;
+  engine_issues: string[] | null;
+  exterior_damage: string[] | null;
+  interior_damage: string[] | null;
+  technology_issues: string[] | null;
+  windshield_damage: string | null;
+  tires_replaced: string | null;
+  modifications: boolean | null;
+  smoked_in: boolean | null;
+  keys: string | null;
+  offer_expiry: string | null;
 }
 
 interface OfferListResponse {
@@ -70,6 +107,65 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.
   rejected: { label: 'Rejected', color: 'bg-red-100 text-red-800', icon: XCircle },
   expired: { label: 'Expired', color: 'bg-gray-100 text-gray-800', icon: AlertCircle },
   completed: { label: 'Completed', color: 'bg-emerald-100 text-emerald-800', icon: CheckCircle2 },
+};
+
+// Helper to format condition values
+const formatConditionValue = (value: string | null | undefined): string => {
+  if (!value) return 'N/A';
+  return value.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+};
+
+// Helper to format array values
+const formatArrayValue = (arr: string[] | null | undefined): string => {
+  if (!arr || arr.length === 0) return 'None';
+  if (arr.includes('none')) return 'None';
+  return arr.map(item => formatConditionValue(item)).join(', ');
+};
+
+// Helper to format boolean values
+const formatBooleanValue = (value: boolean | null | undefined, trueLabel: string, falseLabel: string): string => {
+  if (value === null || value === undefined) return 'N/A';
+  return value ? trueLabel : falseLabel;
+};
+
+// Helper to format keys
+const formatKeys = (value: string | null | undefined): string => {
+  if (!value) return 'N/A';
+  if (value === '1') return '1 Key';
+  if (value === '2+') return '2+ Keys';
+  return value;
+};
+
+// Helper to format tires replaced
+const formatTiresReplaced = (value: string | null | undefined): string => {
+  if (!value || value === 'none') return 'None in last 12 months';
+  return `${value} tire${value === '1' ? '' : 's'} replaced`;
+};
+
+// Helper to format accident history
+const formatAccidentHistory = (value: string | null | undefined): string => {
+  if (!value || value === 'none') return 'No accidents';
+  if (value === '1') return '1 accident';
+  if (value === '2+') return '2+ accidents';
+  return value;
+};
+
+// Helper to format sell or trade
+const formatSellOrTrade = (value: string | null | undefined): string => {
+  if (!value) return 'N/A';
+  if (value === 'sell') return 'Sell outright';
+  if (value === 'trade') return 'Trade-in';
+  if (value === 'not-sure') return 'Not sure yet';
+  return value;
+};
+
+// Helper to format loan or lease
+const formatLoanOrLease = (value: string | null | undefined): string => {
+  if (!value) return 'N/A';
+  if (value === 'loan') return 'Has loan';
+  if (value === 'lease') return 'Leased vehicle';
+  if (value === 'neither') return 'Owned outright';
+  return value;
 };
 
 export default function AdminDashboard() {
@@ -492,11 +588,12 @@ export default function AdminDashboard() {
         </div>
       </main>
 
-      {/* Detail Modal */}
+      {/* Enhanced Detail Modal */}
       {selectedOffer && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
+          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
               <div className="flex items-start justify-between">
                 <div>
                   <h2 className="text-xl font-bold text-gray-900">
@@ -522,35 +619,201 @@ export default function AdminDashboard() {
                 </p>
               </div>
 
-              {/* Details Grid */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Mileage</p>
-                  <p className="font-medium">{selectedOffer.mileage.toLocaleString()} mi</p>
+              {/* Quick Stats Row */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <div className="flex items-center gap-2 text-gray-500 mb-1">
+                    <Gauge className="w-4 h-4" />
+                    <span className="text-xs">Mileage</span>
+                  </div>
+                  <p className="font-semibold">{selectedOffer.mileage.toLocaleString()} mi</p>
                 </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Condition</p>
-                  <p className="font-medium capitalize">
-                    {selectedOffer.overall_condition?.replace(/-/g, ' ') || 'N/A'}
-                  </p>
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <div className="flex items-center gap-2 text-gray-500 mb-1">
+                    <Shield className="w-4 h-4" />
+                    <span className="text-xs">Condition</span>
+                  </div>
+                  <p className="font-semibold">{formatConditionValue(selectedOffer.overall_condition)}</p>
                 </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Created</p>
-                  <p className="font-medium">
-                    {new Date(selectedOffer.created_at).toLocaleString()}
-                  </p>
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <div className="flex items-center gap-2 text-gray-500 mb-1">
+                    <Calendar className="w-4 h-4" />
+                    <span className="text-xs">Created</span>
+                  </div>
+                  <p className="font-semibold text-sm">{new Date(selectedOffer.created_at).toLocaleDateString()}</p>
                 </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Zip Code</p>
-                  <p className="font-medium">{selectedOffer.zip_code || 'N/A'}</p>
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <div className="flex items-center gap-2 text-gray-500 mb-1">
+                    <MapPin className="w-4 h-4" />
+                    <span className="text-xs">Zip Code</span>
+                  </div>
+                  <p className="font-semibold">{selectedOffer.zip_code || 'N/A'}</p>
                 </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Customer Email</p>
-                  <p className="font-medium">{selectedOffer.customer_email || 'N/A'}</p>
+              </div>
+
+              {/* Customer Questionnaire Responses */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-blue-600" />
+                  Customer Questionnaire Responses
+                </h3>
+                
+                {/* Vehicle Basics Section */}
+                <div className="mb-6">
+                  <h4 className="text-sm font-medium text-gray-700 mb-3 uppercase tracking-wider">Vehicle Basics</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <div className="bg-blue-50 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-blue-600 mb-1">
+                        <Paintbrush className="w-4 h-4" />
+                        <span className="text-xs font-medium">Color</span>
+                      </div>
+                      <p className="font-semibold text-gray-900">{selectedOffer.color || 'N/A'}</p>
+                    </div>
+                    <div className="bg-blue-50 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-blue-600 mb-1">
+                        <Truck className="w-4 h-4" />
+                        <span className="text-xs font-medium">Intent</span>
+                      </div>
+                      <p className="font-semibold text-gray-900">{formatSellOrTrade(selectedOffer.sell_or_trade)}</p>
+                    </div>
+                    <div className="bg-blue-50 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-blue-600 mb-1">
+                        <CreditCard className="w-4 h-4" />
+                        <span className="text-xs font-medium">Ownership</span>
+                      </div>
+                      <p className="font-semibold text-gray-900">{formatLoanOrLease(selectedOffer.loan_or_lease)}</p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Estimated Value</p>
-                  <p className="font-medium">${selectedOffer.estimated_value.toLocaleString()}</p>
+
+                {/* Condition Overview Section */}
+                <div className="mb-6">
+                  <h4 className="text-sm font-medium text-gray-700 mb-3 uppercase tracking-wider">Condition Overview</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <div className="bg-amber-50 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-amber-600 mb-1">
+                        <AlertCircle className="w-4 h-4" />
+                        <span className="text-xs font-medium">Accidents</span>
+                      </div>
+                      <p className="font-semibold text-gray-900">{formatAccidentHistory(selectedOffer.accident_history)}</p>
+                    </div>
+                    <div className="bg-amber-50 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-amber-600 mb-1">
+                        <Car className="w-4 h-4" />
+                        <span className="text-xs font-medium">Drivability</span>
+                      </div>
+                      <p className="font-semibold text-gray-900">{formatConditionValue(selectedOffer.drivability)}</p>
+                    </div>
+                    <div className="bg-amber-50 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-amber-600 mb-1">
+                        <Cigarette className="w-4 h-4" />
+                        <span className="text-xs font-medium">Smoker Vehicle</span>
+                      </div>
+                      <p className="font-semibold text-gray-900">{formatBooleanValue(selectedOffer.smoked_in, 'Yes - Smoked In', 'Non-Smoker')}</p>
+                    </div>
+                    <div className="bg-amber-50 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-amber-600 mb-1">
+                        <Key className="w-4 h-4" />
+                        <span className="text-xs font-medium">Keys</span>
+                      </div>
+                      <p className="font-semibold text-gray-900">{formatKeys(selectedOffer.keys)}</p>
+                    </div>
+                    <div className="bg-amber-50 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-amber-600 mb-1">
+                        <CircleDot className="w-4 h-4" />
+                        <span className="text-xs font-medium">Tires Replaced</span>
+                      </div>
+                      <p className="font-semibold text-gray-900">{formatTiresReplaced(selectedOffer.tires_replaced)}</p>
+                    </div>
+                    <div className="bg-amber-50 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-amber-600 mb-1">
+                        <Wrench className="w-4 h-4" />
+                        <span className="text-xs font-medium">Modifications</span>
+                      </div>
+                      <p className="font-semibold text-gray-900">{formatBooleanValue(selectedOffer.modifications, 'Has Modifications', 'Stock / No Mods')}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Issues & Damage Section */}
+                <div className="mb-6">
+                  <h4 className="text-sm font-medium text-gray-700 mb-3 uppercase tracking-wider">Reported Issues & Damage</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="bg-red-50 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-red-600 mb-1">
+                        <Wrench className="w-4 h-4" />
+                        <span className="text-xs font-medium">Mechanical Issues</span>
+                      </div>
+                      <p className="text-gray-900">{formatArrayValue(selectedOffer.mechanical_issues)}</p>
+                    </div>
+                    <div className="bg-red-50 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-red-600 mb-1">
+                        <Car className="w-4 h-4" />
+                        <span className="text-xs font-medium">Engine Issues</span>
+                      </div>
+                      <p className="text-gray-900">{formatArrayValue(selectedOffer.engine_issues)}</p>
+                    </div>
+                    <div className="bg-red-50 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-red-600 mb-1">
+                        <Paintbrush className="w-4 h-4" />
+                        <span className="text-xs font-medium">Exterior Damage</span>
+                      </div>
+                      <p className="text-gray-900">{formatArrayValue(selectedOffer.exterior_damage)}</p>
+                    </div>
+                    <div className="bg-red-50 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-red-600 mb-1">
+                        <Sofa className="w-4 h-4" />
+                        <span className="text-xs font-medium">Interior Damage</span>
+                      </div>
+                      <p className="text-gray-900">{formatArrayValue(selectedOffer.interior_damage)}</p>
+                    </div>
+                    <div className="bg-red-50 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-red-600 mb-1">
+                        <Cpu className="w-4 h-4" />
+                        <span className="text-xs font-medium">Technology Issues</span>
+                      </div>
+                      <p className="text-gray-900">{formatArrayValue(selectedOffer.technology_issues)}</p>
+                    </div>
+                    <div className="bg-red-50 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-red-600 mb-1">
+                        <Wind className="w-4 h-4" />
+                        <span className="text-xs font-medium">Windshield Damage</span>
+                      </div>
+                      <p className="text-gray-900">{formatConditionValue(selectedOffer.windshield_damage) || 'None'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Customer Contact Section */}
+                <div className="mb-6">
+                  <h4 className="text-sm font-medium text-gray-700 mb-3 uppercase tracking-wider">Customer Contact</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="bg-purple-50 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-purple-600 mb-1">
+                        <Mail className="w-4 h-4" />
+                        <span className="text-xs font-medium">Email</span>
+                      </div>
+                      <p className="font-semibold text-gray-900">{selectedOffer.customer_email || 'N/A'}</p>
+                    </div>
+                    <div className="bg-purple-50 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-purple-600 mb-1">
+                        <DollarSign className="w-4 h-4" />
+                        <span className="text-xs font-medium">Estimated Value</span>
+                      </div>
+                      <p className="font-semibold text-gray-900">${selectedOffer.estimated_value.toLocaleString()}</p>
+                    </div>
+                    <div className="bg-purple-50 rounded-lg p-3">
+                      <div className="flex items-center gap-2 text-purple-600 mb-1">
+                        <Clock className="w-4 h-4" />
+                        <span className="text-xs font-medium">Offer Expires</span>
+                      </div>
+                      <p className="font-semibold text-gray-900">
+                        {selectedOffer.offer_expiry 
+                          ? new Date(selectedOffer.offer_expiry).toLocaleDateString()
+                          : 'N/A'}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
