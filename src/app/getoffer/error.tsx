@@ -49,7 +49,7 @@ export default function GetOfferError({
               Continue My Offer
             </button>
             
-            <a
+            
               href="/"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-100 transition-colors"
             >
@@ -61,7 +61,7 @@ export default function GetOfferError({
             <p className="text-sm text-gray-500 mb-2">
               Rather talk to someone?
             </p>
-            <a
+            
               href="tel:+16032634552"
               className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
             >
