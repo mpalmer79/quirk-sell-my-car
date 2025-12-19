@@ -133,17 +133,7 @@ export default function HomePage() {
                           }}
                           placeholder="Enter your 17-character VIN"
                           maxLength={17}
-                          className={`
-                            w-full px-5 py-4 text-lg font-mono tracking-widest
-                            border-2 rounded-xl bg-white
-                            transition-all duration-200
-                            placeholder:text-gray-400 placeholder:tracking-normal placeholder:font-sans
-                            focus:outline-none focus:ring-4
-                            ${error 
-                              ? 'border-red-400 focus:border-red-500 focus:ring-red-100' 
-                              : 'border-gray-200 focus:border-[#0070cc] focus:ring-blue-50'
-                            }
-                          `}
+                          className={`w-full px-5 py-4 text-lg font-mono tracking-widest border-2 rounded-xl bg-white transition-all duration-200 placeholder:text-gray-400 placeholder:tracking-normal placeholder:font-sans focus:outline-none focus:ring-4 ${error ? 'border-red-400 focus:border-red-500 focus:ring-red-100' : 'border-gray-200 focus:border-[#0070cc] focus:ring-blue-50'}`}
                         />
                         {vin.length === 17 && !error && (
                           <div className="absolute right-4 top-1/2 -translate-y-1/2">
@@ -195,16 +185,7 @@ export default function HomePage() {
                     <button
                       type="submit"
                       disabled={loading}
-                      className={`
-                        w-full sm:w-auto px-8 py-4 text-lg font-semibold text-white
-                        rounded-xl shadow-lg
-                        transition-all duration-200
-                        flex items-center justify-center gap-3
-                        ${loading 
-                          ? 'bg-gray-400 cursor-not-allowed' 
-                          : 'bg-[#0070cc] hover:bg-[#005fa3] hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0'
-                        }
-                      `}
+                      className={`w-full sm:w-auto px-8 py-4 text-lg font-semibold text-white rounded-xl shadow-lg transition-all duration-200 flex items-center justify-center gap-3 ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#0070cc] hover:bg-[#005fa3] hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0'}`}
                     >
                       {loading ? (
                         <>
@@ -308,10 +289,7 @@ export default function HomePage() {
                 description: "Receive a competitive cash offer valid for 7 days. Accept it or walk away — no pressure.",
               },
             ].map((item, i) => (
-              <div 
-                key={item.step} 
-                className="relative group"
-              >
+              <div key={item.step} className="relative group">
                 {i < 2 && (
                   <div className="hidden md:block absolute top-12 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-gray-200 to-transparent" />
                 )}
@@ -474,7 +452,7 @@ export default function HomePage() {
                 Quirk Auto Dealers is New England&apos;s largest family-owned auto group, proudly serving Massachusetts and New Hampshire drivers. From Manchester NH to Greater Boston MA, explore our huge inventory of new and used vehicles across 18 dealerships. Get competitive pricing, easy financing, certified pre-owned cars, trucks &amp; SUVs from top brands, plus expert service and genuine OEM parts.
               </p>
               
-              {/* Social Media Icons - Inline SVGs */}
+              {/* Social Media Icons */}
               <div className="flex justify-center gap-4">
                 <a 
                   href="https://www.facebook.com/QuirkAutoDealers/" 
