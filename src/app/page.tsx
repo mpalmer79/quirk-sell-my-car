@@ -270,8 +270,8 @@ export default function HomePage() {
                 </div>
                 <div className="rounded-2xl overflow-hidden shadow-lg">
                   <Image
-                    src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=400&q=80"
-                    alt="Happy customer"
+                    src="https://images.unsplash.com/photo-1619767886558-efdc259cde1a?auto=format&fit=crop&w=400&q=80"
+                    alt="Car keys handover"
                     width={400}
                     height={400}
                     className="w-full h-56 object-cover"
@@ -281,8 +281,8 @@ export default function HomePage() {
               <div className="space-y-4 pt-8">
                 <div className="rounded-2xl overflow-hidden shadow-lg">
                   <Image
-                    src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=400&q=80"
-                    alt="Quality vehicle"
+                    src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=400&q=80"
+                    alt="Signing paperwork"
                     width={400}
                     height={400}
                     className="w-full h-56 object-cover"
