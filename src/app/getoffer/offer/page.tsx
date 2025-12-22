@@ -23,7 +23,7 @@ import { useVehicle } from '@/context/VehicleContext';
 
 export default function OfferPage() {
   const router = useRouter();
-  const { vehicleInfo, basics, calculateOffer, offerData, resetAll } = useVehicle();
+  const { vehicleInfo, basics, features, condition, calculateOffer, offerData, resetAll } = useVehicle();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -134,8 +134,7 @@ export default function OfferPage() {
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!savedOfferId) {
-      // If no saved ID, just show success (email would be sent separately)
+    if (!vehicleInfo || !offerData) {
       setEmailSent(true);
       return;
     }
@@ -143,24 +142,68 @@ export default function OfferPage() {
     setEmailSending(true);
 
     try {
-      // Update offer with email and mark as emailed
-      const response = await fetch(`/api/offers/${savedOfferId}`, {
-        method: 'PATCH',
+      // Calculate expiration date (7 days from now)
+      const expirationDate = new Date();
+      expirationDate.setDate(expirationDate.getDate() + 7);
+      const formattedExpiration = expirationDate.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+
+      // Send emails via API
+      const emailResponse = await fetch('/api/send-offer', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          customer_email: email,
-          status: 'emailed',
+          customerEmail: email,
+          vehicleInfo: {
+            year: vehicleInfo.year,
+            make: vehicleInfo.make,
+            model: vehicleInfo.model,
+            trim: vehicleInfo.trim,
+            vin: vehicleInfo.vin,
+          },
+          basics: {
+            mileage: basics.mileage,
+            zipCode: basics.zipCode,
+            color: basics.color,
+            transmission: basics.transmission,
+            drivetrain: basics.drivetrain,
+            engine: basics.engine,
+            sellOrTrade: basics.sellOrTrade,
+            loanOrLease: basics.loanOrLease,
+          },
+          features: features,
+          condition: condition,
+          offerAmount: offerData.offerAmount,
+          expirationDate: formattedExpiration,
+          offerId: savedOfferId,
         }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to update offer');
+      if (!emailResponse.ok) {
+        const errorData = await emailResponse.json();
+        throw new Error(errorData.error || 'Failed to send emails');
+      }
+
+      // Also update the offer record if we have one
+      if (savedOfferId) {
+        await fetch(`/api/offers/${savedOfferId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customer_email: email,
+            status: 'emailed',
+          }),
+        });
       }
 
       setEmailSent(true);
     } catch (error) {
       console.error('Error sending email:', error);
-      // Still show success - the email capture is the important part
+      // Still show success for now - we can add error handling UI later
       setEmailSent(true);
     } finally {
       setEmailSending(false);
@@ -419,11 +462,11 @@ export default function OfferPage() {
                   <span>(603) 263-4552</span>
                 </a>
                 <a
-                  href="mailto:steve.obrien@quirkautodealers.com"
+                  href="mailto:sell@quirkautodealers.com"
                   className="flex items-center gap-3 text-gray-600 hover:text-blue-600 transition-colors"
                 >
                   <Mail className="w-5 h-5" />
-                  <span>steve.obrien@quirkautodealers.com</span>
+                  <span>sell@quirkautodealers.com</span>
                 </a>
               </div>
             </div>
