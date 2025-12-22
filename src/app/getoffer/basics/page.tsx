@@ -715,13 +715,14 @@ export default function BasicsPage() {
                 {/* Vehicle Image */}
                 <div className="aspect-[16/9] relative bg-gray-100">
                   {vehicleImageUrl ? (
-                    <Image
-                      src={vehicleImageUrl}
-                      alt={`${vehicleInfo.year} ${vehicleInfo.make} ${vehicleInfo.model}`}
-                      fill
-                      className="object-cover"
-                      sizes="256px"
-                    />
+                  <Image
+  src={vehicleImageUrl}
+  alt={`${vehicleInfo.year} ${vehicleInfo.make} ${vehicleInfo.model}`}
+  fill
+  className="object-cover"
+  sizes="256px"
+  unoptimized
+/> 
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <svg
