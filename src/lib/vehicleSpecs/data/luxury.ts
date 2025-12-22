@@ -9,7 +9,7 @@ export const luxurySpecs: VehicleSpecsDatabase = {
   // =========================================================================
   lexus: {
     es: {
-      transmissions: ['Automatic, 8-Speed', 'CVT'],
+      transmissions: ['Automatic, 8-Speed', 'Automatic (CVT)'],
       engines: ['4-Cylinder', 'V6', 'Hybrid'],
       drivetrains: ['Front Wheel Drive (FWD)'],
     },
@@ -29,7 +29,7 @@ export const luxurySpecs: VehicleSpecsDatabase = {
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     nx: {
-      transmissions: ['Automatic, 8-Speed', 'CVT'],
+      transmissions: ['Automatic, 8-Speed', 'Automatic (CVT)'],
       engines: ['4-Cylinder Turbo', 'Hybrid'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
@@ -44,7 +44,7 @@ export const luxurySpecs: VehicleSpecsDatabase = {
       drivetrains: ['4WD / 4×4'],
     },
     ux: {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['4-Cylinder', 'Hybrid', 'Electric'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
@@ -65,7 +65,7 @@ export const luxurySpecs: VehicleSpecsDatabase = {
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     integra: {
-      transmissions: ['CVT', 'Manual'],
+      transmissions: ['Automatic (CVT)', 'Manual'],
       engines: ['4-Cylinder Turbo'],
       drivetrains: ['Front Wheel Drive (FWD)'],
     },
@@ -96,17 +96,17 @@ export const luxurySpecs: VehicleSpecsDatabase = {
       drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     qx50: {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['4-Cylinder Turbo'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     qx55: {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['4-Cylinder Turbo'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     qx60: {
-      transmissions: ['Automatic, 9-Speed', 'CVT'],
+      transmissions: ['Automatic, 9-Speed', 'Automatic (CVT)'],
       engines: ['V6'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
