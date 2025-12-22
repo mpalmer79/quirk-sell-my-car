@@ -437,13 +437,13 @@ export default function ConditionPage() {
                         onClick={() => setFormData({ ...formData, overallCondition: option.value as VehicleCondition['overallCondition'] })}
                         className={`flex flex-col items-center py-4 px-3 rounded-lg border-2 transition-all ${
                           formData.overallCondition === option.value
-                            ? 'border-quirk-red bg-quirk-red/5'
-                            : 'border-quirk-gray-200 hover:border-quirk-gray-300'
+                            ? 'border-[#0070cc] bg-[#0070cc] text-white'
+                            : 'border-quirk-gray-200 hover:border-quirk-gray-300 bg-white'
                         }`}
                       >
                         <span className="text-2xl mb-2">{option.emoji}</span>
                         <span className={`text-xs font-medium text-center ${
-                          formData.overallCondition === option.value ? 'text-quirk-red' : 'text-quirk-gray-600'
+                          formData.overallCondition === option.value ? 'text-white' : 'text-quirk-gray-600'
                         }`}>
                           {option.label}
                         </span>
