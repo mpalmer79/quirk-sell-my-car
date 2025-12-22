@@ -80,7 +80,7 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
       transmissions: ['Automatic, 9-Speed', 'Manual'],
       engines: ['V6 Turbo'],
     },
-    gt_r: {
+    'gt-r': {
       transmissions: ['Automatic, 6-Speed'],
       engines: ['V6 Turbo'],
     },
@@ -146,11 +146,11 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
       transmissions: ['CVT'],
       engines: ['Hybrid'],
     },
-    'gr86': {
+    gr86: {
       transmissions: ['Automatic, 6-Speed', 'Manual'],
       engines: ['4-Cylinder'],
     },
-    'crown': {
+    crown: {
       transmissions: ['Automatic, 8-Speed', 'CVT'],
       engines: ['4-Cylinder Turbo', 'Hybrid'],
     },
@@ -1251,14 +1251,13 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
 
 /**
  * Normalize model name for lookup
- * Handles variations like "F-150" vs "f150", "CR-V" vs "crv", etc.
+ * Handles variations like "F-150" vs "f-150", "CR-V" vs "cr-v", etc.
+ * IMPORTANT: Preserves hyphens to match keys in VEHICLE_SPECS
  */
 function normalizeModelName(model: string): string {
   return model
     .toLowerCase()
-    .trim()
-    .replace(/[-\s]+/g, ' ') // Replace hyphens and multiple spaces with single space
-    .replace(/\s+/g, ' '); // Collapse multiple spaces
+    .trim();
 }
 
 /**
