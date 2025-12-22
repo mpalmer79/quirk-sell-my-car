@@ -1,14 +1,18 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import VehicleImage, { VehicleImageCompact } from '@/components/VehicleImage';
 import { VehicleInfo } from '@/types/vehicle';
 
-// Mock the correct module - @/lib/vehicleImage with getVehicleImageByMake
-jest.mock('@/lib/vehicleImage', () => ({
-  getVehicleImageByMake: jest.fn(),
+// Mock the module BEFORE importing component - CORRECT PATH: @/services/vehicleImage
+jest.mock('@/services/vehicleImage', () => ({
+  getVehicleImageByMake: jest.fn(() => 'https://example.com/car.jpg'),
+  getFallbackImage: jest.fn(() => 'https://example.com/fallback.jpg'),
+  getVehicleImage: jest.fn(() => Promise.resolve('https://example.com/car.jpg')),
+  getVehicleImageServerSide: jest.fn(() => Promise.resolve('https://example.com/car.jpg')),
 }));
 
-import { getVehicleImageByMake } from '@/lib/vehicleImage';
+// Import component AFTER mock is set up
+import VehicleImage, { VehicleImageCompact } from '@/components/VehicleImage';
+import { getVehicleImageByMake } from '@/services/vehicleImage';
 
 const mockGetVehicleImageByMake = getVehicleImageByMake as jest.MockedFunction<typeof getVehicleImageByMake>;
 
@@ -23,7 +27,6 @@ describe('VehicleImage', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    // Default mock return value - synchronous function
     mockGetVehicleImageByMake.mockReturnValue('https://example.com/car.jpg');
   });
 
@@ -60,7 +63,6 @@ describe('VehicleImage', () => {
       render(<VehicleImage vehicleInfo={mockVehicle} />);
       
       await waitFor(() => {
-        // Use getAllByText since vehicle name appears in multiple places
         const elements = screen.getAllByText('2021 CHEVROLET Silverado 1500');
         expect(elements.length).toBeGreaterThan(0);
       });
@@ -75,13 +77,10 @@ describe('VehicleImage', () => {
     });
 
     it('handles error gracefully', async () => {
-      // Return null to simulate no image available
       mockGetVehicleImageByMake.mockReturnValue(null as unknown as string);
       
       render(<VehicleImage vehicleInfo={mockVehicle} />);
       
-      // When image fails, component still renders with vehicle info
-      // Use getAllByText since vehicle name appears multiple times
       await waitFor(() => {
         const elements = screen.getAllByText('2021 CHEVROLET Silverado 1500');
         expect(elements.length).toBeGreaterThan(0);
@@ -101,7 +100,6 @@ describe('VehicleImageCompact', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    // Default mock return value
     mockGetVehicleImageByMake.mockReturnValue('https://example.com/car.jpg');
   });
 
