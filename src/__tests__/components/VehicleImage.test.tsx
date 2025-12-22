@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { VehicleInfo } from '@/types/vehicle';
 
-// Mock the module BEFORE importing component - CORRECT PATH: @/services/vehicleImage
+// Mock the module BEFORE importing component
 jest.mock('@/services/vehicleImage', () => ({
   getVehicleImageByMake: jest.fn(() => 'https://example.com/car.jpg'),
   getFallbackImage: jest.fn(() => 'https://example.com/fallback.jpg'),
@@ -116,27 +116,25 @@ describe('VehicleImageCompact', () => {
     });
   });
 
-  it('displays year and make', async () => {
+  it('renders image with correct alt text', async () => {
     render(<VehicleImageCompact vehicleInfo={mockVehicle} />);
     
     await waitFor(() => {
-      expect(screen.getByText('2021 CHEVROLET')).toBeInTheDocument();
+      expect(screen.getByAltText('2021 CHEVROLET Silverado 1500')).toBeInTheDocument();
     });
   });
 
-  it('displays model', async () => {
+  it('renders image with correct src', async () => {
     render(<VehicleImageCompact vehicleInfo={mockVehicle} />);
     
     await waitFor(() => {
-      expect(screen.getByText('Silverado 1500')).toBeInTheDocument();
+      const img = screen.getByAltText('2021 CHEVROLET Silverado 1500');
+      expect(img).toHaveAttribute('src', 'https://example.com/car.jpg');
     });
   });
 
-  it('displays trim when available', async () => {
-    render(<VehicleImageCompact vehicleInfo={mockVehicle} />);
-    
-    await waitFor(() => {
-      expect(screen.getByText('LT')).toBeInTheDocument();
-    });
+  it('applies custom className', () => {
+    const { container } = render(<VehicleImageCompact vehicleInfo={mockVehicle} className="custom-class" />);
+    expect(container.firstChild).toHaveClass('custom-class');
   });
 });
