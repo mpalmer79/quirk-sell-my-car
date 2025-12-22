@@ -3,30 +3,50 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { VehicleInfo } from '@/types/vehicle';
-import { getVehicleImage } from '@/services/vehicleImage';
+import { getVehicleImageByMake } from '@/services/vehicleImage';
 
 interface VehicleImageProps {
   vehicleInfo: VehicleInfo | null;
   className?: string;
 }
 
+// Car icon SVG for placeholder
+function CarPlaceholder() {
+  return (
+    <svg
+      className="h-12 w-12 text-gray-300"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.5}
+        d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.5}
+        d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
+      />
+    </svg>
+  );
+}
+
 /**
  * Full-size vehicle image component with overlay
  */
 export default function VehicleImage({ vehicleInfo, className = '' }: VehicleImageProps) {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  
+  // Get image URL synchronously - no async needed since it's just a lookup
+  const imageUrl = vehicleInfo ? getVehicleImageByMake(vehicleInfo) : null;
 
+  // Reset error state when vehicle changes
   useEffect(() => {
-    if (vehicleInfo) {
-      setIsLoading(true);
-      getVehicleImage(vehicleInfo)
-        .then(setImageUrl)
-        .catch(() => setImageUrl(null))
-        .finally(() => setIsLoading(false));
-    } else {
-      setImageUrl(null);
-    }
+    setImageError(false);
   }, [vehicleInfo]);
 
   if (!vehicleInfo) {
@@ -34,25 +54,7 @@ export default function VehicleImage({ vehicleInfo, className = '' }: VehicleIma
       <div className={`relative bg-gray-100 rounded-lg overflow-hidden ${className}`}>
         <div className="aspect-video flex items-center justify-center">
           <div className="text-center text-gray-500">
-            <svg
-              className="mx-auto h-12 w-12 text-gray-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
-              />
-            </svg>
+            <CarPlaceholder />
             <p className="mt-2 text-sm">Enter your VIN to see your vehicle</p>
           </div>
         </div>
@@ -65,11 +67,7 @@ export default function VehicleImage({ vehicleInfo, className = '' }: VehicleIma
   return (
     <div className={`relative bg-gray-100 rounded-lg overflow-hidden ${className}`}>
       <div className="aspect-video relative">
-        {isLoading ? (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0070cc]"></div>
-          </div>
-        ) : imageUrl ? (
+        {imageUrl && !imageError ? (
           <Image
             src={imageUrl}
             alt={vehicleName}
@@ -77,10 +75,12 @@ export default function VehicleImage({ vehicleInfo, className = '' }: VehicleIma
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 50vw"
             priority
+            onError={() => setImageError(true)}
+            unoptimized
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
-            <span className="text-gray-500">Image unavailable</span>
+            <CarPlaceholder />
           </div>
         )}
         
@@ -98,21 +98,17 @@ export default function VehicleImage({ vehicleInfo, className = '' }: VehicleIma
 
 /**
  * Compact vehicle image component for sidebars/cards
+ * Just renders the image - parent component handles surrounding card and text
  */
 export function VehicleImageCompact({ vehicleInfo, className = '' }: VehicleImageProps) {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  
+  // Get image URL synchronously - no async needed since it's just a lookup
+  const imageUrl = vehicleInfo ? getVehicleImageByMake(vehicleInfo) : null;
 
+  // Reset error state when vehicle changes
   useEffect(() => {
-    if (vehicleInfo) {
-      setIsLoading(true);
-      getVehicleImage(vehicleInfo)
-        .then(setImageUrl)
-        .catch(() => setImageUrl(null))
-        .finally(() => setIsLoading(false));
-    } else {
-      setImageUrl(null);
-    }
+    setImageError(false);
   }, [vehicleInfo]);
 
   if (!vehicleInfo) {
@@ -120,53 +116,22 @@ export function VehicleImageCompact({ vehicleInfo, className = '' }: VehicleImag
   }
 
   return (
-    <div className={`bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden ${className}`}>
-      <div className="aspect-[16/9] relative bg-gray-100">
-        {isLoading ? (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#0070cc]"></div>
-          </div>
-        ) : imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt={`${vehicleInfo.year} ${vehicleInfo.make} ${vehicleInfo.model}`}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 300px"
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <svg
-              className="h-8 w-8 text-gray-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
-              />
-            </svg>
-          </div>
-        )}
-      </div>
-      <div className="p-3">
-        <p className="text-sm font-medium text-gray-900">
-          {vehicleInfo.year} {vehicleInfo.make}
-        </p>
-        <p className="text-sm text-gray-600">{vehicleInfo.model}</p>
-        {vehicleInfo.trim && (
-          <p className="text-xs text-gray-500 mt-1">{vehicleInfo.trim}</p>
-        )}
-      </div>
+    <div className={`aspect-[16/9] relative bg-gray-100 rounded-lg overflow-hidden ${className}`}>
+      {imageUrl && !imageError ? (
+        <Image
+          src={imageUrl}
+          alt={`${vehicleInfo.year} ${vehicleInfo.make} ${vehicleInfo.model}`}
+          fill
+          className="object-cover"
+          sizes="256px"
+          onError={() => setImageError(true)}
+          unoptimized
+        />
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <CarPlaceholder />
+        </div>
+      )}
     </div>
   );
 }
