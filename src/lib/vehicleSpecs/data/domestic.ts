@@ -29,7 +29,7 @@ export const domesticSpecs: VehicleSpecsDatabase = {
       drivetrains: ['Rear Wheel Drive (RWD)', '4WD / 4×4'],
     },
     maverick: {
-      transmissions: ['Automatic, 8-Speed', 'CVT'],
+      transmissions: ['Automatic, 8-Speed', 'Automatic (CVT)'],
       engines: ['4-Cylinder Turbo', 'Hybrid'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
@@ -44,7 +44,7 @@ export const domesticSpecs: VehicleSpecsDatabase = {
       drivetrains: ['Rear Wheel Drive (RWD)', '4WD / 4×4'],
     },
     escape: {
-      transmissions: ['Automatic, 8-Speed', 'CVT'],
+      transmissions: ['Automatic, 8-Speed', 'Automatic (CVT)'],
       engines: ['4-Cylinder Turbo', 'Hybrid'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
@@ -89,7 +89,7 @@ export const domesticSpecs: VehicleSpecsDatabase = {
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     fusion: {
-      transmissions: ['Automatic, 6-Speed', 'CVT'],
+      transmissions: ['Automatic, 6-Speed', 'Automatic (CVT)'],
       engines: ['4-Cylinder', '4-Cylinder Turbo', 'Hybrid'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
@@ -150,7 +150,7 @@ export const domesticSpecs: VehicleSpecsDatabase = {
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     trailblazer: {
-      transmissions: ['CVT', 'Automatic, 9-Speed'],
+      transmissions: ['Automatic (CVT)', 'Automatic, 9-Speed'],
       engines: ['4-Cylinder Turbo'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
@@ -160,7 +160,7 @@ export const domesticSpecs: VehicleSpecsDatabase = {
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     malibu: {
-      transmissions: ['CVT', 'Automatic, 9-Speed'],
+      transmissions: ['Automatic (CVT)', 'Automatic, 9-Speed'],
       engines: ['4-Cylinder Turbo'],
       drivetrains: ['Front Wheel Drive (FWD)'],
     },
@@ -175,7 +175,7 @@ export const domesticSpecs: VehicleSpecsDatabase = {
       drivetrains: ['Rear Wheel Drive (RWD)'],
     },
     spark: {
-      transmissions: ['CVT', 'Manual'],
+      transmissions: ['Automatic (CVT)', 'Manual'],
       engines: ['4-Cylinder'],
       drivetrains: ['Front Wheel Drive (FWD)'],
     },
@@ -381,7 +381,7 @@ export const domesticSpecs: VehicleSpecsDatabase = {
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     'encore gx': {
-      transmissions: ['CVT', 'Automatic, 9-Speed'],
+      transmissions: ['Automatic (CVT)', 'Automatic, 9-Speed'],
       engines: ['4-Cylinder Turbo'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
