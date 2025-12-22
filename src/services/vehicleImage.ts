@@ -96,11 +96,12 @@ const MAKE_BODY_IMAGES: Record<string, Record<string, string>> = {
     default: 'https://images.unsplash.com/photo-1568844293986-8c3a2c5f3e47?w=800&auto=format',
   },
   'nissan': {
-    truck: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=800&auto=format', // Frontier/Titan - GENERIC TRUCK
+    // UPDATED: Using actual Nissan sedan images
+    truck: 'https://images.unsplash.com/photo-1609521263047-f8f205293f24?w=800&auto=format', // Frontier/Titan
     suv: 'https://images.unsplash.com/photo-1609521263047-f8f205293f24?w=800&auto=format', // Rogue/Pathfinder
-    sedan: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&auto=format', // Altima/Sentra
-    hatchback: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&auto=format', // Versa HB
-    default: 'https://images.unsplash.com/photo-1609521263047-f8f205293f24?w=800&auto=format',
+    sedan: 'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=800&auto=format', // Nissan sedan - silver/gray
+    hatchback: 'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=800&auto=format', // Versa HB
+    default: 'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=800&auto=format',
   },
   'mazda': {
     suv: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&auto=format', // CX-5/CX-9
@@ -164,25 +165,24 @@ const MAKE_BODY_IMAGES: Record<string, Record<string, string>> = {
     suv: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&auto=format', // X3/X5
     sedan: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&auto=format', // 3/5 Series
     coupe: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&auto=format', // 4 Series
-    convertible: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&auto=format',
     default: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&auto=format',
   },
   'mercedes-benz': {
     suv: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&auto=format', // GLE/GLC
     sedan: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&auto=format', // C/E/S Class
     coupe: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&auto=format',
-    convertible: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&auto=format',
     default: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&auto=format',
   },
   'mercedes': {
     suv: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&auto=format',
     sedan: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&auto=format',
+    coupe: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&auto=format',
     default: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&auto=format',
   },
   'audi': {
     suv: 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=800&auto=format', // Q5/Q7
     sedan: 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=800&auto=format', // A4/A6
-    wagon: 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=800&auto=format', // A4 Allroad
+    hatchback: 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=800&auto=format', // A3
     default: 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=800&auto=format',
   },
   'volkswagen': {
@@ -205,37 +205,58 @@ const MAKE_BODY_IMAGES: Record<string, Record<string, string>> = {
   },
 
   // -------------------------------------------------------------------------
-  // OTHER EUROPEAN BRANDS
+  // BRITISH/EUROPEAN BRANDS
   // -------------------------------------------------------------------------
+  'land rover': {
+    suv: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&auto=format',
+    default: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&auto=format',
+  },
+  'jaguar': {
+    suv: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&auto=format',
+    sedan: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&auto=format',
+    default: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&auto=format',
+  },
   'volvo': {
-    suv: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&auto=format', // XC90/XC60
+    suv: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&auto=format', // XC60/XC90
     sedan: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&auto=format', // S60/S90
     wagon: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&auto=format', // V60/V90
     default: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&auto=format',
   },
-  'land rover': {
-    suv: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&auto=format', // Range Rover
-    default: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&auto=format',
-  },
-  'jaguar': {
-    suv: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&auto=format', // F-PACE
-    sedan: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&auto=format', // XF
-    coupe: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&auto=format', // F-TYPE
+  'mini': {
+    hatchback: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&auto=format',
+    suv: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&auto=format', // Countryman
     default: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&auto=format',
   },
-  'mini': {
-    hatchback: 'https://images.unsplash.com/photo-1606611013016-969c19ba27bb?w=800&auto=format', // Cooper
-    suv: 'https://images.unsplash.com/photo-1606611013016-969c19ba27bb?w=800&auto=format', // Countryman
-    convertible: 'https://images.unsplash.com/photo-1606611013016-969c19ba27bb?w=800&auto=format',
-    default: 'https://images.unsplash.com/photo-1606611013016-969c19ba27bb?w=800&auto=format',
-  },
-  'fiat': {
-    hatchback: 'https://images.unsplash.com/photo-1606611013016-969c19ba27bb?w=800&auto=format', // 500
-    default: 'https://images.unsplash.com/photo-1606611013016-969c19ba27bb?w=800&auto=format',
-  },
+
+  // -------------------------------------------------------------------------
+  // OTHER BRANDS
+  // -------------------------------------------------------------------------
   'alfa romeo': {
     suv: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&auto=format', // Stelvio
     sedan: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&auto=format', // Giulia
+    default: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&auto=format',
+  },
+  'fiat': {
+    hatchback: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&auto=format', // 500
+    default: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&auto=format',
+  },
+  'maserati': {
+    suv: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&auto=format', // Levante
+    sedan: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&auto=format', // Ghibli/Quattroporte
+    default: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&auto=format',
+  },
+  'rivian': {
+    truck: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=800&auto=format', // R1T
+    suv: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&auto=format', // R1S
+    default: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&auto=format',
+  },
+  'lucid': {
+    sedan: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&auto=format', // Air
+    default: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&auto=format',
+  },
+  'polestar': {
+    sedan: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&auto=format', // Polestar 2
+    suv: 'https://images.unsplash.com/photo-1606016159991-dfe4f2746ad5?w=800&auto=format', // Polestar 3
     default: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&auto=format',
   },
 };
@@ -255,9 +276,9 @@ const BODY_TYPE_FALLBACKS: Record<string, string> = {
   crossover: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&auto=format',
   utility: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&auto=format',
   
-  // Sedans
-  sedan: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&auto=format',
-  saloon: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&auto=format',
+  // Sedans - using a neutral silver/gray sedan image
+  sedan: 'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=800&auto=format',
+  saloon: 'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?w=800&auto=format',
   
   // Coupes
   coupe: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800&auto=format',
@@ -277,7 +298,7 @@ const BODY_TYPE_FALLBACKS: Record<string, string> = {
   roadster: 'https://images.unsplash.com/photo-1507136566006-cfc505b114fc?w=800&auto=format',
 };
 
-// Default image when nothing matches
+// Default image when nothing matches - generic car silhouette
 const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1502877338535-766e1452684a?w=800&auto=format';
 
 // =============================================================================
