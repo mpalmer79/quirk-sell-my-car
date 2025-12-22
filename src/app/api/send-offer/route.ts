@@ -6,7 +6,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Quirk dealer notification email
 const DEALER_EMAIL = 'mpalmer@quirkcars.com';
-const FROM_EMAIL = 'offers@quirkautodealers.com'; // Must be verified domain in Resend
+const FROM_EMAIL = 'offers@mail.quirkcars.com'; // Must be verified domain in Resend
 
 interface SendOfferRequest {
   customerEmail: string;
@@ -258,7 +258,7 @@ function generateCustomerEmailHtml(data: SendOfferRequest): string {
         <a href="tel:6032634552" style="color: #0070cc; text-decoration: none;">📞 (603) 263-4552</a>
       </p>
       <p style="margin: 10px 0 0 0;">
-        <a href="mailto:sell@quirkautodealers.com" style="color: #0070cc; text-decoration: none;">✉️ sell@quirkautodealers.com</a>
+        <a href="mailto:sell@quirkcars.com" style="color: #0070cc; text-decoration: none;">✉️ sell@quirkcars.com</a>
       </p>
     </div>
 
