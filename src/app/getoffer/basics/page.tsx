@@ -3,39 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, ArrowLeft, Info } from 'lucide-react';
+import Image from 'next/image';
 import StepNavigation, { MobileProgress } from '@/components/StepNavigation';
-import { VehicleImageCompact } from '@/components/VehicleImage';
 import { useVehicle } from '@/context/VehicleContext';
 import { VEHICLE_COLORS } from '@/types/vehicle';
-
-const ALL_TRANSMISSIONS = [
-  'Automatic',
-  'Manual',
-  'CVT',
-  'Automatic, 6-Speed',
-  'Automatic, 8-Speed',
-  'Automatic, 10-Speed',
-];
-
-const ALL_DRIVETRAINS = [
-  'Front Wheel Drive (FWD)',
-  'Rear Wheel Drive (RWD)',
-  '4WD / 4×4',
-  'All Wheel Drive (AWD)',
-];
-
-const ALL_ENGINES = [
-  '4-Cylinder',
-  '4-Cylinder Turbo',
-  'V6',
-  'V6 Turbo',
-  'V8',
-  'V8 Turbo',
-  '4-Cylinder Diesel',
-  'V6 Diesel',
-  'Hybrid',
-  'Electric',
-];
+import { getAvailableTransmissions, getAvailableEngines } from '@/lib/vehicleSpecs';
+import { getVehicleImageByMake } from '@/services/vehicleImage';
 
 // Helper function to determine engine type from VIN data
 function getEngineFromVIN(vehicleInfo: { displacement?: string; engineCylinders?: string; fuelType?: string; electrificationLevel?: string } | null): string | null {
@@ -65,7 +38,6 @@ function getEngineFromVIN(vehicleInfo: { displacement?: string; engineCylinders?
   }
   
   // Determine if turbo based on displacement (smaller displacement with higher power usually means turbo)
-  // This is a heuristic - ideally VIN data would include forced induction info
   const isTurbo = displacement > 0 && displacement < 2.5 && cylinders === 4;
   
   // Standard gas engines
@@ -129,6 +101,13 @@ function getDrivetrainFromVIN(vehicleInfo: { driveType?: string } | null): strin
   return null;
 }
 
+const ALL_DRIVETRAINS = [
+  'Front Wheel Drive (FWD)',
+  'Rear Wheel Drive (RWD)',
+  '4WD / 4×4',
+  'All Wheel Drive (AWD)',
+];
+
 export default function BasicsPage() {
   const router = useRouter();
   const { vehicleInfo, basics, updateBasics } = useVehicle();
@@ -137,6 +116,14 @@ export default function BasicsPage() {
   const vinEngine = getEngineFromVIN(vehicleInfo);
   const vinTransmission = getTransmissionFromVIN(vehicleInfo);
   const vinDrivetrain = getDrivetrainFromVIN(vehicleInfo);
+
+  // Get make/model specific options from vehicle specs library
+  const makeModelTransmissions = vehicleInfo 
+    ? getAvailableTransmissions(vehicleInfo.make, vehicleInfo.model)
+    : [];
+  const makeModelEngines = vehicleInfo 
+    ? getAvailableEngines(vehicleInfo.make, vehicleInfo.model)
+    : [];
 
   const [mileage, setMileage] = useState(basics.mileage?.toString() || '');
   const [zipCode, setZipCode] = useState(basics.zipCode || '');
@@ -147,6 +134,9 @@ export default function BasicsPage() {
   const [sellOrTrade, setSellOrTrade] = useState<'sell' | 'trade' | 'not-sure' | ''>(basics.sellOrTrade || '');
   const [loanOrLease, setLoanOrLease] = useState<'loan' | 'lease' | 'neither' | ''>(basics.loanOrLease || '');
 
+  // Vehicle image state
+  const [vehicleImageUrl, setVehicleImageUrl] = useState<string | null>(null);
+
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Redirect if no vehicle info
@@ -155,6 +145,14 @@ export default function BasicsPage() {
       router.push('/');
     }
   }, [vehicleInfo, router]);
+
+  // Load vehicle image
+  useEffect(() => {
+    if (vehicleInfo) {
+      const imageUrl = getVehicleImageByMake(vehicleInfo);
+      setVehicleImageUrl(imageUrl);
+    }
+  }, [vehicleInfo]);
 
   // Auto-populate from VIN data on mount
   useEffect(() => {
@@ -168,6 +166,16 @@ export default function BasicsPage() {
       setDrivetrain(vinDrivetrain);
     }
   }, [vinEngine, vinTransmission, vinDrivetrain, basics]);
+
+  // Auto-select if only one option available from make/model specs
+  useEffect(() => {
+    if (!transmission && makeModelTransmissions.length === 1) {
+      setTransmission(makeModelTransmissions[0]);
+    }
+    if (!engine && makeModelEngines.length === 1) {
+      setEngine(makeModelEngines[0]);
+    }
+  }, [makeModelTransmissions, makeModelEngines, transmission, engine]);
 
   // Format mileage with commas
   const handleMileageChange = (value: string) => {
@@ -258,9 +266,39 @@ export default function BasicsPage() {
     router.push('/getoffer/features');
   };
 
-  // Determine which options to show - if VIN detected a value, only show that option
-  const engineOptions = vinEngine ? [vinEngine] : ALL_ENGINES;
-  const transmissionOptions = vinTransmission ? [vinTransmission] : ALL_TRANSMISSIONS;
+  // Handle back navigation - go back to vehicle page with VIN
+  const handleBack = () => {
+    if (vehicleInfo?.vin) {
+      router.push(`/getoffer/vehicle?vin=${vehicleInfo.vin}`);
+    } else {
+      router.push('/');
+    }
+  };
+
+  // Determine which options to show
+  // Priority: 1) VIN detected (single option), 2) Make/Model specs, 3) All options as fallback
+  const getTransmissionOptions = () => {
+    if (vinTransmission) {
+      return [vinTransmission];
+    }
+    if (makeModelTransmissions.length > 0) {
+      return makeModelTransmissions;
+    }
+    return ['Automatic', 'Manual', 'CVT', 'Automatic, 6-Speed', 'Automatic, 8-Speed', 'Automatic, 10-Speed'];
+  };
+
+  const getEngineOptions = () => {
+    if (vinEngine) {
+      return [vinEngine];
+    }
+    if (makeModelEngines.length > 0) {
+      return makeModelEngines;
+    }
+    return ['4-Cylinder', '4-Cylinder Turbo', 'V6', 'V6 Turbo', 'V8', 'V8 Turbo', '4-Cylinder Diesel', 'V6 Diesel', 'Hybrid', 'Electric'];
+  };
+
+  const transmissionOptions = getTransmissionOptions();
+  const engineOptions = getEngineOptions();
   const drivetrainOptions = vinDrivetrain ? [vinDrivetrain] : ALL_DRIVETRAINS;
 
   if (!vehicleInfo) {
@@ -279,6 +317,16 @@ export default function BasicsPage() {
 
           {/* Main Content */}
           <div className="flex-1 max-w-2xl">
+            {/* Back Button - Top of form */}
+            <button
+              type="button"
+              onClick={handleBack}
+              className="mb-6 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0070cc] text-white font-semibold hover:bg-[#005fa3] transition-colors shadow-md"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back
+            </button>
+
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
               <h1 className="text-2xl font-bold text-gray-900 mb-2">The Basics</h1>
               <p className="text-gray-500 mb-8">
@@ -365,6 +413,11 @@ export default function BasicsPage() {
                         ✓ Detected from VIN
                       </span>
                     )}
+                    {!vinTransmission && makeModelTransmissions.length > 0 && (
+                      <span className="ml-2 text-xs text-blue-600 font-normal">
+                        Options for {vehicleInfo.make} {vehicleInfo.model}
+                      </span>
+                    )}
                   </label>
                   {transmissionOptions.length === 1 ? (
                     // Single option - show as selected button
@@ -376,8 +429,31 @@ export default function BasicsPage() {
                         {transmissionOptions[0]}
                       </button>
                     </div>
+                  ) : transmissionOptions.length <= 4 ? (
+                    // Few options - show as buttons
+                    <div className="flex flex-wrap gap-2">
+                      {transmissionOptions.map((t) => (
+                        <button
+                          key={t}
+                          type="button"
+                          onClick={() => {
+                            setTransmission(t);
+                            if (errors.transmission) {
+                              setErrors(prev => ({ ...prev, transmission: '' }));
+                            }
+                          }}
+                          className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
+                            transmission === t
+                              ? 'bg-blue-50 border-[#0070cc] text-[#0070cc] ring-2 ring-blue-100'
+                              : 'border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          {t}
+                        </button>
+                      ))}
+                    </div>
                   ) : (
-                    // Multiple options - show dropdown
+                    // Many options - show dropdown
                     <select
                       value={transmission}
                       onChange={(e) => {
@@ -459,14 +535,19 @@ export default function BasicsPage() {
                         ✓ Detected from VIN
                       </span>
                     )}
-                    {!vinEngine && (
+                    {!vinEngine && makeModelEngines.length > 0 && (
+                      <span className="text-xs text-blue-600 font-normal">
+                        Options for {vehicleInfo.make} {vehicleInfo.model}
+                      </span>
+                    )}
+                    {!vinEngine && makeModelEngines.length === 0 && (
                       <span className="text-gray-400 cursor-help" title="Select your engine type">
                         <Info className="w-4 h-4" />
                       </span>
                     )}
                   </label>
                   {engineOptions.length === 1 ? (
-                    // Single option - show as selected button (VIN detected)
+                    // Single option - show as selected button (VIN detected or single make/model option)
                     <div className="flex flex-wrap gap-2">
                       <button
                         type="button"
@@ -475,8 +556,31 @@ export default function BasicsPage() {
                         {engineOptions[0]}
                       </button>
                     </div>
+                  ) : engineOptions.length <= 4 ? (
+                    // Few options - show as buttons
+                    <div className="flex flex-wrap gap-2">
+                      {engineOptions.map((eng) => (
+                        <button
+                          key={eng}
+                          type="button"
+                          onClick={() => {
+                            setEngine(eng);
+                            if (errors.engine) {
+                              setErrors(prev => ({ ...prev, engine: '' }));
+                            }
+                          }}
+                          className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
+                            engine === eng
+                              ? 'bg-blue-50 border-[#0070cc] text-[#0070cc] ring-2 ring-blue-100'
+                              : 'border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          {eng}
+                        </button>
+                      ))}
+                    </div>
                   ) : (
-                    // Multiple options - show dropdown
+                    // Many options - show dropdown
                     <select
                       value={engine}
                       onChange={(e) => {
@@ -574,7 +678,7 @@ export default function BasicsPage() {
                 <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-100">
                   <button
                     type="button"
-                    onClick={() => router.push('/getoffer/vehicle')}
+                    onClick={handleBack}
                     className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
                   >
                     <ArrowLeft className="w-4 h-4" />
@@ -595,13 +699,50 @@ export default function BasicsPage() {
           {/* Vehicle Card - Right Sidebar */}
           <div className="hidden xl:block w-64 flex-shrink-0">
             <div className="sticky top-8">
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
-                <VehicleImageCompact vehicleInfo={vehicleInfo} />
-                <div className="mt-4 text-center">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                {/* Vehicle Image */}
+                <div className="aspect-[16/9] relative bg-gray-100">
+                  {vehicleImageUrl ? (
+                    <Image
+                      src={vehicleImageUrl}
+                      alt={`${vehicleInfo.year} ${vehicleInfo.make} ${vehicleInfo.model}`}
+                      fill
+                      className="object-cover"
+                      sizes="256px"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <svg
+                        className="h-12 w-12 text-gray-300"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
+                        />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+                {/* Vehicle Info */}
+                <div className="p-4 text-center">
                   <p className="font-bold text-gray-900">
                     {vehicleInfo.year} {vehicleInfo.make}
                   </p>
                   <p className="text-gray-500">{vehicleInfo.model}</p>
+                  {vehicleInfo.trim && (
+                    <p className="text-xs text-gray-400 mt-1">{vehicleInfo.trim}</p>
+                  )}
                 </div>
               </div>
             </div>
