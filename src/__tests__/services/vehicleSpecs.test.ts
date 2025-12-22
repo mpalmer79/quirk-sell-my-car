@@ -2,8 +2,10 @@ import {
   getVehicleSpecs,
   getAvailableTransmissions,
   getAvailableEngines,
+  getAvailableDrivetrains,
   hasVehicleSpecs,
   DEFAULT_SPEC_OPTIONS,
+  ALL_DRIVETRAINS,
 } from '@/lib/vehicleSpecs';
 
 describe('vehicleSpecs library', () => {
@@ -260,6 +262,61 @@ describe('vehicleSpecs library', () => {
   });
 
   // ===========================================================================
+  // getAvailableDrivetrains()
+  // ===========================================================================
+  describe('getAvailableDrivetrains', () => {
+    it('returns FWD only for Hyundai Elantra', () => {
+      const drivetrains = getAvailableDrivetrains('Hyundai', 'Elantra');
+      
+      expect(drivetrains).toContain('Front Wheel Drive (FWD)');
+      expect(drivetrains).toHaveLength(1);
+    });
+
+    it('returns FWD only for Honda Civic', () => {
+      const drivetrains = getAvailableDrivetrains('Honda', 'Civic');
+      
+      expect(drivetrains).toContain('Front Wheel Drive (FWD)');
+      expect(drivetrains).toHaveLength(1);
+    });
+
+    it('returns AWD only for Subaru Outback', () => {
+      const drivetrains = getAvailableDrivetrains('Subaru', 'Outback');
+      
+      expect(drivetrains).toContain('All Wheel Drive (AWD)');
+      expect(drivetrains).toHaveLength(1);
+    });
+
+    it('returns RWD only for Ford Mustang', () => {
+      const drivetrains = getAvailableDrivetrains('Ford', 'Mustang');
+      
+      expect(drivetrains).toContain('Rear Wheel Drive (RWD)');
+      expect(drivetrains).toHaveLength(1);
+    });
+
+    it('returns FWD and AWD for Toyota RAV4', () => {
+      const drivetrains = getAvailableDrivetrains('Toyota', 'RAV4');
+      
+      expect(drivetrains).toContain('Front Wheel Drive (FWD)');
+      expect(drivetrains).toContain('All Wheel Drive (AWD)');
+      expect(drivetrains).toHaveLength(2);
+    });
+
+    it('returns RWD and 4WD for Ford F-150', () => {
+      const drivetrains = getAvailableDrivetrains('Ford', 'F-150');
+      
+      expect(drivetrains).toContain('Rear Wheel Drive (RWD)');
+      expect(drivetrains).toContain('4WD / 4×4');
+      expect(drivetrains).toHaveLength(2);
+    });
+
+    it('returns all drivetrains for unknown vehicle', () => {
+      const drivetrains = getAvailableDrivetrains('Unknown', 'Vehicle');
+      
+      expect(drivetrains).toEqual(DEFAULT_SPEC_OPTIONS.drivetrains);
+    });
+  });
+
+  // ===========================================================================
   // hasVehicleSpecs()
   // ===========================================================================
   describe('hasVehicleSpecs', () => {
@@ -374,6 +431,14 @@ describe('vehicleSpecs library', () => {
     it('has reasonable default engines', () => {
       expect(DEFAULT_SPEC_OPTIONS.engines).toContain('4-Cylinder');
       expect(DEFAULT_SPEC_OPTIONS.engines).toContain('V6');
+    });
+
+    it('has all drivetrain options as default', () => {
+      expect(DEFAULT_SPEC_OPTIONS.drivetrains).toEqual(ALL_DRIVETRAINS);
+      expect(DEFAULT_SPEC_OPTIONS.drivetrains).toContain('Front Wheel Drive (FWD)');
+      expect(DEFAULT_SPEC_OPTIONS.drivetrains).toContain('Rear Wheel Drive (RWD)');
+      expect(DEFAULT_SPEC_OPTIONS.drivetrains).toContain('4WD / 4×4');
+      expect(DEFAULT_SPEC_OPTIONS.drivetrains).toContain('All Wheel Drive (AWD)');
     });
   });
 });
