@@ -55,7 +55,7 @@ export default function AdminError({
               Reload Dashboard
             </button>
             
-            
+            <a
               href="/admin/offers"
               className="inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
             >
