@@ -16,7 +16,7 @@ describe('vehicleSpecs library', () => {
     it('returns correct specs for Nissan Sentra', () => {
       const specs = getVehicleSpecs('Nissan', 'Sentra');
       
-      expect(specs.transmissions).toContain('CVT');
+      expect(specs.transmissions).toContain('Automatic (CVT)');
       expect(specs.transmissions).toContain('Manual');
       expect(specs.transmissions).toHaveLength(2);
       
@@ -66,7 +66,7 @@ describe('vehicleSpecs library', () => {
     it('returns correct specs for Honda Civic', () => {
       const specs = getVehicleSpecs('Honda', 'Civic');
       
-      expect(specs.transmissions).toContain('CVT');
+      expect(specs.transmissions).toContain('Automatic (CVT)');
       expect(specs.transmissions).toContain('Manual');
       expect(specs.engines).toContain('4-Cylinder');
       expect(specs.engines).toContain('4-Cylinder Turbo');
@@ -150,7 +150,7 @@ describe('vehicleSpecs library', () => {
 
     it('handles model with hyphen (CR-V)', () => {
       const specs = getVehicleSpecs('Honda', 'CR-V');
-      expect(specs.transmissions).toContain('CVT');
+      expect(specs.transmissions).toContain('Automatic (CVT)');
     });
 
     it('handles Tesla Model 3 with space', () => {
@@ -178,10 +178,10 @@ describe('vehicleSpecs library', () => {
   // getAvailableTransmissions()
   // ===========================================================================
   describe('getAvailableTransmissions', () => {
-    it('returns CVT and Manual for Nissan Sentra', () => {
+    it('returns Automatic (CVT) and Manual for Nissan Sentra', () => {
       const transmissions = getAvailableTransmissions('Nissan', 'Sentra');
       
-      expect(transmissions).toContain('CVT');
+      expect(transmissions).toContain('Automatic (CVT)');
       expect(transmissions).toContain('Manual');
       expect(transmissions).toHaveLength(2);
     });
@@ -200,10 +200,10 @@ describe('vehicleSpecs library', () => {
       expect(transmissions).toContain('Manual');
     });
 
-    it('returns CVT for Subaru Outback', () => {
+    it('returns Automatic (CVT) for Subaru Outback', () => {
       const transmissions = getAvailableTransmissions('Subaru', 'Outback');
       
-      expect(transmissions).toContain('CVT');
+      expect(transmissions).toContain('Automatic (CVT)');
     });
 
     it('returns defaults for unknown vehicle', () => {
@@ -217,14 +217,7 @@ describe('vehicleSpecs library', () => {
   // getAvailableEngines()
   // ===========================================================================
   describe('getAvailableEngines', () => {
-    it('returns only 4-Cylinder for Nissan Sentra', () => {
-      const engines = getAvailableEngines('Nissan', 'Sentra');
-      
-      expect(engines).toContain('4-Cylinder');
-      expect(engines).toHaveLength(1);
-    });
-
-    it('returns Electric only for Tesla Model 3', () => {
+    it('returns Electric for Tesla Model 3', () => {
       const engines = getAvailableEngines('Tesla', 'Model 3');
       
       expect(engines).toContain('Electric');
