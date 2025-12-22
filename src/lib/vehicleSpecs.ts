@@ -433,22 +433,27 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     '1500': {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['V6', 'V8', 'V6 Diesel', 'Hybrid'],
+      drivetrains: ['Rear Wheel Drive (RWD)', '4WD / 4×4'],
     },
     '2500': {
       transmissions: ['Automatic, 8-Speed', 'Automatic, 6-Speed'],
       engines: ['V8', 'V6 Diesel'],
+      drivetrains: ['Rear Wheel Drive (RWD)', '4WD / 4×4'],
     },
     '3500': {
       transmissions: ['Automatic, 8-Speed', 'Automatic, 6-Speed'],
       engines: ['V8', 'V6 Diesel'],
+      drivetrains: ['Rear Wheel Drive (RWD)', '4WD / 4×4'],
     },
     promaster: {
       transmissions: ['Automatic, 9-Speed'],
       engines: ['V6'],
+      drivetrains: ['Front Wheel Drive (FWD)'],
     },
     'promaster city': {
       transmissions: ['Automatic, 9-Speed'],
       engines: ['4-Cylinder'],
+      drivetrains: ['Front Wheel Drive (FWD)'],
     },
   },
 
@@ -459,34 +464,42 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     sierra: {
       transmissions: ['Automatic, 8-Speed', 'Automatic, 10-Speed'],
       engines: ['4-Cylinder Turbo', 'V6', 'V8', 'V6 Diesel'],
+      drivetrains: ['Rear Wheel Drive (RWD)', '4WD / 4×4'],
     },
     'sierra 1500': {
       transmissions: ['Automatic, 8-Speed', 'Automatic, 10-Speed'],
       engines: ['4-Cylinder Turbo', 'V6', 'V8', 'V6 Diesel'],
+      drivetrains: ['Rear Wheel Drive (RWD)', '4WD / 4×4'],
     },
     canyon: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'V6', '4-Cylinder Diesel'],
+      drivetrains: ['Rear Wheel Drive (RWD)', '4WD / 4×4'],
     },
     yukon: {
       transmissions: ['Automatic, 10-Speed'],
       engines: ['V8', 'V6 Diesel'],
+      drivetrains: ['Rear Wheel Drive (RWD)', '4WD / 4×4'],
     },
     'yukon xl': {
       transmissions: ['Automatic, 10-Speed'],
       engines: ['V8', 'V6 Diesel'],
+      drivetrains: ['Rear Wheel Drive (RWD)', '4WD / 4×4'],
     },
     terrain: {
       transmissions: ['Automatic, 9-Speed'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     acadia: {
       transmissions: ['Automatic, 9-Speed'],
       engines: ['4-Cylinder Turbo', 'V6'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     hummer: {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
   },
 
@@ -497,34 +510,42 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     wrangler: {
       transmissions: ['Automatic, 8-Speed', 'Manual'],
       engines: ['4-Cylinder Turbo', 'V6', 'V6 Diesel', 'Hybrid'],
+      drivetrains: ['4WD / 4×4'],
     },
     'grand cherokee': {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['V6', 'V8', 'V6 Diesel', 'Hybrid'],
+      drivetrains: ['Rear Wheel Drive (RWD)', '4WD / 4×4'],
     },
     cherokee: {
       transmissions: ['Automatic, 9-Speed'],
       engines: ['4-Cylinder Turbo', 'V6'],
+      drivetrains: ['Front Wheel Drive (FWD)', '4WD / 4×4'],
     },
     compass: {
       transmissions: ['Automatic, 6-Speed', 'Automatic, 9-Speed'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', '4WD / 4×4'],
     },
     renegade: {
       transmissions: ['Automatic, 9-Speed'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', '4WD / 4×4'],
     },
     gladiator: {
       transmissions: ['Automatic, 8-Speed', 'Manual'],
       engines: ['V6', 'V6 Diesel'],
+      drivetrains: ['4WD / 4×4'],
     },
     'grand wagoneer': {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['V8'],
+      drivetrains: ['4WD / 4×4'],
     },
     wagoneer: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['V8'],
+      drivetrains: ['Rear Wheel Drive (RWD)', '4WD / 4×4'],
     },
   },
 
@@ -535,18 +556,22 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     charger: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['V6', 'V8'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     challenger: {
       transmissions: ['Automatic, 8-Speed', 'Manual'],
       engines: ['V6', 'V8'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     durango: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['V6', 'V8'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     hornet: {
       transmissions: ['Automatic, 6-Speed', 'Automatic, 9-Speed'],
       engines: ['4-Cylinder Turbo', 'Hybrid'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
   },
 
@@ -740,38 +765,47 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     mazda3: {
       transmissions: ['Automatic, 6-Speed', 'Manual'],
       engines: ['4-Cylinder', '4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     mazda6: {
       transmissions: ['Automatic, 6-Speed'],
       engines: ['4-Cylinder', '4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)'],
     },
     'cx-30': {
       transmissions: ['Automatic, 6-Speed'],
       engines: ['4-Cylinder', '4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     'cx-5': {
       transmissions: ['Automatic, 6-Speed'],
       engines: ['4-Cylinder', '4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     'cx-50': {
       transmissions: ['Automatic, 6-Speed'],
       engines: ['4-Cylinder', '4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     'cx-9': {
       transmissions: ['Automatic, 6-Speed'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     'cx-90': {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'V6 Turbo', 'Hybrid'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     'mx-5': {
       transmissions: ['Automatic, 6-Speed', 'Manual'],
       engines: ['4-Cylinder'],
+      drivetrains: ['Rear Wheel Drive (RWD)'],
     },
     'mx-5 miata': {
       transmissions: ['Automatic, 6-Speed', 'Manual'],
       engines: ['4-Cylinder'],
+      drivetrains: ['Rear Wheel Drive (RWD)'],
     },
   },
 
@@ -782,38 +816,47 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     '3 series': {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'V6 Turbo'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     '5 series': {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'V6 Turbo', 'Hybrid'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     '7 series': {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['V6 Turbo', 'V8 Turbo', 'Electric'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     x1: {
       transmissions: ['Automatic, 7-Speed', 'Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     x3: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'V6 Turbo', 'Hybrid'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     x5: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['V6 Turbo', 'V8 Turbo', 'Hybrid'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     x7: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['V6 Turbo', 'V8 Turbo'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     ix: {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     i4: {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
   },
 
@@ -824,34 +867,42 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     'c-class': {
       transmissions: ['Automatic, 9-Speed'],
       engines: ['4-Cylinder Turbo', 'Hybrid'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     'e-class': {
       transmissions: ['Automatic, 9-Speed'],
       engines: ['4-Cylinder Turbo', 'V6 Turbo', 'Hybrid'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     's-class': {
       transmissions: ['Automatic, 9-Speed'],
       engines: ['V6 Turbo', 'V8 Turbo', 'Hybrid'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     'gle-class': {
       transmissions: ['Automatic, 9-Speed'],
       engines: ['4-Cylinder Turbo', 'V6 Turbo', 'Hybrid'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     'glc-class': {
       transmissions: ['Automatic, 9-Speed'],
       engines: ['4-Cylinder Turbo', 'Hybrid'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     'gls-class': {
       transmissions: ['Automatic, 9-Speed'],
       engines: ['V6 Turbo', 'V8 Turbo'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     eqe: {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     eqs: {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
   },
 
@@ -862,42 +913,52 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     a3: {
       transmissions: ['Automatic, 7-Speed'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     a4: {
       transmissions: ['Automatic, 7-Speed'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     a6: {
       transmissions: ['Automatic, 7-Speed'],
       engines: ['4-Cylinder Turbo', 'V6 Turbo'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     a8: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['V6 Turbo', 'V8 Turbo'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     q3: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     q5: {
       transmissions: ['Automatic, 7-Speed'],
       engines: ['4-Cylinder Turbo', 'Hybrid'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     q7: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'V6 Turbo'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     q8: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['V6 Turbo'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     'e-tron': {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     'e-tron gt': {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
   },
 
@@ -908,46 +969,57 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     jetta: {
       transmissions: ['Automatic, 8-Speed', 'Manual'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)'],
     },
     passat: {
       transmissions: ['Automatic, 6-Speed'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)'],
     },
     tiguan: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     atlas: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'V6'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     'atlas cross sport': {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'V6'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     taos: {
       transmissions: ['Automatic, 8-Speed', 'Automatic, 7-Speed'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     golf: {
       transmissions: ['Automatic, 7-Speed', 'Manual'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)'],
     },
     'golf gti': {
       transmissions: ['Automatic, 7-Speed', 'Manual'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)'],
     },
     'golf r': {
       transmissions: ['Automatic, 7-Speed', 'Manual'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     id4: {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     arteon: {
       transmissions: ['Automatic, 7-Speed'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
   },
 
@@ -958,38 +1030,47 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     es: {
       transmissions: ['Automatic, 8-Speed', 'CVT'],
       engines: ['4-Cylinder', 'V6', 'Hybrid'],
+      drivetrains: ['Front Wheel Drive (FWD)'],
     },
     is: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'V6'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     ls: {
       transmissions: ['Automatic, 10-Speed'],
       engines: ['V6 Turbo', 'Hybrid'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     rx: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'Hybrid'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     nx: {
       transmissions: ['Automatic, 8-Speed', 'CVT'],
       engines: ['4-Cylinder Turbo', 'Hybrid'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     gx: {
       transmissions: ['Automatic, 10-Speed'],
       engines: ['V6 Turbo'],
+      drivetrains: ['4WD / 4×4'],
     },
     lx: {
       transmissions: ['Automatic, 10-Speed'],
       engines: ['V6 Turbo', 'Hybrid'],
+      drivetrains: ['4WD / 4×4'],
     },
     ux: {
       transmissions: ['CVT'],
       engines: ['4-Cylinder', 'Hybrid', 'Electric'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     rz: {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
   },
 
@@ -1000,18 +1081,22 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     tlx: {
       transmissions: ['Automatic, 10-Speed'],
       engines: ['4-Cylinder Turbo', 'V6 Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     integra: {
       transmissions: ['CVT', 'Manual'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)'],
     },
     mdx: {
       transmissions: ['Automatic, 10-Speed'],
       engines: ['V6', 'Hybrid'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     rdx: {
       transmissions: ['Automatic, 10-Speed'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
   },
 
@@ -1022,26 +1107,32 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     q50: {
       transmissions: ['Automatic, 7-Speed'],
       engines: ['4-Cylinder Turbo', 'V6', 'V6 Turbo'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     q60: {
       transmissions: ['Automatic, 7-Speed'],
       engines: ['V6 Turbo'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     qx50: {
       transmissions: ['CVT'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     qx55: {
       transmissions: ['CVT'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     qx60: {
       transmissions: ['Automatic, 9-Speed', 'CVT'],
       engines: ['V6'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     qx80: {
       transmissions: ['Automatic, 7-Speed'],
       engines: ['V8'],
+      drivetrains: ['Rear Wheel Drive (RWD)', '4WD / 4×4'],
     },
   },
 
@@ -1052,22 +1143,27 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     'model 3': {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     'model y': {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     'model s': {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     'model x': {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     cybertruck: {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
   },
 
@@ -1078,10 +1174,12 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     r1t: {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     r1s: {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
   },
 
@@ -1092,6 +1190,7 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     air: {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
   },
 
@@ -1102,6 +1201,7 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     '2': {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
   },
 
@@ -1112,26 +1212,32 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     g70: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'V6 Turbo'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     g80: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'V6 Turbo', 'Electric'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     g90: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['V6 Turbo'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     gv70: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'V6 Turbo', 'Electric'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     gv80: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'V6 Turbo'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     gv60: {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
   },
 
@@ -1142,30 +1248,37 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     ct4: {
       transmissions: ['Automatic, 10-Speed'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     ct5: {
       transmissions: ['Automatic, 10-Speed'],
       engines: ['4-Cylinder Turbo', 'V6'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     escalade: {
       transmissions: ['Automatic, 10-Speed'],
       engines: ['V8', 'V6 Diesel'],
+      drivetrains: ['Rear Wheel Drive (RWD)', '4WD / 4×4'],
     },
     xt4: {
       transmissions: ['Automatic, 9-Speed'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     xt5: {
       transmissions: ['Automatic, 9-Speed'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     xt6: {
       transmissions: ['Automatic, 9-Speed'],
       engines: ['V6'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     lyriq: {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
   },
 
@@ -1176,18 +1289,22 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     navigator: {
       transmissions: ['Automatic, 10-Speed'],
       engines: ['V6 Turbo'],
+      drivetrains: ['Rear Wheel Drive (RWD)', '4WD / 4×4'],
     },
     aviator: {
       transmissions: ['Automatic, 10-Speed'],
       engines: ['V6 Turbo', 'Hybrid'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     corsair: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'Hybrid'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     nautilus: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
   },
 
@@ -1198,18 +1315,22 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     enclave: {
       transmissions: ['Automatic, 9-Speed'],
       engines: ['V6'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     envision: {
       transmissions: ['Automatic, 9-Speed'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     encore: {
       transmissions: ['Automatic, 6-Speed'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     'encore gx': {
       transmissions: ['CVT', 'Automatic, 9-Speed'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
   },
 
@@ -1220,10 +1341,12 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     pacifica: {
       transmissions: ['Automatic, 9-Speed'],
       engines: ['V6', 'Hybrid'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     '300': {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['V6', 'V8'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
   },
 
@@ -1234,22 +1357,27 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     outlander: {
       transmissions: ['CVT'],
       engines: ['4-Cylinder', 'Hybrid'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     'outlander sport': {
       transmissions: ['CVT'],
       engines: ['4-Cylinder'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     eclipse: {
       transmissions: ['CVT'],
       engines: ['4-Cylinder'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     'eclipse cross': {
       transmissions: ['CVT'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     mirage: {
       transmissions: ['CVT', 'Manual'],
       engines: ['4-Cylinder'],
+      drivetrains: ['Front Wheel Drive (FWD)'],
     },
   },
 
@@ -1260,26 +1388,32 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     s60: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'Hybrid'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     s90: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'Hybrid'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     xc40: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'Electric'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     xc60: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'Hybrid'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     xc90: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'Hybrid'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     c40: {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
   },
 
@@ -1290,18 +1424,22 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     'f-pace': {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'V6', 'V8'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     'e-pace': {
       transmissions: ['Automatic, 9-Speed'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     'i-pace': {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     'f-type': {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['V6', 'V8'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
   },
 
@@ -1312,26 +1450,32 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     defender: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'V8'],
+      drivetrains: ['4WD / 4×4'],
     },
     discovery: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'V6'],
+      drivetrains: ['4WD / 4×4'],
     },
     'range rover': {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['V6', 'V8', 'Hybrid'],
+      drivetrains: ['4WD / 4×4'],
     },
     'range rover sport': {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['V6', 'V8', 'Hybrid'],
+      drivetrains: ['4WD / 4×4'],
     },
     'range rover velar': {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['4-Cylinder Turbo', 'V6'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     'range rover evoque': {
       transmissions: ['Automatic, 9-Speed'],
       engines: ['4-Cylinder Turbo'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
   },
 
@@ -1342,26 +1486,32 @@ const VEHICLE_SPECS: Record<string, Record<string, VehicleSpecOptions>> = {
     '911': {
       transmissions: ['Automatic, 8-Speed', 'Manual'],
       engines: ['V6 Turbo'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     cayenne: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['V6 Turbo', 'V8 Turbo', 'Hybrid'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     macan: {
       transmissions: ['Automatic, 7-Speed'],
       engines: ['4-Cylinder Turbo', 'V6 Turbo'],
+      drivetrains: ['All Wheel Drive (AWD)'],
     },
     panamera: {
       transmissions: ['Automatic, 8-Speed'],
       engines: ['V6 Turbo', 'V8 Turbo', 'Hybrid'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     taycan: {
       transmissions: ['Automatic'],
       engines: ['Electric'],
+      drivetrains: ['Rear Wheel Drive (RWD)', 'All Wheel Drive (AWD)'],
     },
     '718': {
       transmissions: ['Automatic, 7-Speed', 'Manual'],
       engines: ['4-Cylinder Turbo', 'V6'],
+      drivetrains: ['Rear Wheel Drive (RWD)'],
     },
   },
 };
