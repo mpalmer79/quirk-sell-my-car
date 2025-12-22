@@ -199,7 +199,7 @@ export default function HomePage() {
               {
                 step: '3',
                 title: 'Get Your Offer',
-                description: 'Receive an instant, no-obligation offer you can redeem at any Quirk location.',
+                description: 'Receive an instant, no-obligation offer you can redeem at Quirk Chevrolet NH upon final inspection.',
                 icon: '💰'
               }
             ].map((item) => (
