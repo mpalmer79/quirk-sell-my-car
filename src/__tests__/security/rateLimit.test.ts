@@ -1,378 +1,297 @@
 /**
- * Advanced Rate Limiting
- * Sliding window algorithm with request fingerprinting
+ * @jest-environment node
  */
 
 import { NextRequest } from 'next/server';
+import {
+  checkRateLimit,
+  generateFingerprint,
+  getClientIp,
+  rateLimitStore,
+  RATE_LIMIT_CONFIGS,
+} from '@/lib/security/rateLimit';
 
-// =============================================================================
-// TYPES
-// =============================================================================
+describe('Rate Limiting', () => {
+  beforeEach(() => {
+    // Clear rate limit store before each test
+    rateLimitStore.clear();
+  });
 
-interface RateLimitRecord {
-  requests: number[];
-  blocked: boolean;
-  blockedUntil?: number;
-  suspicionScore: number;
-}
+  describe('getClientIp', () => {
+    it('extracts IP from x-forwarded-for header', () => {
+      const request = new NextRequest('http://localhost:3000/api/test', {
+        headers: {
+          'x-forwarded-for': '192.168.1.100, 10.0.0.1',
+        },
+      });
 
-interface RateLimitConfig {
-  windowMs: number;
-  maxRequests: number;
-  blockDurationMs: number;
-  suspicionThreshold: number;
-}
+      const ip = getClientIp(request);
+      expect(ip).toBe('192.168.1.100');
+    });
 
-interface RateLimitResult {
-  allowed: boolean;
-  remaining: number;
-  resetTime: number;
-  blocked: boolean;
-  retryAfter?: number;
-}
+    it('extracts IP from cf-connecting-ip header (Cloudflare)', () => {
+      const request = new NextRequest('http://localhost:3000/api/test', {
+        headers: {
+          'cf-connecting-ip': '203.0.113.50',
+        },
+      });
 
-// =============================================================================
-// CONFIGURATION
-// =============================================================================
+      const ip = getClientIp(request);
+      expect(ip).toBe('203.0.113.50');
+    });
 
-const DEFAULT_CONFIG: RateLimitConfig = {
-  windowMs: 60 * 1000, // 1 minute
-  maxRequests: 30, // 30 requests per minute
-  blockDurationMs: 15 * 60 * 1000, // 15 minute block
-  suspicionThreshold: 100, // Block after reaching this score
-};
+    it('extracts IP from x-real-ip header', () => {
+      const request = new NextRequest('http://localhost:3000/api/test', {
+        headers: {
+          'x-real-ip': '10.20.30.40',
+        },
+      });
 
-// Endpoint-specific configurations
-export const RATE_LIMIT_CONFIGS: Record<string, RateLimitConfig> = {
-  '/api/chat': {
-    windowMs: 60 * 1000,
-    maxRequests: 10,
-    blockDurationMs: 5 * 60 * 1000,
-    suspicionThreshold: 50,
-  },
-  '/api/decode-vin': {
-    windowMs: 60 * 1000,
-    maxRequests: 20,
-    blockDurationMs: 10 * 60 * 1000,
-    suspicionThreshold: 75,
-  },
-  '/api/valuation': {
-    windowMs: 60 * 1000,
-    maxRequests: 5,
-    blockDurationMs: 30 * 60 * 1000,
-    suspicionThreshold: 30,
-  },
-  '/api/submit-lead': {
-    windowMs: 60 * 60 * 1000, // 1 hour
-    maxRequests: 3,
-    blockDurationMs: 24 * 60 * 60 * 1000, // 24 hour block
-    suspicionThreshold: 20,
-  },
-  '/api/submit-offer': {
-    windowMs: 60 * 60 * 1000, // 1 hour
-    maxRequests: 10,
-    blockDurationMs: 60 * 60 * 1000, // 1 hour block
-    suspicionThreshold: 40,
-  },
-  '/api/vehicle-image': {
-    windowMs: 60 * 1000,
-    maxRequests: 30,
-    blockDurationMs: 5 * 60 * 1000,
-    suspicionThreshold: 75,
-  },
-  '/api/offers': {
-    windowMs: 60 * 1000,
-    maxRequests: 30,
-    blockDurationMs: 10 * 60 * 1000,
-    suspicionThreshold: 60,
-  },
-};
+      const ip = getClientIp(request);
+      expect(ip).toBe('10.20.30.40');
+    });
 
-// =============================================================================
-// STORAGE (In-memory - use Redis in production)
-// =============================================================================
+    it('returns unknown when no IP headers present', () => {
+      const request = new NextRequest('http://localhost:3000/api/test');
 
-// Export for testing
-export const rateLimitStore = new Map<string, RateLimitRecord>();
+      const ip = getClientIp(request);
+      expect(ip).toBe('unknown');
+    });
 
-// Cleanup old entries every 5 minutes
-// Only run in non-test environments
-if (typeof setInterval !== 'undefined' && process.env.NODE_ENV !== 'test') {
-  setInterval(() => {
-    const now = Date.now();
-    rateLimitStore.forEach((record, key) => {
-      // Remove entries with no recent requests and not blocked
-      const recentRequests = record.requests.filter(
-        (time) => now - time < 60 * 60 * 1000 // Keep 1 hour of history
-      );
+    it('prioritizes cf-connecting-ip over x-forwarded-for', () => {
+      const request = new NextRequest('http://localhost:3000/api/test', {
+        headers: {
+          'cf-connecting-ip': '203.0.113.50',
+          'x-forwarded-for': '192.168.1.100',
+        },
+      });
+
+      const ip = getClientIp(request);
+      expect(ip).toBe('203.0.113.50');
+    });
+  });
+
+  describe('generateFingerprint', () => {
+    it('generates consistent fingerprint for same request', () => {
+      const request = new NextRequest('http://localhost:3000/api/test', {
+        headers: {
+          'x-forwarded-for': '192.168.1.100',
+          'user-agent': 'Mozilla/5.0',
+          'accept-language': 'en-US',
+          'accept-encoding': 'gzip',
+        },
+      });
+
+      const fp1 = generateFingerprint(request);
+      const fp2 = generateFingerprint(request);
+
+      expect(fp1).toBe(fp2);
+    });
+
+    it('generates different fingerprint for different IPs', () => {
+      const request1 = new NextRequest('http://localhost:3000/api/test', {
+        headers: {
+          'x-forwarded-for': '192.168.1.100',
+          'user-agent': 'Mozilla/5.0',
+        },
+      });
+
+      const request2 = new NextRequest('http://localhost:3000/api/test', {
+        headers: {
+          'x-forwarded-for': '192.168.1.200',
+          'user-agent': 'Mozilla/5.0',
+        },
+      });
+
+      const fp1 = generateFingerprint(request1);
+      const fp2 = generateFingerprint(request2);
+
+      expect(fp1).not.toBe(fp2);
+    });
+
+    it('generates different fingerprint for different user agents', () => {
+      const request1 = new NextRequest('http://localhost:3000/api/test', {
+        headers: {
+          'x-forwarded-for': '192.168.1.100',
+          'user-agent': 'Mozilla/5.0 Chrome',
+        },
+      });
+
+      const request2 = new NextRequest('http://localhost:3000/api/test', {
+        headers: {
+          'x-forwarded-for': '192.168.1.100',
+          'user-agent': 'Mozilla/5.0 Firefox',
+        },
+      });
+
+      const fp1 = generateFingerprint(request1);
+      const fp2 = generateFingerprint(request2);
+
+      expect(fp1).not.toBe(fp2);
+    });
+
+    it('returns consistent hash format', () => {
+      const request = new NextRequest('http://localhost:3000/api/test', {
+        headers: {
+          'x-forwarded-for': '192.168.1.100',
+        },
+      });
+
+      const fp = generateFingerprint(request);
+
+      // Hash is at least 8 characters (padded hex)
+      expect(fp.length).toBeGreaterThanOrEqual(8);
+      // Should be valid hex string
+      expect(/^[0-9a-f]+$/.test(fp)).toBe(true);
+    });
+  });
+
+  describe('checkRateLimit', () => {
+    const createRequest = (ip: string) => {
+      return new NextRequest('http://localhost:3000/api/test', {
+        headers: {
+          'x-forwarded-for': ip,
+          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'accept': 'application/json',
+          'accept-language': 'en-US',
+        },
+      });
+    };
+
+    it('allows first request', () => {
+      const request = createRequest('10.0.0.1');
+      const result = checkRateLimit(request);
+
+      expect(result.allowed).toBe(true);
+      expect(result.blocked).toBe(false);
+    });
+
+    it('tracks remaining requests', () => {
+      const request = createRequest('10.0.0.2');
       
-      if (recentRequests.length === 0 && (!record.blocked || now > (record.blockedUntil || 0))) {
-        rateLimitStore.delete(key);
-      } else {
-        record.requests = recentRequests;
+      const result1 = checkRateLimit(request);
+      const result2 = checkRateLimit(request);
+
+      expect(result2.remaining).toBeLessThan(result1.remaining);
+    });
+
+    it('blocks after exceeding limit', () => {
+      const ip = '10.0.0.3';
+      
+      // Make 30 requests (default limit)
+      for (let i = 0; i < 30; i++) {
+        const request = createRequest(ip);
+        checkRateLimit(request);
+      }
+
+      // 31st should be blocked
+      const request = createRequest(ip);
+      const result = checkRateLimit(request);
+
+      expect(result.allowed).toBe(false);
+    });
+
+    it('uses endpoint-specific config', () => {
+      const ip = '10.0.0.4';
+      
+      // Chat endpoint has 10 request limit
+      for (let i = 0; i < 10; i++) {
+        const request = createRequest(ip);
+        checkRateLimit(request, '/api/chat');
+      }
+
+      // 11th should be blocked
+      const request = createRequest(ip);
+      const result = checkRateLimit(request, '/api/chat');
+
+      expect(result.allowed).toBe(false);
+    });
+
+    it('returns retry-after value when blocked', () => {
+      const ip = '10.0.0.5';
+      
+      // Exhaust the limit
+      for (let i = 0; i < 30; i++) {
+        const request = createRequest(ip);
+        checkRateLimit(request);
+      }
+
+      const request = createRequest(ip);
+      const result = checkRateLimit(request);
+
+      expect(result.retryAfter).toBeDefined();
+      expect(result.retryAfter).toBeGreaterThan(0);
+    });
+
+    it('different IPs have separate limits', () => {
+      const ip1 = '10.0.0.6';
+      const ip2 = '10.0.0.7';
+      
+      // Exhaust limit for ip1
+      for (let i = 0; i < 30; i++) {
+        const request = createRequest(ip1);
+        checkRateLimit(request);
+      }
+
+      // ip2 should still be allowed
+      const request = createRequest(ip2);
+      const result = checkRateLimit(request);
+
+      expect(result.allowed).toBe(true);
+    });
+
+    it('returns reset time', () => {
+      const request = createRequest('10.0.0.8');
+      const result = checkRateLimit(request);
+
+      expect(result.resetTime).toBeDefined();
+      expect(result.resetTime).toBeGreaterThan(Date.now());
+    });
+  });
+
+  describe('RATE_LIMIT_CONFIGS', () => {
+    it('has config for chat endpoint', () => {
+      expect(RATE_LIMIT_CONFIGS['/api/chat']).toBeDefined();
+      expect(RATE_LIMIT_CONFIGS['/api/chat'].maxRequests).toBe(10);
+    });
+
+    it('has config for decode-vin endpoint', () => {
+      expect(RATE_LIMIT_CONFIGS['/api/decode-vin']).toBeDefined();
+      expect(RATE_LIMIT_CONFIGS['/api/decode-vin'].maxRequests).toBe(20);
+    });
+
+    it('has config for valuation endpoint', () => {
+      expect(RATE_LIMIT_CONFIGS['/api/valuation']).toBeDefined();
+      expect(RATE_LIMIT_CONFIGS['/api/valuation'].maxRequests).toBe(5);
+    });
+
+    it('has config for submit-lead endpoint', () => {
+      expect(RATE_LIMIT_CONFIGS['/api/submit-lead']).toBeDefined();
+      expect(RATE_LIMIT_CONFIGS['/api/submit-lead'].maxRequests).toBe(3);
+    });
+
+    it('has config for submit-offer endpoint', () => {
+      expect(RATE_LIMIT_CONFIGS['/api/submit-offer']).toBeDefined();
+      expect(RATE_LIMIT_CONFIGS['/api/submit-offer'].maxRequests).toBe(10);
+    });
+
+    it('has config for vehicle-image endpoint', () => {
+      expect(RATE_LIMIT_CONFIGS['/api/vehicle-image']).toBeDefined();
+      expect(RATE_LIMIT_CONFIGS['/api/vehicle-image'].maxRequests).toBe(30);
+    });
+
+    it('has config for offers endpoint', () => {
+      expect(RATE_LIMIT_CONFIGS['/api/offers']).toBeDefined();
+      expect(RATE_LIMIT_CONFIGS['/api/offers'].maxRequests).toBe(30);
+    });
+
+    it('all configs have required fields', () => {
+      for (const [endpoint, config] of Object.entries(RATE_LIMIT_CONFIGS)) {
+        expect(config.windowMs).toBeDefined();
+        expect(config.maxRequests).toBeDefined();
+        expect(config.blockDurationMs).toBeDefined();
+        expect(config.suspicionThreshold).toBeDefined();
       }
     });
-  }, 5 * 60 * 1000);
-}
-
-// =============================================================================
-// FINGERPRINTING
-// =============================================================================
-
-/**
- * Generate a fingerprint for the request
- * Combines IP, user agent, and other headers for better identification
- */
-export function generateFingerprint(request: NextRequest): string {
-  const ip = getClientIp(request);
-  const userAgent = request.headers.get('user-agent') || '';
-  const acceptLanguage = request.headers.get('accept-language') || '';
-  const acceptEncoding = request.headers.get('accept-encoding') || '';
-  
-  const fingerprintData = `${ip}|${userAgent}|${acceptLanguage}|${acceptEncoding}`;
-  
-  // Simple hash function for Edge runtime (no Node.js crypto)
-  let hash = 0;
-  for (let i = 0; i < fingerprintData.length; i++) {
-    const char = fingerprintData.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32bit integer
-  }
-  return Math.abs(hash).toString(16).padStart(8, '0');
-}
-
-/**
- * Get client IP from various headers
- */
-export function getClientIp(request: NextRequest): string {
-  // Check various headers (in order of preference)
-  const headers = [
-    'cf-connecting-ip', // Cloudflare
-    'x-real-ip',
-    'x-forwarded-for',
-    'x-client-ip',
-    'true-client-ip',
-  ];
-  
-  for (const header of headers) {
-    const value = request.headers.get(header);
-    if (value) {
-      // x-forwarded-for can contain multiple IPs
-      const ip = value.split(',')[0]?.trim();
-      if (ip && isValidIp(ip)) {
-        return ip;
-      }
-    }
-  }
-  
-  return 'unknown';
-}
-
-/**
- * Basic IP validation
- */
-function isValidIp(ip: string): boolean {
-  // IPv4
-  if (/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ip)) {
-    return true;
-  }
-  // IPv6 (simplified check)
-  if (/^[0-9a-fA-F:]+$/.test(ip) && ip.includes(':')) {
-    return true;
-  }
-  return false;
-}
-
-// =============================================================================
-// SUSPICION SCORING
-// =============================================================================
-
-/**
- * Calculate suspicion score based on request patterns
- */
-export function calculateSuspicionScore(request: NextRequest, record: RateLimitRecord): number {
-  let score = 0;
-  const now = Date.now();
-  
-  // High request frequency in short period
-  const recentRequests = record.requests.filter((time) => now - time < 10000); // Last 10 seconds
-  if (recentRequests.length > 5) {
-    score += recentRequests.length * 5;
-  }
-  
-  // Missing or suspicious user agent
-  const userAgent = request.headers.get('user-agent') || '';
-  if (!userAgent) {
-    score += 20;
-  } else if (userAgent.length < 20) {
-    score += 10;
-  } else if (/bot|crawler|spider|scraper/i.test(userAgent)) {
-    score += 15;
-  }
-  
-  // Missing common headers
-  if (!request.headers.get('accept-language')) {
-    score += 5;
-  }
-  if (!request.headers.get('accept')) {
-    score += 5;
-  }
-  
-  // Requests at exact intervals (bot behavior)
-  if (record.requests.length >= 3) {
-    const intervals = [];
-    for (let i = 1; i < Math.min(record.requests.length, 10); i++) {
-      intervals.push(record.requests[i] - record.requests[i - 1]);
-    }
-    const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
-    const variance = intervals.reduce((sum, i) => sum + Math.pow(i - avgInterval, 2), 0) / intervals.length;
-    
-    // Very low variance = bot-like behavior
-    if (variance < 100 && intervals.length >= 3) {
-      score += 25;
-    }
-  }
-  
-  return score;
-}
-
-// =============================================================================
-// RATE LIMITING
-// =============================================================================
-
-/**
- * Check and update rate limit for a request
- */
-export function checkRateLimit(
-  request: NextRequest,
-  endpoint?: string
-): RateLimitResult {
-  const config = endpoint && RATE_LIMIT_CONFIGS[endpoint]
-    ? RATE_LIMIT_CONFIGS[endpoint]
-    : DEFAULT_CONFIG;
-  
-  const fingerprint = generateFingerprint(request);
-  const key = endpoint ? `${endpoint}:${fingerprint}` : fingerprint;
-  const now = Date.now();
-  
-  // Get or create record
-  let record = rateLimitStore.get(key);
-  if (!record) {
-    record = {
-      requests: [],
-      blocked: false,
-      suspicionScore: 0,
-    };
-    rateLimitStore.set(key, record);
-  }
-  
-  // Check if currently blocked
-  if (record.blocked && record.blockedUntil && now < record.blockedUntil) {
-    return {
-      allowed: false,
-      remaining: 0,
-      resetTime: record.blockedUntil,
-      blocked: true,
-      retryAfter: Math.ceil((record.blockedUntil - now) / 1000),
-    };
-  }
-  
-  // Unblock if block has expired
-  if (record.blocked && record.blockedUntil && now >= record.blockedUntil) {
-    record.blocked = false;
-    record.blockedUntil = undefined;
-    record.suspicionScore = Math.floor(record.suspicionScore / 2); // Reduce but don't reset
-  }
-  
-  // Clean old requests outside window
-  record.requests = record.requests.filter(
-    (time) => now - time < config.windowMs
-  );
-  
-  // Calculate suspicion score
-  const newSuspicionScore = calculateSuspicionScore(request, record);
-  record.suspicionScore = Math.min(
-    record.suspicionScore + newSuspicionScore,
-    config.suspicionThreshold * 2
-  );
-  
-  // Check if should be blocked due to suspicion
-  if (record.suspicionScore >= config.suspicionThreshold) {
-    record.blocked = true;
-    record.blockedUntil = now + config.blockDurationMs;
-    
-    return {
-      allowed: false,
-      remaining: 0,
-      resetTime: record.blockedUntil,
-      blocked: true,
-      retryAfter: Math.ceil(config.blockDurationMs / 1000),
-    };
-  }
-  
-  // Check rate limit
-  if (record.requests.length >= config.maxRequests) {
-    const oldestRequest = record.requests[0];
-    const resetTime = oldestRequest + config.windowMs;
-    
-    // Increase suspicion for hitting rate limit
-    record.suspicionScore += 10;
-    
-    return {
-      allowed: false,
-      remaining: 0,
-      resetTime,
-      blocked: false,
-      retryAfter: Math.ceil((resetTime - now) / 1000),
-    };
-  }
-  
-  // Add current request
-  record.requests.push(now);
-  
-  // Decay suspicion score over time
-  if (record.requests.length === 1) {
-    record.suspicionScore = Math.max(0, record.suspicionScore - 5);
-  }
-  
-  return {
-    allowed: true,
-    remaining: config.maxRequests - record.requests.length,
-    resetTime: now + config.windowMs,
-    blocked: false,
-  };
-}
-
-/**
- * Middleware helper for rate limiting
- */
-export function rateLimitMiddleware(endpoint: string) {
-  return (request: NextRequest) => {
-    const result = checkRateLimit(request, endpoint);
-    
-    if (!result.allowed) {
-      return {
-        status: 429,
-        headers: {
-          'X-RateLimit-Remaining': '0',
-          'X-RateLimit-Reset': String(Math.ceil(result.resetTime / 1000)),
-          'Retry-After': String(result.retryAfter || 60),
-        },
-        body: {
-          error: result.blocked
-            ? 'Too many requests. You have been temporarily blocked.'
-            : 'Rate limit exceeded. Please try again later.',
-          retryAfter: result.retryAfter,
-        },
-      };
-    }
-    
-    return {
-      status: 200,
-      headers: {
-        'X-RateLimit-Remaining': String(result.remaining),
-        'X-RateLimit-Reset': String(Math.ceil(result.resetTime / 1000)),
-      },
-    };
-  };
-}
+  });
+});
