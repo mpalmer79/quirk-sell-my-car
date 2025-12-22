@@ -13,7 +13,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 
-export const STATUS_CONFIG: Record
+export const STATUS_CONFIG: Record<
   string,
   { label: string; color: string; icon: React.ElementType }
 > = {
