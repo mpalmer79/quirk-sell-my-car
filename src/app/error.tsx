@@ -44,6 +44,7 @@ export default function GlobalError({
             Try Again
           </button>
           
+          <a
             href="/"
             className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-100 transition-colors"
           >
@@ -55,6 +56,7 @@ export default function GlobalError({
         <div className="pt-6 border-t border-gray-200">
           <p className="text-sm text-gray-500 mb-2">Need immediate assistance?</p>
           
+          <a
             href="tel:+16032634552"
             className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
           >
