@@ -93,6 +93,7 @@ https://quirk-sell-my-car.vercel.app/
 | **Styling** | Tailwind CSS 3.4 |
 | **Database** | Supabase (PostgreSQL) |
 | **AI** | Anthropic Claude (claude-sonnet-4-20250514) |
+| **Email** | Resend |
 | **Validation** | Zod |
 | **Animation** | Framer Motion |
 | **Icons** | Lucide React |
@@ -157,6 +158,13 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ANTHROPIC_API_KEY=sk-ant-api03-...
 
 # ═══════════════════════════════════════════════════════════════════
+# EMAIL (RESEND)
+# ═══════════════════════════════════════════════════════════════════
+RESEND_API_KEY=re_xxxxxxxxxx
+EMAIL_FROM=onboarding@resend.dev
+EMAIL_TO=notifications@yourdomain.com
+
+# ═══════════════════════════════════════════════════════════════════
 # VIN SOLUTIONS CRM (Optional)
 # ═══════════════════════════════════════════════════════════════════
 VINSOLUTIONS_API_KEY=your_api_key
@@ -199,15 +207,15 @@ CREATE TABLE offers (
   -- Vehicle Information (from NHTSA VIN Decode)
   vin VARCHAR(17) NOT NULL,
   year INTEGER NOT NULL,
-  make VARCHAR(50) NOT NULL,
+  make VARCHAR(100) NOT NULL,
   model VARCHAR(100) NOT NULL,
   trim VARCHAR(100),
   body_class VARCHAR(100),
-  drive_type VARCHAR(50),
-  engine_cylinders VARCHAR(10),
+  drive_type VARCHAR(100),
+  engine_cylinders VARCHAR(20),
   engine_displacement VARCHAR(20),
   fuel_type VARCHAR(50),
-  transmission_style VARCHAR(50),
+  transmission_style VARCHAR(100),
   
   -- Vehicle Basics
   mileage INTEGER NOT NULL,
@@ -218,21 +226,21 @@ CREATE TABLE offers (
   
   -- Condition Assessment
   overall_condition VARCHAR(50),
-  accident_history VARCHAR(20),
-  drivability VARCHAR(20),
-  mechanical_issues TEXT[],
-  engine_issues TEXT[],
-  exterior_damage TEXT[],
-  interior_damage TEXT[],
+  accident_history VARCHAR(50),
+  drivability VARCHAR(50),
+  mechanical_issues TEXT,
+  engine_issues TEXT,
+  exterior_damage TEXT,
+  interior_damage TEXT,
   
   -- Offer Details
-  estimated_value INTEGER NOT NULL,
-  offer_amount INTEGER NOT NULL,
+  estimated_value NUMERIC NOT NULL,
+  offer_amount NUMERIC NOT NULL,
   offer_expiry TIMESTAMPTZ NOT NULL,
   is_preliminary BOOLEAN DEFAULT TRUE,
   
   -- Customer Contact
-  customer_email VARCHAR(254),
+  customer_email VARCHAR(255),
   customer_phone VARCHAR(20),
   customer_name VARCHAR(100),
   
@@ -453,6 +461,7 @@ Ensure all required variables are set:
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `ANTHROPIC_API_KEY`
+- `RESEND_API_KEY`
 - `FORM_TOKEN_SECRET`
 
 ---
@@ -477,7 +486,12 @@ quirk-sell-my-car/
 │   │   ├── api/
 │   │   │   ├── chat/               # Anthropic AI chat
 │   │   │   ├── decode-vin/         # NHTSA VIN decoder
-│   │   │   ├── offers/             # Offer CRUD + analytics
+│   │   │   ├── offers/
+│   │   │   │   ├── route.ts        # List/Create offers
+│   │   │   │   ├── [id]/
+│   │   │   │   │   └── route.ts    # GET/PATCH offer by ID
+│   │   │   │   └── analytics/      # Offer analytics
+│   │   │   ├── send-offer/         # Email offer to customer
 │   │   │   ├── submit-offer/       # Lead submission
 │   │   │   ├── vehicle-image/      # Dynamic images
 │   │   │   ├── health/             # Health check endpoint
@@ -493,13 +507,23 @@ quirk-sell-my-car/
 │   │   ├── ChatWidget.tsx          # AI chat assistant
 │   │   ├── Header.tsx              # Navigation
 │   │   ├── StepNavigation.tsx      # Wizard sidebar
-│   │   └── VehicleImage.tsx        # Dynamic images
+│   │   ├── VehicleImage.tsx        # Dynamic images
+│   │   └── admin/
+│   │       ├── AnalyticsCards.tsx  # Dashboard analytics
+│   │       ├── OfferDetailModal.tsx # Offer details popup
+│   │       ├── OffersFilters.tsx   # Filter controls
+│   │       ├── OffersTable.tsx     # Offers list table
+│   │       └── StatusBadge.tsx     # Status indicators
 │   ├── context/
 │   │   └── VehicleContext.tsx      # Global state
 │   ├── hooks/
-│   │   └── useFormSecurity.tsx     # Security hooks
+│   │   ├── useFormSecurity.tsx     # Security hooks
+│   │   └── useOffers.ts            # Offers data hook
 │   ├── lib/
 │   │   ├── admin-auth.ts           # Auth utilities
+│   │   ├── admin/
+│   │   │   ├── constants.ts        # Status config
+│   │   │   └── formatters.ts       # Display formatters
 │   │   ├── database/
 │   │   │   ├── index.ts            # DB exports
 │   │   │   ├── offerService.ts     # Supabase operations
@@ -558,4 +582,3 @@ quirk-sell-my-car/
 Proprietary — Quirk Auto Dealers © 2025, 2026
 
 ---
-
