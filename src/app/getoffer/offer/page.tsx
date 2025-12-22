@@ -419,11 +419,11 @@ export default function OfferPage() {
                   <span>(603) 263-4552</span>
                 </a>
                 <a
-                  href="mailto:sell@quirkautodealers.com"
+                  href="mailto:steve.obrien@quirkautodealers.com"
                   className="flex items-center gap-3 text-gray-600 hover:text-blue-600 transition-colors"
                 >
                   <Mail className="w-5 h-5" />
-                  <span>sell@quirkautodealers.com</span>
+                  <span>steve.obrien@quirkautodealers.com</span>
                 </a>
               </div>
             </div>
