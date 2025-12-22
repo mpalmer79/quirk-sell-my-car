@@ -3,7 +3,7 @@
  * Initialize in layout.tsx or instrumentation.ts
  */
 
-// Note: Install Sentry packages:
+// Note: Install Sentry packages to enable:
 // npm install @sentry/nextjs
 
 // This file provides the configuration - actual initialization
@@ -57,6 +57,23 @@ export const SENTRY_CONFIG = {
   },
 };
 
+// Check if Sentry is available (installed and configured)
+const isSentryAvailable = (): boolean => {
+  return !!(process.env.NEXT_PUBLIC_SENTRY_DSN);
+};
+
+// Lazy load Sentry only when needed and available
+const getSentry = async () => {
+  if (!isSentryAvailable()) return null;
+  try {
+    // Use require to avoid static analysis
+    const Sentry = await import(/* webpackIgnore: true */ '@sentry/nextjs');
+    return Sentry;
+  } catch {
+    return null;
+  }
+};
+
 /**
  * Capture exception with context
  */
@@ -69,36 +86,35 @@ export function captureError(
     level?: 'fatal' | 'error' | 'warning' | 'info';
   }
 ): void {
-  // Only import Sentry when needed (prevents build errors if not installed)
-  if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
-    import('@sentry/nextjs').then((Sentry) => {
-      Sentry.withScope((scope) => {
-        if (context?.tags) {
-          Object.entries(context.tags).forEach(([key, value]) => {
-            scope.setTag(key, value);
-          });
-        }
-        if (context?.extra) {
-          Object.entries(context.extra).forEach(([key, value]) => {
-            scope.setExtra(key, value);
-          });
-        }
-        if (context?.user) {
-          scope.setUser(context.user);
-        }
-        if (context?.level) {
-          scope.setLevel(context.level);
-        }
-        Sentry.captureException(error);
-      });
-    }).catch(() => {
-      // Sentry not installed, just log
-      console.error('Sentry not available:', error);
+  // Always log to console
+  console.error('[Error]', error.message, context);
+  
+  // Try to send to Sentry if available
+  getSentry().then((Sentry) => {
+    if (!Sentry) return;
+    
+    Sentry.withScope((scope: { setTag: (k: string, v: string) => void; setExtra: (k: string, v: unknown) => void; setUser: (u: { id?: string; email?: string } | null) => void; setLevel: (l: string) => void }) => {
+      if (context?.tags) {
+        Object.entries(context.tags).forEach(([key, value]) => {
+          scope.setTag(key, value);
+        });
+      }
+      if (context?.extra) {
+        Object.entries(context.extra).forEach(([key, value]) => {
+          scope.setExtra(key, value);
+        });
+      }
+      if (context?.user) {
+        scope.setUser(context.user);
+      }
+      if (context?.level) {
+        scope.setLevel(context.level);
+      }
+      Sentry.captureException(error);
     });
-  } else {
-    // No Sentry DSN, just log
-    console.error('[Error]', error.message, context);
-  }
+  }).catch(() => {
+    // Silently fail - already logged to console
+  });
 }
 
 /**
@@ -109,29 +125,29 @@ export function captureMessage(
   level: 'info' | 'warning' | 'error' = 'info',
   context?: Record<string, unknown>
 ): void {
-  if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
-    import('@sentry/nextjs').then((Sentry) => {
-      Sentry.withScope((scope) => {
-        if (context) {
-          Object.entries(context).forEach(([key, value]) => {
-            scope.setExtra(key, value);
-          });
-        }
-        Sentry.captureMessage(message, level);
-      });
-    }).catch(() => {
-      console.log(`[${level.toUpperCase()}]`, message, context);
+  // Log to console
+  console.log(`[${level.toUpperCase()}]`, message, context);
+  
+  getSentry().then((Sentry) => {
+    if (!Sentry) return;
+    
+    Sentry.withScope((scope: { setExtra: (k: string, v: unknown) => void }) => {
+      if (context) {
+        Object.entries(context).forEach(([key, value]) => {
+          scope.setExtra(key, value);
+        });
+      }
+      Sentry.captureMessage(message, level);
     });
-  }
+  }).catch(() => {});
 }
 
 /**
  * Set user context for error tracking
  */
 export function setUser(user: { id?: string; email?: string } | null): void {
-  if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
-    import('@sentry/nextjs').then((Sentry) => {
-      Sentry.setUser(user);
-    }).catch(() => {});
-  }
+  getSentry().then((Sentry) => {
+    if (!Sentry) return;
+    Sentry.setUser(user);
+  }).catch(() => {});
 }
