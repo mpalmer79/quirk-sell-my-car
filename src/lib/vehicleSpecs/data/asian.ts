@@ -1,7 +1,7 @@
 // Asian Manufacturer Vehicle Specifications
 // Toyota, Honda, Nissan, Hyundai, Kia, Mazda, Subaru, Mitsubishi
 
-import { VehicleSpecsDatabase } from '../types';
+import type { VehicleSpecsDatabase } from '../types';
 
 export const asianSpecs: VehicleSpecsDatabase = {
   // =========================================================================
@@ -9,42 +9,42 @@ export const asianSpecs: VehicleSpecsDatabase = {
   // =========================================================================
   nissan: {
     sentra: {
-      transmissions: ['CVT', 'Manual'],
+      transmissions: ['Automatic (CVT)', 'Manual'],
       engines: ['4-Cylinder'],
       drivetrains: ['Front Wheel Drive (FWD)'],
     },
     altima: {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['4-Cylinder', '4-Cylinder Turbo'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     maxima: {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['V6'],
       drivetrains: ['Front Wheel Drive (FWD)'],
     },
     versa: {
-      transmissions: ['CVT', 'Manual'],
+      transmissions: ['Automatic (CVT)', 'Manual'],
       engines: ['4-Cylinder'],
       drivetrains: ['Front Wheel Drive (FWD)'],
     },
     rogue: {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['4-Cylinder', '4-Cylinder Turbo'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     'rogue sport': {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['4-Cylinder'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     murano: {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['V6'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     pathfinder: {
-      transmissions: ['Automatic, 9-Speed', 'CVT'],
+      transmissions: ['Automatic, 9-Speed', 'Automatic (CVT)'],
       engines: ['V6'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
@@ -64,7 +64,7 @@ export const asianSpecs: VehicleSpecsDatabase = {
       drivetrains: ['Rear Wheel Drive (RWD)', '4WD / 4×4'],
     },
     kicks: {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['4-Cylinder'],
       drivetrains: ['Front Wheel Drive (FWD)'],
     },
@@ -100,7 +100,7 @@ export const asianSpecs: VehicleSpecsDatabase = {
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     corolla: {
-      transmissions: ['CVT', 'Manual', 'Automatic, 10-Speed'],
+      transmissions: ['Automatic (CVT)', 'Manual', 'Automatic, 10-Speed'],
       engines: ['4-Cylinder', 'Hybrid'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
@@ -140,17 +140,17 @@ export const asianSpecs: VehicleSpecsDatabase = {
       drivetrains: ['Rear Wheel Drive (RWD)', '4WD / 4×4'],
     },
     sienna: {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['Hybrid'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     prius: {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['Hybrid'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     'prius prime': {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['Hybrid'],
       drivetrains: ['Front Wheel Drive (FWD)'],
     },
@@ -170,7 +170,7 @@ export const asianSpecs: VehicleSpecsDatabase = {
       drivetrains: ['Rear Wheel Drive (RWD)'],
     },
     venza: {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['Hybrid'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
@@ -180,7 +180,7 @@ export const asianSpecs: VehicleSpecsDatabase = {
       drivetrains: ['4WD / 4×4'],
     },
     crown: {
-      transmissions: ['CVT', 'Automatic, 8-Speed'],
+      transmissions: ['Automatic (CVT)', 'Automatic, 8-Speed'],
       engines: ['Hybrid', 'V6 Turbo'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
@@ -201,22 +201,22 @@ export const asianSpecs: VehicleSpecsDatabase = {
   // =========================================================================
   honda: {
     civic: {
-      transmissions: ['CVT', 'Manual'],
+      transmissions: ['Automatic (CVT)', 'Manual'],
       engines: ['4-Cylinder', '4-Cylinder Turbo'],
       drivetrains: ['Front Wheel Drive (FWD)'],
     },
     accord: {
-      transmissions: ['CVT', 'Automatic, 10-Speed'],
+      transmissions: ['Automatic (CVT)', 'Automatic, 10-Speed'],
       engines: ['4-Cylinder Turbo', 'Hybrid'],
       drivetrains: ['Front Wheel Drive (FWD)'],
     },
     'cr-v': {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['4-Cylinder Turbo', 'Hybrid'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     'hr-v': {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['4-Cylinder'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
@@ -241,7 +241,7 @@ export const asianSpecs: VehicleSpecsDatabase = {
       drivetrains: ['Front Wheel Drive (FWD)'],
     },
     insight: {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['Hybrid'],
       drivetrains: ['Front Wheel Drive (FWD)'],
     },
@@ -262,7 +262,7 @@ export const asianSpecs: VehicleSpecsDatabase = {
   // =========================================================================
   hyundai: {
     elantra: {
-      transmissions: ['CVT', 'Automatic, 6-Speed', 'Manual'],
+      transmissions: ['Automatic (CVT)', 'Automatic, 6-Speed', 'Manual'],
       engines: ['4-Cylinder', '4-Cylinder Turbo', 'Hybrid'],
       drivetrains: ['Front Wheel Drive (FWD)'],
     },
@@ -287,12 +287,12 @@ export const asianSpecs: VehicleSpecsDatabase = {
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     kona: {
-      transmissions: ['CVT', 'Automatic, 8-Speed'],
+      transmissions: ['Automatic (CVT)', 'Automatic, 8-Speed'],
       engines: ['4-Cylinder', '4-Cylinder Turbo', 'Electric'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     venue: {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['4-Cylinder'],
       drivetrains: ['Front Wheel Drive (FWD)'],
     },
@@ -328,7 +328,7 @@ export const asianSpecs: VehicleSpecsDatabase = {
   // =========================================================================
   kia: {
     forte: {
-      transmissions: ['CVT', 'Automatic, 7-Speed', 'Manual'],
+      transmissions: ['Automatic (CVT)', 'Automatic, 7-Speed', 'Manual'],
       engines: ['4-Cylinder', '4-Cylinder Turbo'],
       drivetrains: ['Front Wheel Drive (FWD)'],
     },
@@ -358,12 +358,12 @@ export const asianSpecs: VehicleSpecsDatabase = {
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     seltos: {
-      transmissions: ['CVT', 'Automatic, 7-Speed'],
+      transmissions: ['Automatic (CVT)', 'Automatic, 7-Speed'],
       engines: ['4-Cylinder', '4-Cylinder Turbo'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     soul: {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['4-Cylinder'],
       drivetrains: ['Front Wheel Drive (FWD)'],
     },
@@ -445,37 +445,37 @@ export const asianSpecs: VehicleSpecsDatabase = {
   // =========================================================================
   subaru: {
     outback: {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['4-Cylinder', '4-Cylinder Turbo'],
       drivetrains: ['All Wheel Drive (AWD)'],
     },
     forester: {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['4-Cylinder'],
       drivetrains: ['All Wheel Drive (AWD)'],
     },
     crosstrek: {
-      transmissions: ['CVT', 'Manual'],
+      transmissions: ['Automatic (CVT)', 'Manual'],
       engines: ['4-Cylinder', 'Hybrid'],
       drivetrains: ['All Wheel Drive (AWD)'],
     },
     impreza: {
-      transmissions: ['CVT', 'Manual'],
+      transmissions: ['Automatic (CVT)', 'Manual'],
       engines: ['4-Cylinder'],
       drivetrains: ['All Wheel Drive (AWD)'],
     },
     legacy: {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['4-Cylinder', '4-Cylinder Turbo'],
       drivetrains: ['All Wheel Drive (AWD)'],
     },
     ascent: {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['4-Cylinder Turbo'],
       drivetrains: ['All Wheel Drive (AWD)'],
     },
     wrx: {
-      transmissions: ['CVT', 'Manual'],
+      transmissions: ['Automatic (CVT)', 'Manual'],
       engines: ['4-Cylinder Turbo'],
       drivetrains: ['All Wheel Drive (AWD)'],
     },
@@ -496,27 +496,27 @@ export const asianSpecs: VehicleSpecsDatabase = {
   // =========================================================================
   mitsubishi: {
     outlander: {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['4-Cylinder', 'Hybrid'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     'outlander sport': {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['4-Cylinder'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     eclipse: {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['4-Cylinder'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     'eclipse cross': {
-      transmissions: ['CVT'],
+      transmissions: ['Automatic (CVT)'],
       engines: ['4-Cylinder Turbo'],
       drivetrains: ['Front Wheel Drive (FWD)', 'All Wheel Drive (AWD)'],
     },
     mirage: {
-      transmissions: ['CVT', 'Manual'],
+      transmissions: ['Automatic (CVT)', 'Manual'],
       engines: ['4-Cylinder'],
       drivetrains: ['Front Wheel Drive (FWD)'],
     },
