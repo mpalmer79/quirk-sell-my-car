@@ -4,7 +4,6 @@ import {
   getAvailableEngines,
   hasVehicleSpecs,
   DEFAULT_SPEC_OPTIONS,
-  VehicleSpecOptions,
 } from '@/lib/vehicleSpecs';
 
 describe('vehicleSpecs library', () => {
@@ -133,12 +132,13 @@ describe('vehicleSpecs library', () => {
   });
 
   // ===========================================================================
-  // Model Name Normalization
+  // Model Name with Hyphens and Spaces
   // ===========================================================================
-  describe('model name normalization', () => {
+  describe('model name with special characters', () => {
     it('handles model with hyphen (F-150)', () => {
       const specs = getVehicleSpecs('Ford', 'F-150');
       expect(specs.engines.length).toBeGreaterThan(0);
+      expect(specs.engines).toContain('V8');
     });
 
     it('handles model with spaces (3 Series)', () => {
@@ -159,6 +159,16 @@ describe('vehicleSpecs library', () => {
     it('handles Ram 1500', () => {
       const specs = getVehicleSpecs('Ram', '1500');
       expect(specs.engines).toContain('V8');
+    });
+
+    it('handles Mercedes-Benz with hyphen in make', () => {
+      const specs = getVehicleSpecs('Mercedes-Benz', 'C-Class');
+      expect(specs.transmissions).toContain('Automatic, 9-Speed');
+    });
+
+    it('handles Land Rover with space in make', () => {
+      const specs = getVehicleSpecs('Land Rover', 'Defender');
+      expect(specs.engines).toContain('4-Cylinder Turbo');
     });
   });
 
@@ -300,16 +310,6 @@ describe('vehicleSpecs library', () => {
     it('handles whitespace in model', () => {
       const specs = getVehicleSpecs('Nissan', '  Sentra  ');
       expect(specs.engines).toContain('4-Cylinder');
-    });
-
-    it('handles Mercedes-Benz with hyphen', () => {
-      const specs = getVehicleSpecs('Mercedes-Benz', 'C-Class');
-      expect(specs.transmissions).toContain('Automatic, 9-Speed');
-    });
-
-    it('handles Land Rover with space', () => {
-      const specs = getVehicleSpecs('Land Rover', 'Defender');
-      expect(specs.engines).toContain('4-Cylinder Turbo');
     });
   });
 
