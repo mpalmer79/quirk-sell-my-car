@@ -1,7 +1,8 @@
 // Vehicle Specifications Library
 // Main export file - combines all make/model data and exports functions
 
-import { VehicleSpecOptions, VehicleSpecsDatabase, ALL_DRIVETRAINS, DEFAULT_SPEC_OPTIONS } from './types';
+import type { VehicleSpecOptions, VehicleSpecsDatabase } from './types';
+import { ALL_DRIVETRAINS, DEFAULT_SPEC_OPTIONS } from './types';
 import { asianSpecs } from './data/asian';
 import { domesticSpecs } from './data/domestic';
 import { europeanSpecs } from './data/european';
@@ -9,7 +10,8 @@ import { luxurySpecs } from './data/luxury';
 import { electricSpecs } from './data/electric';
 
 // Re-export types and constants
-export { VehicleSpecOptions, ALL_DRIVETRAINS, DEFAULT_SPEC_OPTIONS };
+export type { VehicleSpecOptions };
+export { ALL_DRIVETRAINS, DEFAULT_SPEC_OPTIONS };
 
 // Combine all vehicle specs into single database
 const VEHICLE_SPECS: VehicleSpecsDatabase = {
