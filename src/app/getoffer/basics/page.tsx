@@ -8,7 +8,7 @@ import StepNavigation, { MobileProgress } from '@/components/StepNavigation';
 import { useVehicle } from '@/context/VehicleContext';
 import { VEHICLE_COLORS } from '@/types/vehicle';
 import { getAvailableTransmissions, getAvailableEngines, getAvailableDrivetrains, ALL_DRIVETRAINS } from '@/lib/vehicleSpecs';
-import { getVehicleImageByMake } from '@/services/vehicleImage';
+import { getVehicleImage } from '@/services/vehicleImage';
 
 // Helper function to determine engine type from VIN data
 function getEngineFromVIN(vehicleInfo: { displacement?: string; engineCylinders?: string; fuelType?: string; electrificationLevel?: string } | null): string | null {
@@ -145,8 +145,9 @@ export default function BasicsPage() {
   // Load vehicle image
   useEffect(() => {
     if (vehicleInfo) {
-      const imageUrl = getVehicleImageByMake(vehicleInfo);
-      setVehicleImageUrl(imageUrl);
+      getVehicleImage(vehicleInfo)
+        .then(setVehicleImageUrl)
+        .catch(() => setVehicleImageUrl(null));
     }
   }, [vehicleInfo]);
 
@@ -326,17 +327,19 @@ export default function BasicsPage() {
 
           {/* Main Content */}
           <div className="flex-1 max-w-2xl">
-            {/* Back Button - Top of form */}
-            <button
-              type="button"
-              onClick={handleBack}
-              className="mb-6 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0070cc] text-white font-semibold hover:bg-[#005fa3] transition-colors shadow-md"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </button>
-
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
+              {/* Header with Back button */}
+              <div className="flex items-center gap-4 mb-2">
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0070cc] text-white font-semibold hover:bg-[#005fa3] transition-colors shadow-md text-sm"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Back
+                </button>
+              </div>
+              
               <h1 className="text-2xl font-bold text-gray-900 mb-2">The Basics</h1>
               <p className="text-gray-500 mb-8">
                 Tell us more about your {vehicleInfo.year} {vehicleInfo.make} {vehicleInfo.model}
