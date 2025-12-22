@@ -32,10 +32,20 @@ jest.mock('@/services/vinDecoder', () => ({
 import { GET } from '@/app/api/decode-vin/route';
 
 describe('GET /api/decode-vin', () => {
+  // Mock console.error to prevent Jest setup from failing on expected errors
+  const originalConsoleError = console.error;
+  
   beforeEach(() => {
     jest.clearAllMocks();
     // Default: VIN validation passes
     mockIsValidVIN.mockReturnValue(true);
+    // Suppress console.error during tests (route.ts logs errors)
+    console.error = jest.fn();
+  });
+
+  afterEach(() => {
+    // Restore console.error after each test
+    console.error = originalConsoleError;
   });
 
   const createMockRequest = (vin?: string) => {
@@ -117,6 +127,8 @@ describe('GET /api/decode-vin', () => {
 
     expect(response.status).toBe(500);
     expect(data.error).toBe('API error');
+    // Verify console.error was called
+    expect(console.error).toHaveBeenCalled();
   });
 
   it('handles network errors gracefully', async () => {
@@ -129,5 +141,7 @@ describe('GET /api/decode-vin', () => {
 
     expect(response.status).toBe(500);
     expect(data.error).toBe('Network error');
+    // Verify console.error was called
+    expect(console.error).toHaveBeenCalled();
   });
 });
