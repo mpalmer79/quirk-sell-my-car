@@ -3,13 +3,14 @@ import { render, screen, waitFor } from '@testing-library/react';
 import VehicleImage, { VehicleImageCompact } from '@/components/VehicleImage';
 import { VehicleInfo } from '@/types/vehicle';
 
-jest.mock('@/services/vehicleImage', () => ({
-  getVehicleImage: jest.fn(),
+// Mock the correct module - @/lib/vehicleImage with getVehicleImageByMake
+jest.mock('@/lib/vehicleImage', () => ({
+  getVehicleImageByMake: jest.fn(),
 }));
 
-import { getVehicleImage } from '@/services/vehicleImage';
+import { getVehicleImageByMake } from '@/lib/vehicleImage';
 
-const mockGetVehicleImage = getVehicleImage as jest.MockedFunction<typeof getVehicleImage>;
+const mockGetVehicleImageByMake = getVehicleImageByMake as jest.MockedFunction<typeof getVehicleImageByMake>;
 
 describe('VehicleImage', () => {
   const mockVehicle: VehicleInfo = {
@@ -22,6 +23,8 @@ describe('VehicleImage', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Default mock return value - synchronous function
+    mockGetVehicleImageByMake.mockReturnValue('https://example.com/car.jpg');
   });
 
   describe('without vehicleInfo', () => {
@@ -38,18 +41,14 @@ describe('VehicleImage', () => {
 
   describe('with vehicleInfo', () => {
     it('fetches image', async () => {
-      mockGetVehicleImage.mockResolvedValueOnce('https://example.com/car.jpg');
-      
       render(<VehicleImage vehicleInfo={mockVehicle} />);
       
       await waitFor(() => {
-        expect(mockGetVehicleImage).toHaveBeenCalledWith(mockVehicle);
+        expect(mockGetVehicleImageByMake).toHaveBeenCalledWith(mockVehicle);
       });
     });
 
     it('displays image when loaded', async () => {
-      mockGetVehicleImage.mockResolvedValueOnce('https://example.com/car.jpg');
-      
       render(<VehicleImage vehicleInfo={mockVehicle} />);
       
       await waitFor(() => {
@@ -58,8 +57,6 @@ describe('VehicleImage', () => {
     });
 
     it('shows vehicle info overlay', async () => {
-      mockGetVehicleImage.mockResolvedValueOnce('https://example.com/car.jpg');
-      
       render(<VehicleImage vehicleInfo={mockVehicle} />);
       
       await waitFor(() => {
@@ -70,8 +67,6 @@ describe('VehicleImage', () => {
     });
 
     it('shows trim when available', async () => {
-      mockGetVehicleImage.mockResolvedValueOnce('https://example.com/car.jpg');
-      
       render(<VehicleImage vehicleInfo={mockVehicle} />);
       
       await waitFor(() => {
@@ -80,7 +75,8 @@ describe('VehicleImage', () => {
     });
 
     it('handles error gracefully', async () => {
-      mockGetVehicleImage.mockRejectedValueOnce(new Error('Failed'));
+      // Return null to simulate no image available
+      mockGetVehicleImageByMake.mockReturnValue(null as unknown as string);
       
       render(<VehicleImage vehicleInfo={mockVehicle} />);
       
@@ -105,6 +101,8 @@ describe('VehicleImageCompact', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Default mock return value
+    mockGetVehicleImageByMake.mockReturnValue('https://example.com/car.jpg');
   });
 
   it('returns null without vehicleInfo', () => {
@@ -113,18 +111,14 @@ describe('VehicleImageCompact', () => {
   });
 
   it('fetches image with vehicleInfo', async () => {
-    mockGetVehicleImage.mockResolvedValueOnce('https://example.com/car.jpg');
-    
     render(<VehicleImageCompact vehicleInfo={mockVehicle} />);
     
     await waitFor(() => {
-      expect(mockGetVehicleImage).toHaveBeenCalledWith(mockVehicle);
+      expect(mockGetVehicleImageByMake).toHaveBeenCalledWith(mockVehicle);
     });
   });
 
   it('displays year and make', async () => {
-    mockGetVehicleImage.mockResolvedValueOnce('https://example.com/car.jpg');
-    
     render(<VehicleImageCompact vehicleInfo={mockVehicle} />);
     
     await waitFor(() => {
@@ -133,8 +127,6 @@ describe('VehicleImageCompact', () => {
   });
 
   it('displays model', async () => {
-    mockGetVehicleImage.mockResolvedValueOnce('https://example.com/car.jpg');
-    
     render(<VehicleImageCompact vehicleInfo={mockVehicle} />);
     
     await waitFor(() => {
@@ -143,8 +135,6 @@ describe('VehicleImageCompact', () => {
   });
 
   it('displays trim when available', async () => {
-    mockGetVehicleImage.mockResolvedValueOnce('https://example.com/car.jpg');
-    
     render(<VehicleImageCompact vehicleInfo={mockVehicle} />);
     
     await waitFor(() => {
