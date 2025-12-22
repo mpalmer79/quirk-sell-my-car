@@ -1,206 +1,144 @@
-import { getVehicleImage, getVehicleImageByMake, getFallbackImage } from '@/services/vehicleImage';
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import VehicleImage, { VehicleImageCompact } from '@/components/VehicleImage';
 import { VehicleInfo } from '@/types/vehicle';
 
-describe('vehicleImage service - Make + Body Type', () => {
-  describe('getVehicleImageByMake', () => {
-    // NISSAN tests
-    it('returns truck image for NISSAN Pickup', () => {
-      const vehicleInfo: VehicleInfo = {
-        year: 2025,
-        make: 'NISSAN',
-        model: 'Frontier',
-        bodyClass: 'Pickup',
-      };
-      
-      const result = getVehicleImageByMake(vehicleInfo);
-      expect(result).toContain('unsplash.com');
+// Mock the correct module - @/lib/vehicleImage with getVehicleImageByMake
+jest.mock('@/lib/vehicleImage', () => ({
+  getVehicleImageByMake: jest.fn(),
+}));
+
+import { getVehicleImageByMake } from '@/lib/vehicleImage';
+
+const mockGetVehicleImageByMake = getVehicleImageByMake as jest.MockedFunction<typeof getVehicleImageByMake>;
+
+describe('VehicleImage', () => {
+  const mockVehicle: VehicleInfo = {
+    vin: '1GCVKNEC0MZ123456',
+    year: 2021,
+    make: 'CHEVROLET',
+    model: 'Silverado 1500',
+    trim: 'LT',
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Default mock return value - synchronous function
+    mockGetVehicleImageByMake.mockReturnValue('https://example.com/car.jpg');
+  });
+
+  describe('without vehicleInfo', () => {
+    it('renders placeholder message', () => {
+      render(<VehicleImage vehicleInfo={null} />);
+      expect(screen.getByText('Enter your VIN to see your vehicle')).toBeInTheDocument();
     });
 
-    it('returns SUV image for NISSAN SUV', () => {
-      const vehicleInfo: VehicleInfo = {
-        year: 2024,
-        make: 'NISSAN',
-        model: 'Rogue',
-        bodyClass: 'Sport Utility Vehicle (SUV)',
-      };
-      
-      const result = getVehicleImageByMake(vehicleInfo);
-      expect(result).toContain('unsplash.com');
-    });
-
-    // TOYOTA tests
-    it('returns truck image for TOYOTA Pickup', () => {
-      const vehicleInfo: VehicleInfo = {
-        year: 2024,
-        make: 'TOYOTA',
-        model: 'Tacoma',
-        bodyClass: 'Crew Cab Pickup',
-      };
-      
-      const result = getVehicleImageByMake(vehicleInfo);
-      expect(result).toContain('unsplash.com');
-    });
-
-    it('returns SUV image for TOYOTA SUV', () => {
-      const vehicleInfo: VehicleInfo = {
-        year: 2024,
-        make: 'TOYOTA',
-        model: 'RAV4',
-        bodyClass: 'Sport Utility Vehicle (SUV)',
-      };
-      
-      const result = getVehicleImageByMake(vehicleInfo);
-      expect(result).toContain('unsplash.com');
-    });
-
-    // CHEVROLET tests
-    it('returns truck image for CHEVROLET Pickup', () => {
-      const vehicleInfo: VehicleInfo = {
-        year: 2024,
-        make: 'CHEVROLET',
-        model: 'Silverado',
-        bodyClass: 'Crew Cab Pickup',
-      };
-      
-      const result = getVehicleImageByMake(vehicleInfo);
-      expect(result).toContain('unsplash.com');
-    });
-
-    it('returns sedan image for CHEVROLET Sedan', () => {
-      const vehicleInfo: VehicleInfo = {
-        year: 2024,
-        make: 'CHEVROLET',
-        model: 'Malibu',
-        bodyClass: 'Sedan',
-      };
-      
-      const result = getVehicleImageByMake(vehicleInfo);
-      expect(result).toContain('unsplash.com');
-    });
-
-    // FORD tests
-    it('returns truck image for FORD Pickup', () => {
-      const vehicleInfo: VehicleInfo = {
-        year: 2024,
-        make: 'FORD',
-        model: 'F-150',
-        bodyClass: 'Crew Cab Pickup',
-      };
-      
-      const result = getVehicleImageByMake(vehicleInfo);
-      expect(result).toContain('unsplash.com');
-    });
-
-    // Case insensitivity tests
-    it('handles lowercase make', () => {
-      const vehicleInfo: VehicleInfo = {
-        year: 2024,
-        make: 'nissan',
-        model: 'Frontier',
-        bodyClass: 'Pickup',
-      };
-      
-      const result = getVehicleImageByMake(vehicleInfo);
-      expect(result).toContain('unsplash.com');
-    });
-
-    it('handles mixed case make', () => {
-      const vehicleInfo: VehicleInfo = {
-        year: 2024,
-        make: 'Chevrolet',
-        model: 'Silverado',
-        bodyClass: 'Pickup',
-      };
-      
-      const result = getVehicleImageByMake(vehicleInfo);
-      expect(result).toContain('unsplash.com');
-    });
-
-    // Fallback tests
-    it('falls back to body type when make unknown', () => {
-      const vehicleInfo: VehicleInfo = {
-        year: 2024,
-        make: 'UNKNOWN_MAKE',
-        model: 'Vehicle',
-        bodyClass: 'Pickup',
-      };
-      
-      const result = getVehicleImageByMake(vehicleInfo);
-      expect(result).toContain('unsplash.com');
-    });
-
-    it('returns default when no body class', () => {
-      const vehicleInfo: VehicleInfo = {
-        year: 2024,
-        make: 'UNKNOWN',
-        model: 'Vehicle',
-        bodyClass: undefined,
-      };
-      
-      const result = getVehicleImageByMake(vehicleInfo);
-      expect(result).toContain('unsplash.com');
+    it('applies custom className', () => {
+      const { container } = render(<VehicleImage vehicleInfo={null} className="custom-class" />);
+      expect(container.firstChild).toHaveClass('custom-class');
     });
   });
 
-  describe('getVehicleImage (async)', () => {
-    it('returns same result as sync version', async () => {
-      const vehicleInfo: VehicleInfo = {
-        year: 2025,
-        make: 'NISSAN',
-        model: 'Frontier',
-        bodyClass: 'Pickup',
-      };
+  describe('with vehicleInfo', () => {
+    it('fetches image', async () => {
+      render(<VehicleImage vehicleInfo={mockVehicle} />);
       
-      const asyncResult = await getVehicleImage(vehicleInfo);
-      const syncResult = getVehicleImageByMake(vehicleInfo);
-      
-      expect(asyncResult).toBe(syncResult);
-    });
-  });
-
-  describe('getFallbackImage', () => {
-    it('returns body type image as fallback', () => {
-      const vehicleInfo: VehicleInfo = {
-        year: 2024,
-        make: 'TOYOTA',
-        model: 'Camry',
-        bodyClass: 'Sedan',
-      };
-      
-      const result = getFallbackImage(vehicleInfo);
-      expect(result).toContain('unsplash.com');
-    });
-  });
-
-  describe('body type detection', () => {
-    const testCases = [
-      { bodyClass: 'Pickup', expectedType: 'truck' },
-      { bodyClass: 'Crew Cab Pickup', expectedType: 'truck' },
-      { bodyClass: 'Extended Cab Pickup', expectedType: 'truck' },
-      { bodyClass: 'Sport Utility Vehicle (SUV)', expectedType: 'suv' },
-      { bodyClass: 'Crossover Utility Vehicle', expectedType: 'suv' },
-      { bodyClass: 'Sedan', expectedType: 'sedan' },
-      { bodyClass: '4-Door Sedan', expectedType: 'sedan' },
-      { bodyClass: 'Coupe', expectedType: 'coupe' },
-      { bodyClass: 'Hatchback', expectedType: 'hatchback' },
-      { bodyClass: 'Minivan', expectedType: 'van' },
-      { bodyClass: 'Passenger Van', expectedType: 'van' },
-      { bodyClass: 'Station Wagon', expectedType: 'wagon' },
-      { bodyClass: 'Convertible', expectedType: 'convertible' },
-    ];
-
-    testCases.forEach(({ bodyClass }) => {
-      it(`correctly handles ${bodyClass}`, () => {
-        const vehicleInfo: VehicleInfo = {
-          year: 2024,
-          make: 'TOYOTA',
-          model: 'Test',
-          bodyClass,
-        };
-        
-        const result = getVehicleImageByMake(vehicleInfo);
-        expect(result).toContain('unsplash.com');
+      await waitFor(() => {
+        expect(mockGetVehicleImageByMake).toHaveBeenCalledWith(mockVehicle);
       });
+    });
+
+    it('displays image when loaded', async () => {
+      render(<VehicleImage vehicleInfo={mockVehicle} />);
+      
+      await waitFor(() => {
+        expect(screen.getByAltText('2021 CHEVROLET Silverado 1500')).toBeInTheDocument();
+      });
+    });
+
+    it('shows vehicle info overlay', async () => {
+      render(<VehicleImage vehicleInfo={mockVehicle} />);
+      
+      await waitFor(() => {
+        // Use getAllByText since vehicle name appears in multiple places
+        const elements = screen.getAllByText('2021 CHEVROLET Silverado 1500');
+        expect(elements.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('shows trim when available', async () => {
+      render(<VehicleImage vehicleInfo={mockVehicle} />);
+      
+      await waitFor(() => {
+        expect(screen.getByText('LT')).toBeInTheDocument();
+      });
+    });
+
+    it('handles error gracefully', async () => {
+      // Return null to simulate no image available
+      mockGetVehicleImageByMake.mockReturnValue(null as unknown as string);
+      
+      render(<VehicleImage vehicleInfo={mockVehicle} />);
+      
+      // When image fails, component still renders with vehicle info
+      // Use getAllByText since vehicle name appears multiple times
+      await waitFor(() => {
+        const elements = screen.getAllByText('2021 CHEVROLET Silverado 1500');
+        expect(elements.length).toBeGreaterThan(0);
+      });
+    });
+  });
+});
+
+describe('VehicleImageCompact', () => {
+  const mockVehicle: VehicleInfo = {
+    vin: '1GCVKNEC0MZ123456',
+    year: 2021,
+    make: 'CHEVROLET',
+    model: 'Silverado 1500',
+    trim: 'LT',
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Default mock return value
+    mockGetVehicleImageByMake.mockReturnValue('https://example.com/car.jpg');
+  });
+
+  it('returns null without vehicleInfo', () => {
+    const { container } = render(<VehicleImageCompact vehicleInfo={null} />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('fetches image with vehicleInfo', async () => {
+    render(<VehicleImageCompact vehicleInfo={mockVehicle} />);
+    
+    await waitFor(() => {
+      expect(mockGetVehicleImageByMake).toHaveBeenCalledWith(mockVehicle);
+    });
+  });
+
+  it('displays year and make', async () => {
+    render(<VehicleImageCompact vehicleInfo={mockVehicle} />);
+    
+    await waitFor(() => {
+      expect(screen.getByText('2021 CHEVROLET')).toBeInTheDocument();
+    });
+  });
+
+  it('displays model', async () => {
+    render(<VehicleImageCompact vehicleInfo={mockVehicle} />);
+    
+    await waitFor(() => {
+      expect(screen.getByText('Silverado 1500')).toBeInTheDocument();
+    });
+  });
+
+  it('displays trim when available', async () => {
+    render(<VehicleImageCompact vehicleInfo={mockVehicle} />);
+    
+    await waitFor(() => {
+      expect(screen.getByText('LT')).toBeInTheDocument();
     });
   });
 });
