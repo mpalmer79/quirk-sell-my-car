@@ -7,7 +7,7 @@ import Image from 'next/image';
 import StepNavigation, { MobileProgress } from '@/components/StepNavigation';
 import { useVehicle } from '@/context/VehicleContext';
 import { VEHICLE_COLORS } from '@/types/vehicle';
-import { getAvailableTransmissions, getAvailableEngines } from '@/lib/vehicleSpecs';
+import { getAvailableTransmissions, getAvailableEngines, getAvailableDrivetrains, ALL_DRIVETRAINS } from '@/lib/vehicleSpecs';
 import { getVehicleImageByMake } from '@/services/vehicleImage';
 
 // Helper function to determine engine type from VIN data
@@ -101,13 +101,6 @@ function getDrivetrainFromVIN(vehicleInfo: { driveType?: string } | null): strin
   return null;
 }
 
-const ALL_DRIVETRAINS = [
-  'Front Wheel Drive (FWD)',
-  'Rear Wheel Drive (RWD)',
-  '4WD / 4×4',
-  'All Wheel Drive (AWD)',
-];
-
 export default function BasicsPage() {
   const router = useRouter();
   const { vehicleInfo, basics, updateBasics } = useVehicle();
@@ -123,6 +116,9 @@ export default function BasicsPage() {
     : [];
   const makeModelEngines = vehicleInfo 
     ? getAvailableEngines(vehicleInfo.make, vehicleInfo.model)
+    : [];
+  const makeModelDrivetrains = vehicleInfo 
+    ? getAvailableDrivetrains(vehicleInfo.make, vehicleInfo.model)
     : [];
 
   const [mileage, setMileage] = useState(basics.mileage?.toString() || '');
@@ -175,7 +171,10 @@ export default function BasicsPage() {
     if (!engine && makeModelEngines.length === 1) {
       setEngine(makeModelEngines[0]);
     }
-  }, [makeModelTransmissions, makeModelEngines, transmission, engine]);
+    if (!drivetrain && !vinDrivetrain && makeModelDrivetrains.length === 1) {
+      setDrivetrain(makeModelDrivetrains[0]);
+    }
+  }, [makeModelTransmissions, makeModelEngines, makeModelDrivetrains, transmission, engine, drivetrain, vinDrivetrain]);
 
   // Format mileage with commas
   const handleMileageChange = (value: string) => {
@@ -297,9 +296,19 @@ export default function BasicsPage() {
     return ['4-Cylinder', '4-Cylinder Turbo', 'V6', 'V6 Turbo', 'V8', 'V8 Turbo', '4-Cylinder Diesel', 'V6 Diesel', 'Hybrid', 'Electric'];
   };
 
+  const getDrivetrainOptions = () => {
+    if (vinDrivetrain) {
+      return [vinDrivetrain];
+    }
+    if (makeModelDrivetrains.length > 0) {
+      return makeModelDrivetrains;
+    }
+    return ALL_DRIVETRAINS;
+  };
+
   const transmissionOptions = getTransmissionOptions();
   const engineOptions = getEngineOptions();
-  const drivetrainOptions = vinDrivetrain ? [vinDrivetrain] : ALL_DRIVETRAINS;
+  const drivetrainOptions = getDrivetrainOptions();
 
   if (!vehicleInfo) {
     return null;
