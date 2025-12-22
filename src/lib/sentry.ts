@@ -1,16 +1,13 @@
 /**
  * Sentry Error Tracking Configuration
- * Initialize in layout.tsx or instrumentation.ts
+ * 
+ * To enable Sentry error tracking:
+ * 1. npm install @sentry/nextjs
+ * 2. Run: npx @sentry/wizard@latest -i nextjs
+ * 3. Set NEXT_PUBLIC_SENTRY_DSN in your environment
+ * 
+ * Until then, all errors are logged to console only.
  */
-
-// Note: Install Sentry packages to enable:
-// npm install @sentry/nextjs
-
-// This file provides the configuration - actual initialization
-// happens via Sentry's Next.js wizard which creates:
-// - sentry.client.config.ts
-// - sentry.server.config.ts  
-// - sentry.edge.config.ts
 
 export const SENTRY_CONFIG = {
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN || process.env.SENTRY_DSN,
@@ -57,25 +54,9 @@ export const SENTRY_CONFIG = {
   },
 };
 
-// Check if Sentry is available (installed and configured)
-const isSentryAvailable = (): boolean => {
-  return !!(process.env.NEXT_PUBLIC_SENTRY_DSN);
-};
-
-// Lazy load Sentry only when needed and available
-const getSentry = async () => {
-  if (!isSentryAvailable()) return null;
-  try {
-    // Use require to avoid static analysis
-    const Sentry = await import(/* webpackIgnore: true */ '@sentry/nextjs');
-    return Sentry;
-  } catch {
-    return null;
-  }
-};
-
 /**
  * Capture exception with context
+ * Logs to console. Will send to Sentry when @sentry/nextjs is installed.
  */
 export function captureError(
   error: Error,
@@ -86,68 +67,25 @@ export function captureError(
     level?: 'fatal' | 'error' | 'warning' | 'info';
   }
 ): void {
-  // Always log to console
   console.error('[Error]', error.message, context);
-  
-  // Try to send to Sentry if available
-  getSentry().then((Sentry) => {
-    if (!Sentry) return;
-    
-    Sentry.withScope((scope: { setTag: (k: string, v: string) => void; setExtra: (k: string, v: unknown) => void; setUser: (u: { id?: string; email?: string } | null) => void; setLevel: (l: string) => void }) => {
-      if (context?.tags) {
-        Object.entries(context.tags).forEach(([key, value]) => {
-          scope.setTag(key, value);
-        });
-      }
-      if (context?.extra) {
-        Object.entries(context.extra).forEach(([key, value]) => {
-          scope.setExtra(key, value);
-        });
-      }
-      if (context?.user) {
-        scope.setUser(context.user);
-      }
-      if (context?.level) {
-        scope.setLevel(context.level);
-      }
-      Sentry.captureException(error);
-    });
-  }).catch(() => {
-    // Silently fail - already logged to console
-  });
 }
 
 /**
  * Capture a message/breadcrumb
+ * Logs to console. Will send to Sentry when @sentry/nextjs is installed.
  */
 export function captureMessage(
   message: string,
   level: 'info' | 'warning' | 'error' = 'info',
   context?: Record<string, unknown>
 ): void {
-  // Log to console
   console.log(`[${level.toUpperCase()}]`, message, context);
-  
-  getSentry().then((Sentry) => {
-    if (!Sentry) return;
-    
-    Sentry.withScope((scope: { setExtra: (k: string, v: unknown) => void }) => {
-      if (context) {
-        Object.entries(context).forEach(([key, value]) => {
-          scope.setExtra(key, value);
-        });
-      }
-      Sentry.captureMessage(message, level);
-    });
-  }).catch(() => {});
 }
 
 /**
  * Set user context for error tracking
+ * No-op until @sentry/nextjs is installed.
  */
-export function setUser(user: { id?: string; email?: string } | null): void {
-  getSentry().then((Sentry) => {
-    if (!Sentry) return;
-    Sentry.setUser(user);
-  }).catch(() => {});
+export function setUser(_user: { id?: string; email?: string } | null): void {
+  // No-op - Sentry not installed
 }
