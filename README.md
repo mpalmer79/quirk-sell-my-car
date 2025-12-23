@@ -93,12 +93,13 @@ https://quirk-sell-my-car.vercel.app/
 | **Styling** | Tailwind CSS 3.4 |
 | **Database** | Supabase (PostgreSQL) |
 | **AI** | Anthropic Claude (claude-sonnet-4-20250514) |
-| **Email** | Resend |
+| **Email** | SendGrid |
 | **Validation** | Zod |
 | **Animation** | Framer Motion |
 | **Icons** | Lucide React |
 | **Testing** | Jest + React Testing Library |
 | **CI/CD** | GitHub Actions |
+| **2FA** | otplib (TOTP) |
 
 ---
 
@@ -110,6 +111,7 @@ https://quirk-sell-my-car.vercel.app/
 - npm 10+
 - Supabase account (for offer persistence)
 - Anthropic API key (for AI chat)
+- SendGrid account (for transactional emails)
 
 ### Installation
 
@@ -158,15 +160,21 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ANTHROPIC_API_KEY=sk-ant-api03-...
 
 # ═══════════════════════════════════════════════════════════════════
-# EMAIL (RESEND)
+# EMAIL (SENDGRID)
 # ═══════════════════════════════════════════════════════════════════
-RESEND_API_KEY=re_xxxxxxxxxx
-EMAIL_FROM=onboarding@resend.dev
-EMAIL_TO=notifications@yourdomain.com
+SENDGRID_API_KEY=SG.xxxxxxxxxx
+SENDGRID_FROM_EMAIL=noreply@quirkcars.com
+SENDGRID_FROM_NAME=Quirk Auto
+SENDGRID_DEALER_EMAIL=steve.obrien@quirkcars.com
+
+# Optional: SendGrid Dynamic Templates
+SENDGRID_DEALER_TEMPLATE_ID=d-xxxxxxxxxxxxxxxxxxxxxxxx
+SENDGRID_CUSTOMER_TEMPLATE_ID=d-xxxxxxxxxxxxxxxxxxxxxxxx
 
 # ═══════════════════════════════════════════════════════════════════
 # VIN SOLUTIONS CRM (Optional)
 # ═══════════════════════════════════════════════════════════════════
+VINSOLUTIONS_API_URL=https://api.vinsolutions.com
 VINSOLUTIONS_API_KEY=your_api_key
 VINSOLUTIONS_DEALER_ID=your_dealer_id
 VINSOLUTIONS_WEBHOOK_SECRET=webhook_secret
@@ -180,6 +188,17 @@ PEXELS_API_KEY=your_pexels_key
 # SECURITY
 # ═══════════════════════════════════════════════════════════════════
 FORM_TOKEN_SECRET=your_32_char_minimum_secret
+
+# ═══════════════════════════════════════════════════════════════════
+# LOGGING & MONITORING (Optional)
+# ═══════════════════════════════════════════════════════════════════
+LOG_LEVEL=debug
+MONITORING_WEBHOOK_URL=https://hooks.slack.com/services/xxx/yyy/zzz
+
+# Sentry (Error Tracking) - Optional
+NEXT_PUBLIC_SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx
+SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx
+SENTRY_AUTH_TOKEN=your-sentry-auth-token
 ```
 
 ---
@@ -319,6 +338,13 @@ GROUP BY DATE_TRUNC('day', created_at)
 ORDER BY date DESC;
 ```
 
+### Admin Authentication Tables
+
+See `docs/ADMIN_SCHEMA.sql` for the complete admin authentication schema including:
+- `admin_users` — Admin accounts with 2FA support
+- `admin_sessions` — Session management
+- `admin_audit_log` — Security event logging
+
 ---
 
 ## API Reference
@@ -390,6 +416,18 @@ Content-Type: application/json
 | `PATCH` | `/api/offers/[id]` | Update offer status |
 | `GET` | `/api/offers/analytics` | Get offer analytics |
 
+### Admin Authentication API
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/admin/auth/login` | Login with email/password |
+| `POST` | `/api/admin/auth/logout` | End session |
+| `GET` | `/api/admin/auth/me` | Get current session info |
+| `POST` | `/api/admin/auth/verify-2fa` | Verify TOTP/backup code |
+| `POST` | `/api/admin/auth/2fa/setup` | Initialize 2FA setup |
+| `POST` | `/api/admin/auth/2fa/enable` | Enable 2FA after verification |
+| `DELETE` | `/api/admin/auth/2fa/enable` | Disable 2FA |
+
 ---
 
 ## Security
@@ -409,11 +447,11 @@ Content-Type: application/json
 ### Authentication
 
 Admin dashboard supports:
-- Email/password authentication
-- TOTP-based 2FA (Google Authenticator compatible)
-- Backup codes
-- Session management
-- Account lockout after failed attempts
+- Email/password authentication with bcrypt hashing
+- TOTP-based 2FA (Google Authenticator, Authy compatible)
+- 10 single-use backup codes
+- Session management with httpOnly cookies
+- Account lockout after 5 failed attempts (15-minute cooldown)
 
 ---
 
@@ -456,13 +494,30 @@ npm run test:ci
 
 ### Environment Variables for Production
 
-Ensure all required variables are set:
+**Required:**
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `ANTHROPIC_API_KEY`
-- `RESEND_API_KEY`
+- `SENDGRID_API_KEY`
+- `SENDGRID_FROM_EMAIL`
+- `SENDGRID_DEALER_EMAIL`
 - `FORM_TOKEN_SECRET`
+
+**Optional:**
+- `SENDGRID_FROM_NAME`
+- `SENDGRID_DEALER_TEMPLATE_ID`
+- `SENDGRID_CUSTOMER_TEMPLATE_ID`
+- `VINSOLUTIONS_API_KEY`
+- `PEXELS_API_KEY`
+
+### Enabling 2FA Authentication
+
+To enable admin authentication:
+1. Run `docs/ADMIN_SCHEMA.sql` in Supabase SQL Editor
+2. Generate a password hash: `node -e "console.log(require('bcryptjs').hashSync('YourPassword', 12))"`
+3. Update the admin user in Supabase with the hash
+4. Change `BYPASS_AUTH = false` in `src/middleware.ts`
 
 ---
 
@@ -472,8 +527,13 @@ Ensure all required variables are set:
 quirk-sell-my-car/
 ├── .github/workflows/
 │   └── test.yml                    # CI/CD pipeline
+├── docs/
+│   ├── ADMIN_SCHEMA.sql            # Admin auth database schema
+│   └── CRM_INTEGRATION_PLAN.md     # CRM integration docs
 ├── public/
 │   └── *.jpg, *.svg                # Static assets
+├── scripts/
+│   └── generate-admin-hash.ts      # Password hash generator
 ├── src/
 │   ├── app/
 │   │   ├── page.tsx                # Homepage
@@ -488,14 +548,20 @@ quirk-sell-my-car/
 │   │   │   ├── decode-vin/         # NHTSA VIN decoder
 │   │   │   ├── offers/
 │   │   │   │   ├── route.ts        # List/Create offers
-│   │   │   │   ├── [id]/
-│   │   │   │   │   └── route.ts    # GET/PATCH offer by ID
+│   │   │   │   ├── [id]/route.ts   # GET/PATCH offer by ID
 │   │   │   │   └── analytics/      # Offer analytics
-│   │   │   ├── send-offer/         # Email offer to customer
+│   │   │   ├── send-offer/         # Email offer (SendGrid)
 │   │   │   ├── submit-offer/       # Lead submission
 │   │   │   ├── vehicle-image/      # Dynamic images
 │   │   │   ├── health/             # Health check endpoint
-│   │   │   ├── admin/auth/         # Admin authentication APIs
+│   │   │   ├── admin/auth/
+│   │   │   │   ├── login/          # Admin login
+│   │   │   │   ├── logout/         # Admin logout
+│   │   │   │   ├── me/             # Session info
+│   │   │   │   ├── verify-2fa/     # 2FA verification
+│   │   │   │   └── 2fa/
+│   │   │   │       ├── setup/      # 2FA setup (QR code)
+│   │   │   │       └── enable/     # Enable/disable 2FA
 │   │   │   └── webhooks/           # CRM webhooks
 │   │   └── getoffer/
 │   │       ├── vehicle/            # VIN results
@@ -508,6 +574,8 @@ quirk-sell-my-car/
 │   │   ├── Header.tsx              # Navigation
 │   │   ├── StepNavigation.tsx      # Wizard sidebar
 │   │   ├── VehicleImage.tsx        # Dynamic images
+│   │   ├── ErrorBoundary.tsx       # Error handling
+│   │   ├── Providers.tsx           # Context providers
 │   │   └── admin/
 │   │       ├── AnalyticsCards.tsx  # Dashboard analytics
 │   │       ├── OfferDetailModal.tsx # Offer details popup
@@ -520,8 +588,11 @@ quirk-sell-my-car/
 │   │   ├── useFormSecurity.tsx     # Security hooks
 │   │   └── useOffers.ts            # Offers data hook
 │   ├── lib/
-│   │   ├── admin-auth.ts           # Auth utilities
+│   │   ├── supabase.ts             # Supabase client
 │   │   ├── admin/
+│   │   │   ├── index.ts            # Admin exports
+│   │   │   ├── auth.ts             # Auth utilities (2FA, sessions)
+│   │   │   ├── adminService.ts     # Admin database operations
 │   │   │   ├── constants.ts        # Status config
 │   │   │   └── formatters.ts       # Display formatters
 │   │   ├── database/
@@ -529,6 +600,7 @@ quirk-sell-my-car/
 │   │   │   ├── offerService.ts     # Supabase operations
 │   │   │   └── types.ts            # Database types
 │   │   └── security/
+│   │       ├── index.ts            # Security exports
 │   │       ├── auditLog.ts         # Security logging
 │   │       ├── botProtection.ts    # Bot detection
 │   │       ├── env.ts              # Environment utils
@@ -538,15 +610,22 @@ quirk-sell-my-car/
 │   ├── services/
 │   │   ├── vinDecoder.ts           # NHTSA integration
 │   │   ├── vehicleImage.ts         # Image service
-│   │   └── crm/
-│   │       ├── index.ts            # CRM exports
-│   │       ├── types.ts            # CRM types
-│   │       ├── tradeInService.ts   # Lead management
-│   │       └── vinSolutionsClient.ts # VIN Solutions API
+│   │   ├── crm/
+│   │   │   ├── index.ts            # CRM exports
+│   │   │   ├── types.ts            # CRM types
+│   │   │   ├── tradeInService.ts   # Lead management
+│   │   │   └── vinSolutionsClient.ts # VIN Solutions API
+│   │   └── valuation/
+│   │       ├── index.ts            # Valuation exports
+│   │       ├── types.ts            # Valuation types
+│   │       ├── blackBookClient.ts  # BlackBook API
+│   │       ├── mockClient.ts       # Mock valuation
+│   │       ├── valuationUsage.ts   # Usage tracking
+│   │       └── weightedService.ts  # Weighted valuation
 │   ├── types/
 │   │   ├── vehicle.ts              # Vehicle types
 │   │   └── admin.ts                # Admin types
-│   ├── middleware.ts               # Auth middleware
+│   ├── middleware.ts               # Auth & rate limit middleware
 │   └── __tests__/                  # Test suites
 ├── .env.example                    # Environment template
 ├── jest.config.js                  # Jest configuration
