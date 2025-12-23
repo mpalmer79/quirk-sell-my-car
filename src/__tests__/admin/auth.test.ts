@@ -1,4 +1,3 @@
-
 /**
  * Auth Utilities Test Suite
  * Tests for password hashing, TOTP, backup codes, and session management
