@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 
 /**
  * Logout and Session Check API Test Suite
