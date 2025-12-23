@@ -201,7 +201,7 @@ describe('POST /api/admin/auth/verify-2fa', () => {
 
   describe('TOTP Verification', () => {
     beforeEach(() => {
-      (auth.parseSessionCookie as jest.Mock).mockReturnValue('token');
+      (auth.parseSessionCookie as jest.Mock).mockReturnValue('session-token-123');
       (adminService.getSessionByToken as jest.Mock).mockResolvedValue(mockSession);
       (adminService.getUserById as jest.Mock).mockResolvedValue(mockUser);
     });
@@ -279,7 +279,7 @@ describe('POST /api/admin/auth/verify-2fa', () => {
 
   describe('Backup Code Verification', () => {
     beforeEach(() => {
-      (auth.parseSessionCookie as jest.Mock).mockReturnValue('token');
+      (auth.parseSessionCookie as jest.Mock).mockReturnValue('session-token-123');
       (adminService.getSessionByToken as jest.Mock).mockResolvedValue(mockSession);
       (adminService.getUserById as jest.Mock).mockResolvedValue(mockUser);
     });
@@ -288,7 +288,7 @@ describe('POST /api/admin/auth/verify-2fa', () => {
       (auth.verifyTotpCode as jest.Mock).mockReturnValue(false);
       (auth.verifyBackupCode as jest.Mock).mockReturnValue({ valid: true, index: 1 });
 
-      const request = createRequest({ code: 'A1B2-C3D4' }, 'token');
+      const request = createRequest({ code: 'A1B2-C3D4' }, 'session-token-123');
       const response = await POST(request);
       const data = await response.json();
 
@@ -302,7 +302,7 @@ describe('POST /api/admin/auth/verify-2fa', () => {
       (auth.verifyTotpCode as jest.Mock).mockReturnValue(false);
       (auth.verifyBackupCode as jest.Mock).mockReturnValue({ valid: true, index: 1 });
 
-      const request = createRequest({ code: 'A1B2-C3D4' }, 'token');
+      const request = createRequest({ code: 'A1B2-C3D4' }, 'session-token-123');
       await POST(request);
 
       expect(adminService.consumeBackupCode).toHaveBeenCalledWith(
@@ -316,7 +316,7 @@ describe('POST /api/admin/auth/verify-2fa', () => {
       (auth.verifyTotpCode as jest.Mock).mockReturnValue(false);
       (auth.verifyBackupCode as jest.Mock).mockReturnValue({ valid: true, index: 0 });
 
-      const request = createRequest({ code: 'A1B2-C3D4' }, 'token');
+      const request = createRequest({ code: 'A1B2-C3D4' }, 'session-token-123');
       await POST(request);
 
       expect(adminService.logAuditEvent).toHaveBeenCalledWith(
@@ -341,14 +341,14 @@ describe('POST /api/admin/auth/verify-2fa', () => {
 
   describe('Response Structure', () => {
     beforeEach(() => {
-      (auth.parseSessionCookie as jest.Mock).mockReturnValue('token');
+      (auth.parseSessionCookie as jest.Mock).mockReturnValue('session-token-123');
       (adminService.getSessionByToken as jest.Mock).mockResolvedValue(mockSession);
       (adminService.getUserById as jest.Mock).mockResolvedValue(mockUser);
       (auth.verifyTotpCode as jest.Mock).mockReturnValue(true);
     });
 
     it('should return user info on success', async () => {
-      const request = createRequest({ code: '123456' }, 'token');
+      const request = createRequest({ code: '123456' }, 'session-token-123');
       const response = await POST(request);
       const data = await response.json();
 
@@ -360,7 +360,7 @@ describe('POST /api/admin/auth/verify-2fa', () => {
     });
 
     it('should refresh session cookie on success', async () => {
-      const request = createRequest({ code: '123456' }, 'token');
+      const request = createRequest({ code: '123456' }, 'session-token-123');
       const response = await POST(request);
 
       const setCookie = response.headers.get('Set-Cookie');
@@ -374,12 +374,12 @@ describe('POST /api/admin/auth/verify-2fa', () => {
 
   describe('Error Handling', () => {
     it('should return 500 for unexpected errors', async () => {
-      (auth.parseSessionCookie as jest.Mock).mockReturnValue('token');
+      (auth.parseSessionCookie as jest.Mock).mockReturnValue('session-token-123');
       (adminService.getSessionByToken as jest.Mock).mockRejectedValue(
         new Error('Database error')
       );
 
-      const request = createRequest({ code: '123456' }, 'token');
+      const request = createRequest({ code: '123456' }, 'session-token-123');
       const response = await POST(request);
       const data = await response.json();
 
