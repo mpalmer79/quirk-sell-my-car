@@ -6,6 +6,10 @@ import {
   getClientIp,
   getUserAgent,
   AuditAction,
+  generateResetToken,
+  hashResetToken,
+  getResetTokenExpiry,
+  isResetTokenExpired,
 } from './auth';
 
 // ============================================================================
@@ -141,6 +145,96 @@ export async function consumeBackupCode(
     .from('admin_users')
     .update({
       backup_codes: updatedCodes,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', userId);
+
+  return !error;
+}
+
+// ============================================================================
+// PASSWORD RESET OPERATIONS
+// ============================================================================
+
+export interface PasswordResetToken {
+  id: string;
+  user_id: string;
+  token_hash: string;
+  expires_at: string;
+  used_at: string | null;
+  created_at: string;
+}
+
+export async function createPasswordResetToken(
+  userId: string
+): Promise<{ token: string; expiresAt: Date } | null> {
+  const token = generateResetToken();
+  const tokenHash = hashResetToken(token);
+  const expiresAt = getResetTokenExpiry();
+
+  // Invalidate any existing reset tokens for this user
+  await supabaseAdmin
+    .from('password_reset_tokens')
+    .delete()
+    .eq('user_id', userId);
+
+  const { error } = await supabaseAdmin.from('password_reset_tokens').insert({
+    user_id: userId,
+    token_hash: tokenHash,
+    expires_at: expiresAt.toISOString(),
+  });
+
+  if (error) {
+    console.error('Failed to create password reset token:', error);
+    return null;
+  }
+
+  return { token, expiresAt };
+}
+
+export async function getPasswordResetByToken(
+  token: string
+): Promise<PasswordResetToken | null> {
+  const tokenHash = hashResetToken(token);
+
+  const { data, error } = await supabaseAdmin
+    .from('password_reset_tokens')
+    .select('*')
+    .eq('token_hash', tokenHash)
+    .single();
+
+  if (error || !data) return null;
+
+  // Check if token is expired
+  if (isResetTokenExpired(data.expires_at)) {
+    return null;
+  }
+
+  // Check if token was already used
+  if (data.used_at) {
+    return null;
+  }
+
+  return data as PasswordResetToken;
+}
+
+export async function markResetTokenUsed(tokenId: string): Promise<boolean> {
+  const { error } = await supabaseAdmin
+    .from('password_reset_tokens')
+    .update({ used_at: new Date().toISOString() })
+    .eq('id', tokenId);
+
+  return !error;
+}
+
+export async function updateUserPassword(
+  userId: string,
+  passwordHash: string
+): Promise<boolean> {
+  const { error } = await supabaseAdmin
+    .from('admin_users')
+    .update({
+      password_hash: passwordHash,
       updated_at: new Date().toISOString(),
     })
     .eq('id', userId);
