@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 
 /**
  * 2FA Verification API Route Test Suite
