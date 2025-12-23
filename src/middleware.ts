@@ -15,6 +15,7 @@ const PUBLIC_ROUTES = [
 const PARTIAL_AUTH_ROUTES = [
   '/api/admin/auth/verify-2fa',
   '/api/admin/auth/logout',
+  '/api/admin/auth/me',
 ];
 
 // API routes that should be rate limited
