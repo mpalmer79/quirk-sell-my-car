@@ -22,6 +22,7 @@ export const AUTH_CONFIG = {
   TOTP_WINDOW: 1,
   APP_NAME: 'Quirk Admin',
   BCRYPT_ROUNDS: 12,
+  PASSWORD_RESET_EXPIRY_HOURS: 1,
 };
 
 // Configure otplib
@@ -76,6 +77,26 @@ export function getSessionExpiry(): Date {
 }
 
 export function isSessionExpired(expiresAt: string): boolean {
+  return new Date(expiresAt) < new Date();
+}
+
+// ============================================================================
+// PASSWORD RESET TOKENS
+// ============================================================================
+
+export function generateResetToken(): string {
+  return randomBytes(32).toString('hex');
+}
+
+export function hashResetToken(token: string): string {
+  return createHash('sha256').update(token).digest('hex');
+}
+
+export function getResetTokenExpiry(): Date {
+  return new Date(Date.now() + AUTH_CONFIG.PASSWORD_RESET_EXPIRY_HOURS * 60 * 60 * 1000);
+}
+
+export function isResetTokenExpired(expiresAt: string): boolean {
   return new Date(expiresAt) < new Date();
 }
 
