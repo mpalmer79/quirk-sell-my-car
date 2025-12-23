@@ -38,6 +38,9 @@ export default function OfferPage() {
 
   // Calculate and save offer on mount
   useEffect(() => {
+    // Scroll to top when page loads
+    window.scrollTo(0, 0);
+    
     if (!vehicleInfo || !basics.mileage) {
       router.push('/');
       return;
