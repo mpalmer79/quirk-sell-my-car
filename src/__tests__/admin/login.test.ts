@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 
 /**
  * Login API Route Test Suite
