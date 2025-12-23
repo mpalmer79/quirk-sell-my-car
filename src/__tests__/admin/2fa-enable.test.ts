@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 
 /**
  * 2FA Enable/Disable API Route Test Suite
