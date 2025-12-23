@@ -80,6 +80,12 @@ function formatCondition(value: string | boolean | undefined): string {
 
 async function sendEmailJSRequest(templateId: string, templateParams: Record<string, string>): Promise<boolean> {
   try {
+    console.log('Sending EmailJS request:', { 
+      service_id: SERVICE_ID, 
+      template_id: templateId,
+      user_id: PUBLIC_KEY ? 'SET' : 'MISSING',
+    });
+    
     const response = await fetch(EMAILJS_API, {
       method: 'POST',
       headers: {
@@ -92,6 +98,13 @@ async function sendEmailJSRequest(templateId: string, templateParams: Record<str
         accessToken: PRIVATE_KEY || undefined,
         template_params: templateParams,
       }),
+    });
+
+    const responseText = await response.text();
+    console.log('EmailJS response:', { 
+      status: response.status, 
+      ok: response.ok, 
+      body: responseText 
     });
 
     return response.ok;
