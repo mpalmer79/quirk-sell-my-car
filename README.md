@@ -6,7 +6,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-Proprietary-red)](./LICENSE)
 
-A production-grade vehicle appraisal and instant offer platform for Quirk Chevrolet NH. Features AI-powered customer support, real-time VIN decoding, persistent offer history, and enterprise CRM integration.
+A production-grade vehicle appraisal and instant offer platform for Quirk Auto Dealers. Features AI-powered customer support, real-time VIN decoding, persistent offer history, and enterprise CRM integration.
 
 https://quirk-sell-my-car.vercel.app/
 
