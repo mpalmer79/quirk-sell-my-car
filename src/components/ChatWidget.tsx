@@ -134,7 +134,7 @@ export default function ChatWidget() {
               <div className="space-y-4">
                 <div className="chat-bubble assistant">
                   <p className="text-sm">
-                    Hi! I'm here to help you sell or trade your car. What would you like to know?
+                    Hi! I&apos;m here to help you sell or trade your car. What would you like to know?
                   </p>
                 </div>
                 <div className="space-y-2">
