@@ -6,12 +6,20 @@ const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || '';
 const FROM_NAME = process.env.SENDGRID_FROM_NAME || 'Quirk Auto';
 const DEALER_EMAIL = process.env.SENDGRID_DEALER_EMAIL || 'steve.obrien@quirkcars.com';
 
+// Optional but strongly recommended: use SendGrid Dynamic Templates
+const DEALER_TEMPLATE_ID = process.env.SENDGRID_DEALER_TEMPLATE_ID || '';
+const CUSTOMER_TEMPLATE_ID = process.env.SENDGRID_CUSTOMER_TEMPLATE_ID || '';
+
+// Optional: if you want a delay between dealer and customer sends
+const SEND_DELAY_MS = Number(process.env.SENDGRID_SEND_DELAY_MS || '0'); // set to 5000 if desired
+
 type SendOfferRequest = {
   customerEmail: string;
   customerName?: string;
   offerAmount: number;
   expirationDate: string;
   offerId?: string;
+  status?: string;
   vehicleInfo: {
     vin?: string;
     year: number;
@@ -57,6 +65,82 @@ type SendOfferRequest = {
   };
 };
 
+type BadgeStyle = {
+  label: string;
+  bg: string;
+  border: string;
+  text: string;
+};
+
+type TierStyle = {
+  label: string;
+  bg: string;
+  border: string;
+  text: string;
+  pillBg: string;
+  pillText: string;
+};
+
+function sleep(ms: number): Promise<void> {
+  if (!ms || ms <= 0) return Promise.resolve();
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function safeEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+function getStatusBadge(statusRaw: string | undefined): BadgeStyle {
+  const status = (statusRaw || 'PENDING').toUpperCase();
+
+  if (status === 'APPROVED') {
+    return { label: 'APPROVED', bg: '#ecfdf5', border: '#6ee7b7', text: '#065f46' };
+  }
+  if (status === 'CONTACTED') {
+    return { label: 'CONTACTED', bg: '#eff6ff', border: '#93c5fd', text: '#1d4ed8' };
+  }
+  if (status === 'CLOSED') {
+    return { label: 'CLOSED', bg: '#f3f4f6', border: '#d1d5db', text: '#111827' };
+  }
+
+  return { label: 'PENDING', bg: '#fff7ed', border: '#fdba74', text: '#9a3412' };
+}
+
+function getOfferTier(offerAmount: number): TierStyle {
+  // Adjust these thresholds if you want different tiers
+  if (offerAmount >= 25000) {
+    return {
+      label: 'HIGH OFFER',
+      bg: '#ecfdf5',
+      border: '#6ee7b7',
+      text: '#065f46',
+      pillBg: '#10b981',
+      pillText: '#ffffff',
+    };
+  }
+
+  if (offerAmount >= 15000) {
+    return {
+      label: 'MID OFFER',
+      bg: '#eff6ff',
+      border: '#93c5fd',
+      text: '#1d4ed8',
+      pillBg: '#2563eb',
+      pillText: '#ffffff',
+    };
+  }
+
+  return {
+    label: 'LOW OFFER',
+    bg: '#fff1f2',
+    border: '#fda4af',
+    text: '#9f1239',
+    pillBg: '#e11d48',
+    pillText: '#ffffff',
+  };
+}
+
 function formatCondition(value: string | boolean | undefined | null): string {
   if (value === undefined || value === null) return 'Not specified';
   if (typeof value === 'boolean') return value ? 'Yes' : 'No';
@@ -77,6 +161,7 @@ function escapeHtml(input: string): string {
     .replace(/'/g, '&#039;');
 }
 
+// Fallback HTML if template IDs are not configured
 function buildDealerHtml(data: SendOfferRequest): string {
   const vehicleName = `${data.vehicleInfo.year} ${data.vehicleInfo.make} ${data.vehicleInfo.model}`;
   const offer = `$${data.offerAmount.toLocaleString()}`;
@@ -160,12 +245,7 @@ function isConfigured(): { ok: boolean; missing: string[] } {
   return { ok: missing.length === 0, missing };
 }
 
-function safeEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-
-async function sendEmail(params: {
+async function sendEmailHtml(params: {
   to: string;
   subject: string;
   html: string;
@@ -180,13 +260,35 @@ async function sendEmail(params: {
 
     const statusCode = resp?.statusCode || 0;
     if (statusCode >= 200 && statusCode < 300) return { ok: true };
-
     return { ok: false, error: `SendGrid unexpected status ${statusCode}` };
   } catch (err: any) {
     const message =
-      err?.response?.body
-        ? JSON.stringify(err.response.body)
-        : err?.message || 'Unknown SendGrid error';
+      err?.response?.body ? JSON.stringify(err.response.body) : err?.message || 'Unknown SendGrid error';
+    return { ok: false, error: message };
+  }
+}
+
+async function sendEmailTemplate(params: {
+  to: string;
+  subject: string;
+  templateId: string;
+  dynamicTemplateData: Record<string, any>;
+}): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const [resp] = await sgMail.send({
+      to: params.to,
+      from: { email: FROM_EMAIL, name: FROM_NAME },
+      subject: params.subject,
+      templateId: params.templateId,
+      dynamicTemplateData: params.dynamicTemplateData,
+    });
+
+    const statusCode = resp?.statusCode || 0;
+    if (statusCode >= 200 && statusCode < 300) return { ok: true };
+    return { ok: false, error: `SendGrid unexpected status ${statusCode}` };
+  } catch (err: any) {
+    const message =
+      err?.response?.body ? JSON.stringify(err.response.body) : err?.message || 'Unknown SendGrid error';
     return { ok: false, error: message };
   }
 }
@@ -198,18 +300,15 @@ export async function POST(request: NextRequest) {
     const data: SendOfferRequest = await request.json();
 
     if (!data.customerEmail || !data.vehicleInfo || !data.offerAmount) {
-      return NextResponse.json(
-        { error: 'Missing required fields', correlationId },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required fields', correlationId }, { status: 400 });
     }
 
     if (!safeEmail(data.customerEmail)) {
-      return NextResponse.json(
-        { error: 'Invalid email format', correlationId },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid email format', correlationId }, { status: 400 });
     }
+
+    // Ensure offerId always exists for deep links
+    data.offerId = data.offerId || crypto.randomUUID();
 
     const config = isConfigured();
     if (!config.ok) {
@@ -232,44 +331,96 @@ export async function POST(request: NextRequest) {
     const dealerSubject = `New Appraisal: ${vehicleName} - $${data.offerAmount.toLocaleString()}`;
     const customerSubject = `Your Quirk Auto Offer: $${data.offerAmount.toLocaleString()} for your ${vehicleName}`;
 
-    const dealerHtml = buildDealerHtml(data);
-    const customerHtml = buildCustomerHtml(data);
+    // Deep links
+    const dashboardUrl = 'https://quirk-sell-my-car.vercel.app/admin/offers';
+    const offerUrl = `${dashboardUrl}?offerId=${encodeURIComponent(data.offerId)}`;
 
-    // Send sequentially. No need for a 5 second delay with SendGrid.
-    const dealerResult = await sendEmail({
-      to: DEALER_EMAIL,
-      subject: dealerSubject,
-      html: dealerHtml,
-    });
+    // Badge + tier (computed here, passed to template)
+    const statusBadge = getStatusBadge(data.status);
+    const tier = getOfferTier(Number(data.offerAmount));
 
-    const customerResult = await sendEmail({
-      to: data.customerEmail,
-      subject: customerSubject,
-      html: customerHtml,
-    });
+    // Shared dynamic data (matches your template variables)
+    const sharedTemplateData = {
+      offerId: data.offerId,
+      offerAmount: `$${Number(data.offerAmount).toLocaleString()}`,
+      expirationDate: data.expirationDate,
+      customerName: data.customerName || 'Not provided',
+      customerEmail: data.customerEmail,
+      vehicleName,
+      vin: data.vehicleInfo.vin || 'Not provided',
+      mileage: data.basics?.mileage ? `${Number(data.basics.mileage).toLocaleString()} miles` : 'N/A',
+      overallCondition: formatCondition(data.condition?.overallCondition),
 
-    const dealerSent = dealerResult.ok;
-    const customerSent = customerResult.ok;
+      // deep links
+      dashboardUrl,
+      offerUrl,
 
-    // Never return 502 for the whole offer. Return status flags so UI can reflect truth.
+      // status badge
+      statusLabel: statusBadge.label,
+      statusBg: statusBadge.bg,
+      statusBorder: statusBadge.border,
+      statusText: statusBadge.text,
+
+      // offer tier conditional styling
+      offerTierLabel: tier.label,
+      offerTierBg: tier.bg,
+      offerTierBorder: tier.border,
+      offerTierText: tier.text,
+      offerTierPillBg: tier.pillBg,
+      offerTierPillText: tier.pillText,
+    };
+
+    const useTemplates = Boolean(DEALER_TEMPLATE_ID && CUSTOMER_TEMPLATE_ID);
+
+    // Dealer send
+    const dealerResult = useTemplates
+      ? await sendEmailTemplate({
+          to: DEALER_EMAIL,
+          subject: dealerSubject,
+          templateId: DEALER_TEMPLATE_ID,
+          dynamicTemplateData: sharedTemplateData,
+        })
+      : await sendEmailHtml({
+          to: DEALER_EMAIL,
+          subject: dealerSubject,
+          html: buildDealerHtml(data),
+        });
+
+    // Optional delay between dealer and customer sends
+    if (SEND_DELAY_MS > 0) {
+      await sleep(SEND_DELAY_MS);
+    }
+
+    // Customer send
+    const customerResult = useTemplates
+      ? await sendEmailTemplate({
+          to: data.customerEmail,
+          subject: customerSubject,
+          templateId: CUSTOMER_TEMPLATE_ID,
+          dynamicTemplateData: sharedTemplateData,
+        })
+      : await sendEmailHtml({
+          to: data.customerEmail,
+          subject: customerSubject,
+          html: buildCustomerHtml(data),
+        });
+
     return NextResponse.json(
       {
         success: true,
         message: 'Offer created. Email send attempted.',
         correlationId,
         serverEmailSent: true,
-        dealerSent,
-        customerSent,
+        dealerSent: dealerResult.ok,
+        customerSent: customerResult.ok,
         dealerError: dealerResult.error || null,
         customerError: customerResult.error || null,
+        usingTemplates: useTemplates,
       },
       { status: 200 }
     );
   } catch (error: any) {
-    console.error('send-offer route error', { correlationId, error });
-    return NextResponse.json(
-      { error: 'Failed to process offer request', correlationId },
-      { status: 500 }
-    );
+    console.error('send-offer route error', { error });
+    return NextResponse.json({ error: 'Failed to process offer request' }, { status: 500 });
   }
 }
