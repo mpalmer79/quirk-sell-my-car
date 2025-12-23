@@ -9,7 +9,11 @@ const BYPASS_AUTH = true;
 
 const PUBLIC_ROUTES = [
   '/admin/login',
+  '/admin/forgot-password',
+  '/admin/reset-password',
   '/api/admin/auth/login',
+  '/api/admin/auth/forgot-password',
+  '/api/admin/auth/reset-password',
 ];
 
 const PARTIAL_AUTH_ROUTES = [
