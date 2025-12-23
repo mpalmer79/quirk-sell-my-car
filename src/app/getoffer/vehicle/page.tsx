@@ -183,7 +183,7 @@ function VehiclePageContent() {
                 onClick={() => router.push('/')}
                 className="btn-secondary flex-1"
               >
-                This isn't my vehicle
+                This isn&apos;t my vehicle
               </button>
               <button
                 onClick={handleContinue}
