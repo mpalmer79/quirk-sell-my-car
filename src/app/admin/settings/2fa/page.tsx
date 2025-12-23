@@ -118,7 +118,7 @@ export default function Setup2FAPage() {
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 mb-3">Add Extra Security</h2>
                 <p className="text-gray-600 mb-8">
-                  Two-factor authentication adds an extra layer of security. You'll need an authenticator app like Google Authenticator or Authy.
+                  Two-factor authentication adds an extra layer of security. You&apos;ll need an authenticator app like Google Authenticator or Authy.
                 </p>
                 <button
                   onClick={initializeSetup}
@@ -230,7 +230,7 @@ export default function Setup2FAPage() {
                 </div>
 
                 <button onClick={() => setStep('complete')} className="w-full py-3 px-4 bg-[#0070cc] text-white font-semibold rounded-lg hover:bg-[#005fa3]">
-                  I've Saved My Codes
+                  I&apos;ve Saved My Codes
                 </button>
               </div>
             )}
