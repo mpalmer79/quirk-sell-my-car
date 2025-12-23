@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
  *
  * Uses EmailJS REST API server side if env vars are set.
  * Important: EmailJS REST API rate limit is 1 request per second.
- * This route sends dealer then customer with a short delay to avoid 429 failures.
+ * This route sends dealer then customer with a delay to avoid 429 failures.
  */
 
 const EMAILJS_API = 'https://api.emailjs.com/api/v1.0/email/send';
@@ -195,8 +195,8 @@ export async function POST(request: NextRequest) {
     // Send dealer first
     const dealerResult = await sendEmailJSRequest(DEALER_TEMPLATE_ID, dealerParams);
 
-    // Avoid EmailJS REST API 1 request per second limit
-    await sleep(1100);
+    // Avoid EmailJS REST API 1 request per second limit (use a 5 second buffer)
+    await sleep(5000);
 
     // Send customer second if configured
     let customerResult: EmailJsResult | null = null;
