@@ -1,4 +1,3 @@
-
 import { authenticator } from 'otplib';
 import { randomBytes, createHash } from 'crypto';
 import bcrypt from 'bcryptjs';
