@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { checkRateLimit, RATE_LIMIT_CONFIGS } from '@/lib/security/rateLimit';
+import { checkDistributedRateLimit } from '@/lib/security/rateLimitRedis';
+import { validateCsrfToken } from '@/lib/security/csrf';
 
 // ============================================
 // AUTH BYPASS MODE - Set to false when going live
@@ -31,7 +32,21 @@ const RATE_LIMITED_ROUTES = [
   '/api/offers',
 ];
 
-export function middleware(request: NextRequest) {
+// API routes that require CSRF protection (mutation endpoints)
+const CSRF_PROTECTED_ROUTES = [
+  '/api/offers',
+  '/api/submit-offer',
+  '/api/send-offer',
+];
+
+// Routes exempt from CSRF (they have their own auth)
+const CSRF_EXEMPT_ROUTES = [
+  '/api/admin/',
+  '/api/csrf',
+  '/api/webhooks/',
+];
+
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   // ============================================
@@ -42,7 +57,7 @@ export function middleware(request: NextRequest) {
     const matchedRoute = RATE_LIMITED_ROUTES.find(route => pathname.startsWith(route));
     
     if (matchedRoute) {
-      const result = checkRateLimit(request, matchedRoute);
+      const result = await checkDistributedRateLimit(request, matchedRoute);
       
       if (!result.allowed) {
         return NextResponse.json(
@@ -62,12 +77,28 @@ export function middleware(request: NextRequest) {
           }
         );
       }
+    }
+  }
+
+  // ============================================
+  // CSRF PROTECTION FOR MUTATION ENDPOINTS
+  // ============================================
+  if (
+    ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method) &&
+    pathname.startsWith('/api/') &&
+    !CSRF_EXEMPT_ROUTES.some(route => pathname.startsWith(route))
+  ) {
+    const shouldProtect = CSRF_PROTECTED_ROUTES.some(route => pathname.startsWith(route));
+    
+    if (shouldProtect) {
+      const csrfResult = await validateCsrfToken(request);
       
-      // Add rate limit headers to successful response
-      const response = NextResponse.next();
-      response.headers.set('X-RateLimit-Remaining', String(result.remaining));
-      response.headers.set('X-RateLimit-Reset', String(Math.ceil(result.resetTime / 1000)));
-      return response;
+      if (!csrfResult.valid) {
+        return NextResponse.json(
+          { error: csrfResult.error || 'CSRF validation failed' },
+          { status: 403 }
+        );
+      }
     }
   }
 
